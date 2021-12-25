@@ -9,6 +9,7 @@ import { yNode } from "./types";
 import "./App.css";
 import { generateCursor, modelToRenderedPosition } from "./utils/canvas";
 import { UserInfo } from "./components/panel/UserInfo";
+import { useOnlineUsers } from "./states/onlineUsers";
 
 function App(): JSX.Element {
   const ydoc = useRef<Y.Doc>();
@@ -21,6 +22,8 @@ function App(): JSX.Element {
   const cursorLayer = useRef<ICanvasStaticLayer>();
 
   const loadedImages = useRef<Map<number, HTMLImageElement>>();
+
+  const setUsernames = useOnlineUsers((states) => states.setUsernames);
 
   useEffect(() => {
     // yjs init
@@ -67,6 +70,11 @@ function App(): JSX.Element {
       ): void => {
         if (typeof tx === "string") return;
         if (!("awareness" in tx && tx.awareness instanceof Awareness)) return;
+        const onlineUsers = Array.from(
+          tx.awareness.getStates(),
+          ([, v]) => v.username ?? "Candice"
+        );
+        setUsernames(onlineUsers);
         cursorLayer.current?.update();
       }
     );
@@ -104,7 +112,7 @@ function App(): JSX.Element {
           if (provider.current?.awareness.clientID === key) return;
 
           const pos = value.position ?? { x: 0, y: 0 };
-          const username = value.username ?? "";
+          const username = value.username ?? "Candice";
           const color = value.color ?? "#000000";
           // XXX: why?
           const img =

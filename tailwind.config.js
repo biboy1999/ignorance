@@ -3,7 +3,13 @@ module.exports = {
     "./src/**/*.{tsx, ts, js, jsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        "sans": ['"Noto Sans"','"Noto Sans TC"'],
+        "serif": ['"Noto Serif"','"Noto Serif TC"'],
+        "mono": ['"Noto Sans Mono"']
+      }
+    },
   },
   plugins: [],
 }

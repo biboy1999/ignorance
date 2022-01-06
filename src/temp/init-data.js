@@ -1,14 +1,18 @@
 const init_options = {
-  // elements: [ // list of graph elements to start with
-  //     { // node a
-  //         data: { id: 'a' }
-  //     },
-  //     { // node b
-  //         data: { id: 'b' }
-  //     },
-  //     { // edge ab
-  //         data: { id: 'ab', source: 'a', target: 'b' }
-  //     }
+  // elements: [
+  //   // list of graph elements to start with
+  //   {
+  //     // node a
+  //     data: { id: "a" },
+  //   },
+  //   {
+  //     // node b
+  //     data: { id: "b" },
+  //   },
+  //   {
+  //     // edge ab
+  //     data: { id: "ab", source: "a", target: "b" },
+  //   },
   // ],
   style: [
     // the stylesheet for the graph
@@ -16,10 +20,9 @@ const init_options = {
       selector: "node",
       style: {
         "background-color": "#666",
-        label: "data(id)",
+        label: "data(name)",
       },
     },
-
     {
       selector: "edge",
       style: {
@@ -27,7 +30,7 @@ const init_options = {
         "line-color": "#ccc",
         "target-arrow-color": "#ccc",
         "target-arrow-shape": "triangle",
-        "curve-style": "bezier",
+        "curve-style": "haystack",
       },
     },
   ],

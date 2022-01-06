@@ -4,16 +4,21 @@ import cytoscape from "cytoscape";
 import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness.js";
+import { v4 as uuidv4 } from "uuid";
 import { init_options } from "./temp/init-data";
-import { yNode } from "./types";
+import { yNode, yNodes, yNodeGroup, yNodeData, yNodePosition } from "./types";
 import "./App.css";
 import { generateCursor, modelToRenderedPosition } from "./utils/canvas";
 import { UserInfo } from "./components/panel/UserInfo";
-import { useOnlineUsers } from "./states/onlineUsers";
+import { useOnlineUsers } from "./store/onlineUsers";
+import { generateUsername } from "./utils/username/randomUsername";
+import { useSelectedNodes } from "./store/selectedNodes";
+import { NodeAttributes } from "./components/panel/NodeAttributes";
+import { Controlbar } from "./components/Controlbar";
 
 function App(): JSX.Element {
   const ydoc = useRef<Y.Doc>();
-  const ynodes = useRef<Y.Map<Y.Map<yNode>>>();
+  const ynodes = useRef<yNodes>();
   const provider = useRef<WebrtcProvider>();
   const awareness = useRef<Awareness>();
 
@@ -24,13 +29,17 @@ function App(): JSX.Element {
   const loadedImages = useRef<Map<number, HTMLImageElement>>();
 
   const setUsernames = useOnlineUsers((states) => states.setUsernames);
+  const nodes = useSelectedNodes((states) => states.nodes);
+  const addNode = useSelectedNodes((states) => states.addNode);
 
   useEffect(() => {
     // yjs init
     ydoc.current = new Y.Doc();
-    ynodes.current = ydoc.current.getMap<Y.Map<yNode>>("nodes");
+    ynodes.current = ydoc.current.getMap<yNode>("nodes");
 
     awareness.current = new Awareness(ydoc.current);
+
+    awareness.current.setLocalStateField("username", generateUsername());
 
     // @ts-expect-error most property are optional
     provider.current = new WebrtcProvider("test", ydoc.current, {
@@ -61,20 +70,23 @@ function App(): JSX.Element {
     provider.current.awareness.on(
       "change",
       (
-        actions: {
+        _actions: {
           added: Array<number>;
           updated: Array<number>;
           removed: Array<number>;
         },
-        tx: Record<string, unknown> | string
+        _tx: Record<string, unknown> | string
       ): void => {
-        if (typeof tx === "string") return;
-        if (!("awareness" in tx && tx.awareness instanceof Awareness)) return;
+        // if (typeof tx === "string") return;
+        // if (!("awareness" in tx && tx.awareness instanceof Awareness)) return;
+
+        if (!awareness.current) return;
         const onlineUsers = Array.from(
-          tx.awareness.getStates(),
-          ([, v]) => v.username ?? "Candice"
+          awareness.current?.getStates(),
+          ([k, v]) => ({ id: k, username: v.username })
         );
         setUsernames(onlineUsers);
+
         cursorLayer.current?.update();
       }
     );
@@ -84,20 +96,35 @@ function App(): JSX.Element {
       evt.forEach((e) =>
         e.changes.keys.forEach((change, key) => {
           if (!(e.target instanceof Y.Map)) return;
-
+          const path = e.path.pop();
+          console.log(path);
           if (change.action === "add") {
-            // console.log(`Property "${key}" was added. Initial value: "${yNodesMap.get(key)}".`)
             cy.current?.add(e.target.get(key).toJSON());
           } else if (change.action === "update") {
-            // console.log(`Property "${key}" was updated. New value: "${yNodesMap.get(key)}". Previous value: "${change.oldValue}".`)
-            const node = cy.current?.getElementById(
-              // @ts-expect-error idk
-              e.target.parent?.get("data")?.get("id")
-            );
-            // @ts-expect-error idk
-            node?.position(e.target.parent?.get("position").toJSON());
+            switch (path) {
+              case "position": {
+                const target = e.target as yNodePosition;
+                const yNode = e.target.parent as yNode;
+
+                const yNodeData = yNode.get("data") as yNodeData;
+                const id = yNodeData.get("id");
+                if (!id) break;
+                const node = cy.current?.getElementById(id.toString());
+                if (!node) break;
+                node.position(target.toJSON());
+                break;
+              }
+              case "data": {
+                const target = e.target as yNodeData;
+                const id = target.get("id");
+                if (!id) break;
+                const node = cy.current?.getElementById(id.toString());
+                if (!node) break;
+                node.data(key, target.get(key));
+                break;
+              }
+            }
           } else if (change.action === "delete") {
-            // console.log(`Property "${key}" was deleted. New value: undefined. Previous value: "${change.oldValue}".`)
             const node = cy.current?.getElementById(key);
             node?.remove();
           }
@@ -112,7 +139,7 @@ function App(): JSX.Element {
           if (provider.current?.awareness.clientID === key) return;
 
           const pos = value.position ?? { x: 0, y: 0 };
-          const username = value.username ?? "Candice";
+          const username = value.username ?? "";
           const color = value.color ?? "#000000";
           // XXX: why?
           const img =
@@ -130,7 +157,7 @@ function App(): JSX.Element {
             ctx.textBaseline = "top";
             ctx.fillStyle = color;
             const width = ctx.measureText(username).width;
-            ctx.fillRect(x + 10, y + 24, width + 4, 16);
+            ctx.fillRect(x + 10, y + 24, width + 4, 18);
             ctx.fillStyle = "white";
             ctx.fillText(username, x + 12, y + 25);
           }
@@ -152,8 +179,10 @@ function App(): JSX.Element {
     cy.current.on("drag", (e) => {
       e.target.forEach((element: cytoscape.NodeSingular) => {
         const ynode = ynodes.current?.get(element.data("id"));
-        const ynodePosition = ynode?.get("position");
-        if (ynodePosition instanceof Y.Map) {
+        const ynodePosition = ynode?.get("position") as
+          | yNodePosition
+          | undefined;
+        if (ynodePosition) {
           const nodePos = element.position();
           ydoc.current?.transact(() => {
             ynodePosition.set("x", nodePos.x);
@@ -163,61 +192,45 @@ function App(): JSX.Element {
       });
     });
 
+    // node slected
+    cy.current.on("select", (e) => {
+      if (e.target.isNode()) addNode(e.target);
+    });
+
     return (): void => {
       provider.current?.destroy();
     };
   }, []);
 
-  // const handleAddNode = (): void => {
-  //   const id = (document.getElementById("addnodeid") as HTMLInputElement).value;
+  const handleAddNode = (): void => {
+    const id = uuidv4();
 
-  //   const data = new Y.Map<string>();
-  //   data.set("id", id);
+    const data = new Y.Map<Y.Text>();
+    data.set("id", new Y.Text(id));
+    data.set("name", new Y.Text("New Node"));
 
-  //   const position = new Y.Map<number>();
-  //   position.set("x", 300);
-  //   position.set("y", 200);
+    const position = new Y.Map<number>();
+    position.set("x", 300);
+    position.set("y", 200);
 
-  //   const node = new Y.Map<yNode>();
-  //   node.set("group", "nodes");
-  //   node.set("data", data);
-  //   node.set("position", position);
+    const node = new Y.Map<yNodeGroup | yNodeData | yNodePosition>();
+    node.set("group", new Y.Text("nodes"));
+    node.set("data", data);
+    node.set("position", position);
 
-  //   ynodes.current?.set(id, node);
-  // };
+    ynodes.current?.set(id, node);
+  };
 
-  // const handleDeleteNode = (): void => {
-  //   const node = document.getElementById("delnodeid");
-  //   if (node instanceof HTMLInputElement) yNodesMap.delete(node.value);
-  // };
-
-  // const handleUpdateUsername = (e: ChangeEvent): void => {
-  //   if (e.target instanceof HTMLInputElement)
-  //     awareness.current?.setLocalStateField("username", e.target.value);
-  // };
-
-  // const handleColorOnChange = (e: ChangeEvent): void => {
-  //   if (e.target instanceof HTMLInputElement)
-  //     provider.current?.awareness.setLocalStateField("color", e.target.value);
-  // };
+  const handleDeleteNode = (): void => {
+    const nodes = useSelectedNodes.getState().nodes;
+    nodes.forEach((node) => ynodes.current?.delete(node.id()));
+  };
 
   return (
     <div>
-      {/* <input type="text" id="addnodeid" />
-      <button onClick={(): void => handleAddNode()}>addNode</button> */}
-
-      {/* <input type="text" id="delnodeid" />
-      <button onClick={(): void => handleDeleteNode()}>DeleteNode</button> */}
-
-      {/* <input
-        type="text"
-        id="username"
-        placeholder="username"
-        onChange={handleUpdateUsername}
-      /> */}
-
-      {/* <input type="color" id="user-color" onChange={handleColorOnChange} /> */}
       <UserInfo awarenessRef={awareness} />
+      <NodeAttributes nodes={nodes} ynodesRef={ynodes} />
+      <Controlbar onAdd={handleAddNode} onDelete={handleDeleteNode} />
       <div id="cy" style={{ height: "100vh", width: "100vw" }} />
     </div>
   );

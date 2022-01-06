@@ -8,22 +8,22 @@ foreignObject {
   @apply overflow-visible scale-[40];
 }
 
-input {
-  @apply border text-gray-900 m-1 p-1;
-}
-
 button {
   @apply border m-1 p-1;
 }
 
-.react-draggable {
-  cursor: move;
+.react-draggable{
   position: absolute;
+}
+
+.drag-handle {
+  cursor: move;
 }
 
 .react-resizable {
   position: absolute;
 }
+
 .react-resizable-handle {
   position: absolute;
   width: 20px;

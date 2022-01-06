@@ -1,5 +1,15 @@
 import * as Y from "yjs";
 
-type yNode = string | Y.Map<string | number>;
+type yNodePosition = Y.Map<number>;
 
-export type { yNode };
+type yNodeProp = Y.Text;
+
+type yNodeData = Y.Map<yNodeProp>;
+
+type yNodeGroup = Y.Text;
+
+type yNode = Y.Map<yNodeGroup | yNodeData | yNodePosition>;
+
+type yNodes = Y.Map<yNode>;
+
+export type { yNodes, yNode, yNodeGroup, yNodeData, yNodePosition };

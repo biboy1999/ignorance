@@ -1,8 +1,8 @@
 import { DragResizeBox } from "../DragResizeBox";
 import { NodeSingular } from "cytoscape";
-import { useForm, useFieldArray } from "react-hook-form";
-import { MutableRefObject, useEffect } from "react";
+import { ChangeEvent, MutableRefObject, useEffect, useState } from "react";
 import { yNodeData, yNodes } from "../../types";
+import { Transaction, YMapEvent } from "yjs";
 
 const NodeAttributes = ({
   nodes,
@@ -11,49 +11,66 @@ const NodeAttributes = ({
   nodes: NodeSingular[];
   ynodesRef: MutableRefObject<yNodes | undefined>;
 }): JSX.Element => {
-  const { control, watch, register, reset } = useForm();
-  const { fields, append } = useFieldArray({
-    control,
-    name: "attribute",
-  });
+  const nodeId = nodes[0]?.id();
+  const ynode = ynodesRef.current?.get(nodeId);
+  const ydata = ynode?.get("data") as yNodeData;
+  const [attributes, setAttributes] = useState<string[]>([]);
 
   useEffect(() => {
-    reset();
-    const ynode = ynodesRef.current?.get(nodes[0]?.id())?.toJSON();
-    const data = ynode?.data;
-    if (!data) return;
-    append(Object.entries(data).map(([k, v]) => ({ key: k, value: v })));
+    if (!ydata) return;
+    setAttributes(Array.from(ydata.keys() ?? []));
   }, [nodes]);
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (!name) return;
-      if (type !== "change") return;
+    if (!ydata) return;
 
-      const yNodeData = ynodesRef.current
-        ?.get(nodes[0]?.id())
-        ?.get("data") as yNodeData;
+    const handleChange = (e: YMapEvent<string>, _tx: Transaction): void => {
+      // add delete happen on name change
+      // update happen on value change
+      e.changes.keys.forEach((change, key) => {
+        if (change.action === "add") {
+          setAttributes((prev) => [...prev, key]);
+        } else if (change.action === "update") {
+          const target = e.target as yNodeData;
+          const valueInput = document.getElementById(`${nodeId}-${key}-value`);
+          if (!(valueInput instanceof HTMLInputElement)) return;
+          valueInput.value = target.get(key) ?? "";
+        } else if (change.action === "delete") {
+          setAttributes((prev) => prev.filter((name) => name !== key));
+        }
+      });
+    };
 
-      const [_, index, key] = name.split(".");
-      const attr = value["attribute"][index];
+    ydata.observe(handleChange);
+    return (): void => {
+      ydata.unobserve(handleChange);
+    };
+  }, [nodes]);
 
-      const yNodeProp = yNodeData.get(attr["key"]);
-      console.log(yNodeProp?.toString());
-      if (!(yNodeProp && attr && key)) return;
-      yNodeProp?.insert(0, attr["value"]);
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const oldName = e.target.defaultValue;
+    const newName = e.target.value;
+    const value = ydata.get(oldName);
 
-      // // TODO key changed ignore for now
-      // if (key === "key") return;
-      // // value only
-      // yNodeData.set(attr["key"], attr["value"]);
+    if (!(ydata.has(oldName) && value)) return;
+    e.target.name = e.target.value;
+    ydata.doc?.transact(() => {
+      ydata.delete(oldName);
+      ydata.set(newName, value);
     });
-    return (): void => subscription.unsubscribe();
-  }, [watch, nodes]);
+  };
+
+  const handleValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (!(e.target.previousElementSibling instanceof HTMLInputElement)) return;
+    const value = e.target.value;
+    const name = e.target.previousElementSibling.defaultValue;
+    if (ydata.has(name)) ydata.set(name, value);
+  };
 
   return (
     <DragResizeBox
-      sizeOffset={[100, 100]}
-      constraintOffset={[0, 50]}
+      sizeOffset={[180, 250]}
+      constraintOffset={[100, 50]}
       handle=".drag-handle"
     >
       <>
@@ -62,24 +79,28 @@ const NodeAttributes = ({
             Attributes
           </h1>
         </div>
-        <div className="flex flex-col flex-1">
-          <form>
-            {fields.map((field, index) => {
-              console.log(field, index);
-              return (
-                <div className="flex" key={field.id}>
-                  <input
-                    className="flex-1 min-w-0 bg-blue-300"
-                    {...register(`attribute.${index}.key` as const)}
-                  />
-                  <input
-                    className="flex-1 min-w-0 bg-red-300"
-                    {...register(`attribute.${index}.value` as const)}
-                  />
-                </div>
-              );
-            })}
-          </form>
+        <div className="flex flex-col flex-1 overflow-auto">
+          {attributes.map((attributeName) => {
+            return (
+              <div key={`${nodeId}-${attributeName}`} className="flex">
+                <input
+                  id={`${nodeId}-${attributeName}-name`}
+                  className="flex-1 min-w-0 bg-blue-300 text-ellipsis"
+                  defaultValue={attributeName}
+                  onChange={handleNameChange}
+                  disabled={attributeName == "id"}
+                  // idk why
+                  autoFocus
+                />
+                <input
+                  id={`${nodeId}-${attributeName}-value`}
+                  className="flex-1 min-w-0 bg-red-300 text-ellipsis"
+                  defaultValue={ydata?.get(attributeName)}
+                  onChange={handleValueChange}
+                />
+              </div>
+            );
+          })}
         </div>
       </>
     </DragResizeBox>

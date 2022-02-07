@@ -2,11 +2,11 @@ import * as Y from "yjs";
 
 type yNodePosition = Y.Map<number>;
 
-type yNodeProp = Y.Text;
+type yNodeProp = string;
 
 type yNodeData = Y.Map<yNodeProp>;
 
-type yNodeGroup = Y.Text;
+type yNodeGroup = string;
 
 type yNode = Y.Map<yNodeGroup | yNodeData | yNodePosition>;
 

@@ -31,7 +31,6 @@ function App(): JSX.Element {
   const setUsernames = useOnlineUsers((states) => states.setUsernames);
   const nodes = useSelectedNodes((states) => states.nodes);
   const addNode = useSelectedNodes((states) => states.addNode);
-
   useEffect(() => {
     // yjs init
     ydoc.current = new Y.Doc();
@@ -60,9 +59,9 @@ function App(): JSX.Element {
     layers.current = cy.current.layers() as LayersPlugin;
     cursorLayer.current = layers.current.append("canvas-static");
 
-    // provider.current.on("synced", (synced: unknown) => {
-    //   console.log("synced!", synced);
-    // });
+    provider.current.on("synced", (synced: unknown) => {
+      console.log("synced!", synced);
+    });
 
     loadedImages.current = new Map<number, HTMLImageElement>();
     // event register
@@ -77,13 +76,10 @@ function App(): JSX.Element {
         },
         _tx: Record<string, unknown> | string
       ): void => {
-        // if (typeof tx === "string") return;
-        // if (!("awareness" in tx && tx.awareness instanceof Awareness)) return;
-
         if (!awareness.current) return;
         const onlineUsers = Array.from(
-          awareness.current?.getStates(),
-          ([k, v]) => ({ id: k, username: v.username })
+          awareness.current.getStates(),
+          ([key, value]) => ({ id: key, username: value.username })
         );
         setUsernames(onlineUsers);
 
@@ -96,10 +92,24 @@ function App(): JSX.Element {
       evt.forEach((e) =>
         e.changes.keys.forEach((change, key) => {
           if (!(e.target instanceof Y.Map)) return;
+          if (!cy.current) return;
+
           const path = e.path.pop();
-          console.log(path);
           if (change.action === "add") {
-            cy.current?.add(e.target.get(key).toJSON());
+            switch (path) {
+              case "data": {
+                const [nodeId] = e.path;
+                if (!(typeof nodeId === "string")) return;
+                // write only necessary key
+                cy.current.getElementById(nodeId).data(key, e.target.get(key));
+                break;
+              }
+
+              default: {
+                cy.current.add(e.target.get(key).toJSON());
+                break;
+              }
+            }
           } else if (change.action === "update") {
             switch (path) {
               case "position": {
@@ -109,7 +119,7 @@ function App(): JSX.Element {
                 const yNodeData = yNode.get("data") as yNodeData;
                 const id = yNodeData.get("id");
                 if (!id) break;
-                const node = cy.current?.getElementById(id.toString());
+                const node = cy.current.getElementById(id.toString());
                 if (!node) break;
                 node.position(target.toJSON());
                 break;
@@ -118,15 +128,25 @@ function App(): JSX.Element {
                 const target = e.target as yNodeData;
                 const id = target.get("id");
                 if (!id) break;
-                const node = cy.current?.getElementById(id.toString());
+                const node = cy.current.getElementById(id.toString());
                 if (!node) break;
                 node.data(key, target.get(key));
                 break;
               }
             }
           } else if (change.action === "delete") {
-            const node = cy.current?.getElementById(key);
-            node?.remove();
+            switch (path) {
+              case "data": {
+                const [nodeId] = e.path;
+                if (!(typeof nodeId === "string")) return;
+                cy.current.getElementById(nodeId).removeData(key);
+                break;
+              }
+              default: {
+                cy.current.getElementById(key).remove();
+                break;
+              }
+            }
           }
         })
       );
@@ -141,7 +161,7 @@ function App(): JSX.Element {
           const pos = value.position ?? { x: 0, y: 0 };
           const username = value.username ?? "";
           const color = value.color ?? "#000000";
-          // XXX: why?
+          // XXX: why? act as cache not to create cursor every movement.
           const img =
             loadedImages.current?.get(key)?.alt == color
               ? loadedImages.current?.get(key)
@@ -205,16 +225,17 @@ function App(): JSX.Element {
   const handleAddNode = (): void => {
     const id = uuidv4();
 
-    const data = new Y.Map<Y.Text>();
-    data.set("id", new Y.Text(id));
-    data.set("name", new Y.Text("New Node"));
+    const data = new Y.Map<string>();
+    data.set("id", id);
+    data.set("name", "New Node");
+    data.set("testattr", "test");
 
     const position = new Y.Map<number>();
     position.set("x", 300);
     position.set("y", 200);
 
     const node = new Y.Map<yNodeGroup | yNodeData | yNodePosition>();
-    node.set("group", new Y.Text("nodes"));
+    node.set("group", "nodes");
     node.set("data", data);
     node.set("position", position);
 

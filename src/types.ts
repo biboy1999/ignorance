@@ -1,15 +1,32 @@
+import { WebrtcProvider } from "y-webrtc";
+import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 
-type yNodePosition = Y.Map<number>;
+type YNodePosition = Y.Map<number>;
 
-type yNodeProp = string;
+type YNodeProp = string;
 
-type yNodeData = Y.Map<yNodeProp>;
+type YNodeData = Y.Map<YNodeProp>;
 
-type yNodeGroup = string;
+type YNodeGroup = string;
 
-type yNode = Y.Map<yNodeGroup | yNodeData | yNodePosition>;
+type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
 
-type yNodes = Y.Map<yNode>;
+type YNodes = Y.Map<YNode>;
 
-export type { yNodes, yNode, yNodeGroup, yNodeData, yNodePosition };
+type Providers = {
+  webrtc: { provider: WebrtcProvider | undefined; isSynced: boolean };
+  websocket: { provider: WebsocketProvider | undefined; isSynced: boolean };
+};
+
+type Provider = WebrtcProvider | WebsocketProvider;
+
+export type {
+  YNodes,
+  YNode,
+  YNodeGroup,
+  YNodeData,
+  YNodePosition,
+  Provider,
+  Providers,
+};

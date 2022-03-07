@@ -1,7 +1,7 @@
 import { DragResizeBox } from "../DragResizeBox";
 import { NodeSingular } from "cytoscape";
 import { ChangeEvent, MutableRefObject, useEffect, useState } from "react";
-import { yNodeData, yNodes } from "../../types";
+import { YNodeData, YNodes } from "../../types";
 import { Transaction, YMapEvent } from "yjs";
 
 const NodeAttributes = ({
@@ -9,11 +9,11 @@ const NodeAttributes = ({
   ynodesRef,
 }: {
   nodes: NodeSingular[];
-  ynodesRef: MutableRefObject<yNodes | undefined>;
+  ynodesRef: MutableRefObject<YNodes | undefined>;
 }): JSX.Element => {
   const nodeId = nodes[0]?.id();
   const ynode = ynodesRef.current?.get(nodeId);
-  const ydata = ynode?.get("data") as yNodeData;
+  const ydata = ynode?.get("data") as YNodeData;
   const [attributes, setAttributes] = useState<string[]>([]);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const NodeAttributes = ({
         if (change.action === "add") {
           setAttributes((prev) => [...prev, key]);
         } else if (change.action === "update") {
-          const target = e.target as yNodeData;
+          const target = e.target as YNodeData;
           const valueInput = document.getElementById(`${nodeId}-${key}-value`);
           if (!(valueInput instanceof HTMLInputElement)) return;
           valueInput.value = target.get(key) ?? "";
@@ -71,6 +71,8 @@ const NodeAttributes = ({
     <DragResizeBox
       sizeOffset={[180, 250]}
       constraintOffset={[100, 50]}
+      top={250}
+      right={20}
       handle=".drag-handle"
     >
       <>

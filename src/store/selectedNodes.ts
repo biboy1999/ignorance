@@ -1,13 +1,13 @@
 import { NodeSingular } from "cytoscape";
 import create from "zustand";
 
-type SelectedNodes = {
+type SelectedNodesState = {
   nodes: NodeSingular[];
   setNodes: (nodes: NodeSingular[]) => void;
   addNode: (node: NodeSingular) => void;
 };
 
-const useSelectedNodes = create<SelectedNodes>((set, get) => ({
+const useSelectedNodes = create<SelectedNodesState>((set, get) => ({
   nodes: [],
   setNodes: (nodes): void => set({ nodes: nodes }),
   addNode: (node): void => {

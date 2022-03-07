@@ -1,11 +1,11 @@
 import create from "zustand";
 
-type onlineUsers = {
+type OnlineUsersState = {
   usernames: { id: number; username: string }[];
   setUsernames: (userList: { id: number; username: string }[]) => void;
 };
 
-const useOnlineUsers = create<onlineUsers>((set) => ({
+const useOnlineUsers = create<OnlineUsersState>((set) => ({
   usernames: [],
   setUsernames: (userList): void => set({ usernames: userList }),
 }));

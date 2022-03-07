@@ -2,17 +2,17 @@
 // <3
 import { useState, useEffect } from "react";
 
-type dimensions = {
+type Dimensions = {
   width: number;
   height: number;
 };
 
-function getWindowDimensions(): dimensions {
+function getWindowDimensions(): Dimensions {
   const { innerWidth: width, innerHeight: height } = window;
   return { width, height };
 }
 
-export default function useWindowDimensions(): dimensions {
+export default function useWindowDimensions(): Dimensions {
   const [windowDimensions, setWindowDimensions] = useState(
     getWindowDimensions()
   );

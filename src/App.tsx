@@ -2,12 +2,12 @@ import { useEffect, useRef } from "react";
 import { WebrtcProvider } from "y-webrtc";
 import cytoscape from "cytoscape";
 import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
-import * as Y from "yjs";
+import { Map as YMap, Doc as YDoc } from "yjs";
 import { Awareness } from "y-protocols/awareness.js";
 import { v4 as uuidv4 } from "uuid";
 import { init_options } from "./temp/init-data";
-import { yNode, yNodes, yNodeGroup, yNodeData, yNodePosition } from "./types";
 import "./App.css";
+import { YNode, YNodes, YNodeGroup, YNodeData, YNodePosition } from "./types";
 import { generateCursor, modelToRenderedPosition } from "./utils/canvas";
 import { UserInfo } from "./components/panel/UserInfo";
 import { useOnlineUsers } from "./store/onlineUsers";
@@ -17,8 +17,8 @@ import { NodeAttributes } from "./components/panel/NodeAttributes";
 import { Controlbar } from "./components/Controlbar";
 
 function App(): JSX.Element {
-  const ydoc = useRef<Y.Doc>();
-  const ynodes = useRef<yNodes>();
+  const ydoc = useRef<YDoc>();
+  const ynodes = useRef<YNodes>();
   const provider = useRef<WebrtcProvider>();
   const awareness = useRef<Awareness>();
 
@@ -33,8 +33,8 @@ function App(): JSX.Element {
   const addNode = useSelectedNodes((states) => states.addNode);
   useEffect(() => {
     // yjs init
-    ydoc.current = new Y.Doc();
-    ynodes.current = ydoc.current.getMap<yNode>("nodes");
+    ydoc.current = new YDoc();
+    ynodes.current = ydoc.current.getMap<YNode>("nodes");
 
     awareness.current = new Awareness(ydoc.current);
 
@@ -59,14 +59,14 @@ function App(): JSX.Element {
     layers.current = cy.current.layers() as LayersPlugin;
     cursorLayer.current = layers.current.append("canvas-static");
 
-    provider.current.on("synced", (synced: unknown) => {
-      console.log("synced!", synced);
-    });
+    // provider.current.on("synced", (synced: unknown) => {
+    //   console.log("synced!", synced);
+    // });
 
     loadedImages.current = new Map<number, HTMLImageElement>();
     // event register
     // cursor render
-    provider.current.awareness.on(
+    awareness.current.on(
       "change",
       (
         _actions: {
@@ -91,7 +91,7 @@ function App(): JSX.Element {
     ynodes.current.observeDeep((evt) => {
       evt.forEach((e) =>
         e.changes.keys.forEach((change, key) => {
-          if (!(e.target instanceof Y.Map)) return;
+          if (!(e.target instanceof YMap)) return;
           if (!cy.current) return;
 
           const path = e.path.pop();
@@ -113,10 +113,10 @@ function App(): JSX.Element {
           } else if (change.action === "update") {
             switch (path) {
               case "position": {
-                const target = e.target as yNodePosition;
-                const yNode = e.target.parent as yNode;
+                const target = e.target as YNodePosition;
+                const yNode = e.target.parent as YNode;
 
-                const yNodeData = yNode.get("data") as yNodeData;
+                const yNodeData = yNode.get("data") as YNodeData;
                 const id = yNodeData.get("id");
                 if (!id) break;
                 const node = cy.current.getElementById(id.toString());
@@ -125,7 +125,7 @@ function App(): JSX.Element {
                 break;
               }
               case "data": {
-                const target = e.target as yNodeData;
+                const target = e.target as YNodeData;
                 const id = target.get("id");
                 if (!id) break;
                 const node = cy.current.getElementById(id.toString());
@@ -154,9 +154,9 @@ function App(): JSX.Element {
 
     // cursor render
     cursorLayer.current.callback((ctx) => {
-      if (provider.current?.awareness instanceof Awareness) {
-        provider.current.awareness.getStates().forEach((value, key) => {
-          if (provider.current?.awareness.clientID === key) return;
+      if (awareness.current instanceof Awareness) {
+        awareness.current.getStates().forEach((value, key) => {
+          if (awareness.current?.clientID === key) return;
 
           const pos = value.position ?? { x: 0, y: 0 };
           const username = value.username ?? "";
@@ -188,7 +188,7 @@ function App(): JSX.Element {
 
     // cursor update
     cy.current?.on("mousemove", (e) => {
-      provider.current?.awareness.setLocalStateField("position", e.position);
+      awareness.current?.setLocalStateField("position", e.position);
     });
 
     cy.current?.on("viewport", () => {
@@ -200,7 +200,7 @@ function App(): JSX.Element {
       e.target.forEach((element: cytoscape.NodeSingular) => {
         const ynode = ynodes.current?.get(element.data("id"));
         const ynodePosition = ynode?.get("position") as
-          | yNodePosition
+          | YNodePosition
           | undefined;
         if (ynodePosition) {
           const nodePos = element.position();
@@ -218,23 +218,23 @@ function App(): JSX.Element {
     });
 
     return (): void => {
-      provider.current?.destroy();
+      // provider.current?.destroy();
     };
   }, []);
 
   const handleAddNode = (): void => {
     const id = uuidv4();
 
-    const data = new Y.Map<string>();
+    const data = new YMap<string>();
     data.set("id", id);
     data.set("name", "New Node");
     data.set("testattr", "test");
 
-    const position = new Y.Map<number>();
+    const position = new YMap<number>();
     position.set("x", 300);
     position.set("y", 200);
 
-    const node = new Y.Map<yNodeGroup | yNodeData | yNodePosition>();
+    const node = new YMap<YNodeGroup | YNodeData | YNodePosition>();
     node.set("group", "nodes");
     node.set("data", data);
     node.set("position", position);
@@ -248,12 +248,12 @@ function App(): JSX.Element {
   };
 
   return (
-    <div>
+    <>
       <UserInfo awarenessRef={awareness} />
       <NodeAttributes nodes={nodes} ynodesRef={ynodes} />
       <Controlbar onAdd={handleAddNode} onDelete={handleDeleteNode} />
       <div id="cy" style={{ height: "100vh", width: "100vw" }} />
-    </div>
+    </>
   );
 }
 

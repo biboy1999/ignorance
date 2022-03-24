@@ -1,226 +1,47 @@
-import { useEffect, useRef } from "react";
-import { WebrtcProvider } from "y-webrtc";
-import cytoscape from "cytoscape";
-import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
-import { Map as YMap, Doc as YDoc } from "yjs";
-import { Awareness } from "y-protocols/awareness.js";
+import { createContext, MutableRefObject } from "react";
+import { Doc, Map as YMap } from "yjs";
 import { v4 as uuidv4 } from "uuid";
-import { init_options } from "./temp/init-data";
+import { Awareness } from "y-protocols/awareness";
 import "./App.css";
-import { YNode, YNodes, YNodeGroup, YNodeData, YNodePosition } from "./types";
-import { generateCursor, modelToRenderedPosition } from "./utils/canvas";
+import {
+  YNodeGroup,
+  YNodeData,
+  YNodePosition,
+  YNodes,
+  Provider,
+  Providers,
+} from "./types";
 import { UserInfo } from "./components/panel/UserInfo";
-import { useOnlineUsers } from "./store/onlineUsers";
-import { generateUsername } from "./utils/username/randomUsername";
 import { useSelectedNodes } from "./store/selectedNodes";
+import { Graph } from "./components/Graph";
 import { NodeAttributes } from "./components/panel/NodeAttributes";
 import { Controlbar } from "./components/Controlbar";
+import { Statusbar } from "./components/Statusbar";
+import { useYDoc } from "./utils/hooks/useYDoc";
+import { useProvider } from "./utils/hooks/useProvider";
+
+type ProviderDocContextProps = {
+  ydoc: MutableRefObject<Doc>;
+  ynodes: MutableRefObject<YNodes>;
+  awareness: Awareness;
+  addProvider: (provider: Provider) => Provider;
+  providers: Providers;
+  isSynced: boolean;
+  isOnlineMode: boolean;
+};
+
+// im sure is defined, i think. :/
+export const ProviderDocContext = createContext<ProviderDocContextProps>(
+  {} as ProviderDocContextProps
+);
 
 function App(): JSX.Element {
-  const ydoc = useRef<YDoc>();
-  const ynodes = useRef<YNodes>();
-  const provider = useRef<WebrtcProvider>();
-  const awareness = useRef<Awareness>();
+  const { ydoc, ynodes } = useYDoc();
 
-  const cy = useRef<cytoscape.Core>();
-  const layers = useRef<LayersPlugin>();
-  const cursorLayer = useRef<ICanvasStaticLayer>();
+  const { isSynced, isOnlineMode, awareness, addProvider, providers } =
+    useProvider(ydoc.current);
 
-  const loadedImages = useRef<Map<number, HTMLImageElement>>();
-
-  const setUsernames = useOnlineUsers((states) => states.setUsernames);
   const nodes = useSelectedNodes((states) => states.nodes);
-  const addNode = useSelectedNodes((states) => states.addNode);
-  useEffect(() => {
-    // yjs init
-    ydoc.current = new YDoc();
-    ynodes.current = ydoc.current.getMap<YNode>("nodes");
-
-    awareness.current = new Awareness(ydoc.current);
-
-    awareness.current.setLocalStateField("username", generateUsername());
-
-    // @ts-expect-error most property are optional
-    provider.current = new WebrtcProvider("test", ydoc.current, {
-      signaling: ["ws://localhost:13777"],
-      password: "asdqweqwe",
-      awareness: awareness.current,
-      filterBcConns: false,
-    });
-
-    // graph init
-    Layers(cytoscape);
-    cy.current = cytoscape({
-      container: document.getElementById("cy"),
-      ...init_options,
-    });
-
-    // @ts-expect-error cytoscpae ext.
-    layers.current = cy.current.layers() as LayersPlugin;
-    cursorLayer.current = layers.current.append("canvas-static");
-
-    // provider.current.on("synced", (synced: unknown) => {
-    //   console.log("synced!", synced);
-    // });
-
-    loadedImages.current = new Map<number, HTMLImageElement>();
-    // event register
-    // cursor render
-    awareness.current.on(
-      "change",
-      (
-        _actions: {
-          added: Array<number>;
-          updated: Array<number>;
-          removed: Array<number>;
-        },
-        _tx: Record<string, unknown> | string
-      ): void => {
-        if (!awareness.current) return;
-        const onlineUsers = Array.from(
-          awareness.current.getStates(),
-          ([key, value]) => ({ id: key, username: value.username })
-        );
-        setUsernames(onlineUsers);
-
-        cursorLayer.current?.update();
-      }
-    );
-
-    // nodes sync
-    ynodes.current.observeDeep((evt) => {
-      evt.forEach((e) =>
-        e.changes.keys.forEach((change, key) => {
-          if (!(e.target instanceof YMap)) return;
-          if (!cy.current) return;
-
-          const path = e.path.pop();
-          if (change.action === "add") {
-            switch (path) {
-              case "data": {
-                const [nodeId] = e.path;
-                if (!(typeof nodeId === "string")) return;
-                // write only necessary key
-                cy.current.getElementById(nodeId).data(key, e.target.get(key));
-                break;
-              }
-
-              default: {
-                cy.current.add(e.target.get(key).toJSON());
-                break;
-              }
-            }
-          } else if (change.action === "update") {
-            switch (path) {
-              case "position": {
-                const target = e.target as YNodePosition;
-                const yNode = e.target.parent as YNode;
-
-                const yNodeData = yNode.get("data") as YNodeData;
-                const id = yNodeData.get("id");
-                if (!id) break;
-                const node = cy.current.getElementById(id.toString());
-                if (!node) break;
-                node.position(target.toJSON());
-                break;
-              }
-              case "data": {
-                const target = e.target as YNodeData;
-                const id = target.get("id");
-                if (!id) break;
-                const node = cy.current.getElementById(id.toString());
-                if (!node) break;
-                node.data(key, target.get(key));
-                break;
-              }
-            }
-          } else if (change.action === "delete") {
-            switch (path) {
-              case "data": {
-                const [nodeId] = e.path;
-                if (!(typeof nodeId === "string")) return;
-                cy.current.getElementById(nodeId).removeData(key);
-                break;
-              }
-              default: {
-                cy.current.getElementById(key).remove();
-                break;
-              }
-            }
-          }
-        })
-      );
-    });
-
-    // cursor render
-    cursorLayer.current.callback((ctx) => {
-      if (awareness.current instanceof Awareness) {
-        awareness.current.getStates().forEach((value, key) => {
-          if (awareness.current?.clientID === key) return;
-
-          const pos = value.position ?? { x: 0, y: 0 };
-          const username = value.username ?? "";
-          const color = value.color ?? "#000000";
-          // XXX: why? act as cache not to create cursor every movement.
-          const img =
-            loadedImages.current?.get(key)?.alt == color
-              ? loadedImages.current?.get(key)
-              : loadedImages.current?.set(key, generateCursor(color)).get(key);
-          const pan = cy.current?.pan() ?? { x: 0, y: 0 };
-          const zoom = cy.current?.zoom() ?? 1;
-          // start drawing
-          const { x, y } = modelToRenderedPosition(pos, zoom, pan);
-          ctx.save();
-          if (img) ctx.drawImage(img, x, y);
-          if (username !== "") {
-            ctx.font = "1em sans-serif";
-            ctx.textBaseline = "top";
-            ctx.fillStyle = color;
-            const width = ctx.measureText(username).width;
-            ctx.fillRect(x + 10, y + 24, width + 4, 18);
-            ctx.fillStyle = "white";
-            ctx.fillText(username, x + 12, y + 25);
-          }
-          ctx.restore();
-        });
-      }
-    });
-
-    // cursor update
-    cy.current?.on("mousemove", (e) => {
-      awareness.current?.setLocalStateField("position", e.position);
-    });
-
-    cy.current?.on("viewport", () => {
-      cursorLayer.current?.update();
-    });
-
-    // node move update
-    cy.current.on("drag", (e) => {
-      e.target.forEach((element: cytoscape.NodeSingular) => {
-        const ynode = ynodes.current?.get(element.data("id"));
-        const ynodePosition = ynode?.get("position") as
-          | YNodePosition
-          | undefined;
-        if (ynodePosition) {
-          const nodePos = element.position();
-          ydoc.current?.transact(() => {
-            ynodePosition.set("x", nodePos.x);
-            ynodePosition.set("y", nodePos.y);
-          });
-        }
-      });
-    });
-
-    // node slected
-    cy.current.on("select", (e) => {
-      if (e.target.isNode()) addNode(e.target);
-    });
-
-    return (): void => {
-      // provider.current?.destroy();
-    };
-  }, []);
 
   const handleAddNode = (): void => {
     const id = uuidv4();
@@ -247,12 +68,26 @@ function App(): JSX.Element {
     nodes.forEach((node) => ynodes.current?.delete(node.id()));
   };
 
+  const contextValue = {
+    ydoc,
+    ynodes,
+    awareness,
+    addProvider,
+    providers,
+    isSynced,
+    isOnlineMode,
+  };
   return (
     <>
-      <UserInfo awarenessRef={awareness} />
-      <NodeAttributes nodes={nodes} ynodesRef={ynodes} />
-      <Controlbar onAdd={handleAddNode} onDelete={handleDeleteNode} />
-      <div id="cy" style={{ height: "100vh", width: "100vw" }} />
+      <ProviderDocContext.Provider value={contextValue}>
+        <UserInfo />
+        <NodeAttributes nodes={nodes} ynodesRef={ynodes} />
+        <Controlbar onAdd={handleAddNode} onDelete={handleDeleteNode} />
+        <div className="flex flex-col h-screen w-screen">
+          <Graph awareness={awareness} ydoc={ydoc} ynodes={ynodes} />
+          <Statusbar isOnlineMode={isOnlineMode} />
+        </div>
+      </ProviderDocContext.Provider>
     </>
   );
 }

@@ -2,17 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  overflow: hidden;
+}
+
 foreignObject {
   /* transform: scale(40);
   overflow: visible; */
   @apply overflow-visible scale-[40];
 }
 
-button {
+/* button {
   @apply border m-1 p-1;
-}
+} */
 
-.react-draggable{
+.react-draggable {
   position: absolute;
 }
 

@@ -1,12 +1,14 @@
 import { MouseEventHandler } from "react";
 
-const Controlbar = ({
-  onAdd,
-  onDelete,
-}: {
+export type ControlbarProp = {
   onAdd: MouseEventHandler<HTMLElement>;
   onDelete: MouseEventHandler<HTMLElement>;
-}): JSX.Element => {
+};
+
+export const Controlbar = ({
+  onAdd,
+  onDelete,
+}: ControlbarProp): JSX.Element => {
   return (
     <div className="absolute top-2 left-2 flex flex-col border z-50">
       <div
@@ -24,5 +26,3 @@ const Controlbar = ({
     </div>
   );
 };
-
-export { Controlbar };

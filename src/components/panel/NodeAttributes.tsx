@@ -86,7 +86,7 @@ export const NodeAttributes = ({
               <ChevronUpIcon
                 className={`${
                   isOpen ? "transform rotate-180" : ""
-                } w-6 h-6 text-white`}
+                } w-6 h-6 text-white cursor-pointer`}
                 onClick={toggle}
               />
             </h1>

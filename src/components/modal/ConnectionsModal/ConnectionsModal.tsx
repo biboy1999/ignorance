@@ -99,7 +99,7 @@ export const ConnectionsModal = ({
                   Create Connection
                 </Dialog.Title>
               </div>
-              <div className="bg-slate-100 max-h-[76vh] overflow-y-scroll">
+              <div className="bg-slate-100 max-h-[76vh] overflow-y-auto">
                 <form onSubmit={onSubmit} id="connectionForm">
                   <Connections register={register} />
                 </form>

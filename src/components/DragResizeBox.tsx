@@ -14,6 +14,7 @@ export type DragResizeBoxProp = {
   children: JSX.Element;
   sizeOffset?: [number, number];
   constraintOffset?: [number, number];
+  isBounded?: boolean;
   height?: number;
   width?: number;
   left?: number;
@@ -28,6 +29,7 @@ export const DragResizeBox = ({
   children,
   sizeOffset = [0, 0],
   constraintOffset = [0, 0],
+  isBounded = false,
   height,
   width,
   left,
@@ -98,7 +100,7 @@ export const DragResizeBox = ({
     _e: DraggableEvent,
     { x, y }: DraggableData
   ): void => {
-    setMaxConstraints([windowWidth - x, windowHeight - y]);
+    if (isBounded) setMaxConstraints([windowWidth - x, windowHeight - y]);
     setXPos(x);
     setYPos(y);
   };
@@ -118,7 +120,7 @@ export const DragResizeBox = ({
       nodeRef={nodeRef}
       onDrag={onDraggableDrag}
       position={{ x: xPos, y: yPos }}
-      bounds="parent"
+      bounds={isBounded && "parent"}
       cancel=".react-resizable-handle"
       handle={handle}
     >

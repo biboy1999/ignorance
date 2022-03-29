@@ -17,10 +17,10 @@ const init_options = {
   style: [
     // the stylesheet for the graph
     {
-      selector: "node",
+      selector: "node[name]",
       style: {
         "background-color": "#666",
-        label: "data(name)",
+        label: "data(name.value)",
       },
     },
     {
@@ -30,7 +30,8 @@ const init_options = {
         "line-color": "#ccc",
         "target-arrow-color": "#ccc",
         "target-arrow-shape": "triangle",
-        "curve-style": "haystack",
+        "curve-style": "straight",
+        "arrow-scale": 1.5,
       },
     },
   ],

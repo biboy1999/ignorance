@@ -4,9 +4,10 @@ import * as Y from "yjs";
 
 type YNodePosition = Y.Map<number>;
 
-type YNodeProp = string;
+type YNodeId = string;
+type YNodeProp = { attrid: string; value: string };
 
-type YNodeData = Y.Map<YNodeProp>;
+type YNodeData = Y.Map<YNodeProp | YNodeId>;
 
 type YNodeGroup = string;
 
@@ -26,6 +27,7 @@ export type {
   YNode,
   YNodeGroup,
   YNodeData,
+  YNodeProp,
   YNodePosition,
   Provider,
   Providers,

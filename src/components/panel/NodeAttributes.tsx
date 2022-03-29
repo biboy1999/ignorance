@@ -1,9 +1,16 @@
 import { NodeSingular } from "cytoscape";
-import { ChangeEvent, MutableRefObject, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Transaction, YMapEvent } from "yjs";
-import { YNodeData, YNodes } from "../../types";
+import { YNodeData, YNodeProp, YNodes } from "../../types";
 import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
+import { assert } from "console";
 
 export type NodeAttributesProp = {
   nodes: NodeSingular[];
@@ -16,30 +23,46 @@ export const NodeAttributes = ({
 }: NodeAttributesProp): JSX.Element => {
   const nodeId = nodes[0]?.id();
   const ynode = ynodesRef.current?.get(nodeId);
-  const ydata = ynode?.get("data") as YNodeData;
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const ydata = ynode?.get("data") as YNodeData | undefined;
+  const [attributes, setAttributes] = useState<any[]>([]);
+  const updateAttributes = useCallback(() => {
+    setAttributes(
+      Array.from(ydata?.entries() ?? []).filter(([k, _v]) => k !== "id")
+    );
+  }, [ydata]);
 
   useEffect(() => {
     if (!ydata) return;
-    setAttributes(Array.from(ydata.keys() ?? []));
+    updateAttributes();
   }, [nodes]);
 
   useEffect(() => {
     if (!ydata) return;
 
-    const handleChange = (e: YMapEvent<string>, _tx: Transaction): void => {
+    const handleChange = (
+      e: YMapEvent<string | YNodeProp>,
+      _tx: Transaction
+    ): void => {
       // add delete happen on name change
       // update happen on value change
       e.changes.keys.forEach((change, key) => {
         if (change.action === "add") {
-          setAttributes((prev) => [...prev, key]);
+          updateAttributes();
+          // setAttributes((prev) => [...prev, key]);
         } else if (change.action === "update") {
           const target = e.target as YNodeData;
           const valueInput = document.getElementById(`${nodeId}-${key}-value`);
-          if (!(valueInput instanceof HTMLInputElement)) return;
-          valueInput.value = target.get(key) ?? "";
+          const pair = target.get(key);
+          if (
+            !(
+              valueInput instanceof HTMLInputElement && typeof pair !== "string"
+            )
+          )
+            return;
+          valueInput.value = pair?.value ?? "";
         } else if (change.action === "delete") {
-          setAttributes((prev) => prev.filter((name) => name !== key));
+          updateAttributes();
+          // setAttributes((prev) => prev.filter((name) => name !== key));
         }
       });
     };
@@ -53,21 +76,23 @@ export const NodeAttributes = ({
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const oldName = e.target.defaultValue;
     const newName = e.target.value;
-    const value = ydata.get(oldName);
+    const value = ydata?.get(oldName);
 
-    if (!(ydata.has(oldName) && value)) return;
+    if (!(ydata?.has(oldName) && value)) return;
     e.target.name = e.target.value;
     ydata.doc?.transact(() => {
-      ydata.delete(oldName);
+      ydata.clone;
       ydata.set(newName, value);
+      ydata.delete(oldName);
     });
   };
 
   const handleValueChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (!(e.target.previousElementSibling instanceof HTMLInputElement)) return;
     const value = e.target.value;
-    const name = e.target.previousElementSibling.defaultValue;
-    if (ydata.has(name)) ydata.set(name, value);
+    const attrid = e.target.getAttribute("data-attrid");
+    const key = e.target.previousElementSibling.defaultValue;
+    if (ydata?.has(key) && attrid) ydata.set(key, { attrid, value });
   };
 
   return (
@@ -91,29 +116,58 @@ export const NodeAttributes = ({
               />
             </h1>
           </div>
-          <div className="flex flex-col flex-1 overflow-auto">
-            {attributes.map((attributeName) => {
-              return (
-                <div key={`${nodeId}-${attributeName}`} className="flex">
-                  <input
-                    id={`${nodeId}-${attributeName}-name`}
-                    className="flex-1 min-w-0 bg-blue-300 text-ellipsis"
-                    defaultValue={attributeName}
-                    onChange={handleNameChange}
-                    disabled={attributeName == "id"}
-                    // idk why
-                    autoFocus
-                  />
-                  <input
-                    id={`${nodeId}-${attributeName}-value`}
-                    className="flex-1 min-w-0 bg-red-300 text-ellipsis"
-                    defaultValue={ydata?.get(attributeName)}
-                    onChange={handleValueChange}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {nodes.length !== 0 && (
+            <div className="flex flex-col flex-1 overflow-auto">
+              <div key={nodeId} className="flex">
+                <input
+                  id={`${nodeId}-id-name`}
+                  data-attrid={nodeId}
+                  className="flex-1 min-w-0 bg-gray-300 text-ellipsis"
+                  defaultValue="id"
+                  disabled
+                  // onChange={handleNameChange}
+                />
+                <input
+                  id={`${nodeId}-id-value`}
+                  data-attrid={nodeId}
+                  className="flex-1 min-w-0 border focus:z-10 bg-gray-300 text-ellipsis"
+                  defaultValue={nodeId}
+                  disabled
+                  // onChange={handleValueChange}
+                />
+              </div>
+              {/* // {key: string}: YNodeProp */}
+              {attributes.map(([key, attr]) => {
+                if (
+                  !(
+                    typeof key === "string" &&
+                    typeof attr === "object" &&
+                    "attrid" in attr &&
+                    "value" in attr
+                  )
+                )
+                  return;
+                return (
+                  <div key={`${nodeId}-${attr.attrid}`} className="flex">
+                    <input
+                      id={`${nodeId}-${key}-name`}
+                      data-attrid={attr.attrid}
+                      className="flex-1 min-w-0 border-t border-r focus:z-10 text-ellipsis"
+                      defaultValue={key}
+                      onChange={handleNameChange}
+                    />
+                    <input
+                      id={`${nodeId}-${key}-value`}
+                      data-attrid={attr.attrid}
+                      className="flex-1 min-w-0 border-t focus:z-10 text-ellipsis"
+                      defaultValue={attr.value}
+                      onChange={handleValueChange}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </>
       )}
     </CollapsibleDragResizeBox>

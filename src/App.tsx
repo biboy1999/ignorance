@@ -10,6 +10,7 @@ import {
   YNodes,
   Provider,
   Providers,
+  YNodeProp,
 } from "./types";
 import { UserInfo } from "./components/panel/UserInfo";
 import { useSelectedNodes } from "./store/selectedNodes";
@@ -44,12 +45,13 @@ function App(): JSX.Element {
   const nodes = useSelectedNodes((states) => states.nodes);
 
   const handleAddNode = (): void => {
-    const id = uuidv4();
+    const nodeId = uuidv4();
 
-    const data = new YMap<string>();
-    data.set("id", id);
-    data.set("name", "New Node");
-    data.set("testattr", "test");
+    const data = new YMap<string | YNodeProp>();
+
+    data.set("id", nodeId);
+    data.set("name", { attrid: uuidv4(), value: "New Node" });
+    data.set("testattr", { attrid: uuidv4(), value: "test" });
 
     const position = new YMap<number>();
     position.set("x", 300);
@@ -60,7 +62,7 @@ function App(): JSX.Element {
     node.set("data", data);
     node.set("position", position);
 
-    ynodes.current?.set(id, node);
+    ynodes.current?.set(nodeId, node);
   };
 
   const handleDeleteNode = (): void => {

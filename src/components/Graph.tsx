@@ -1,5 +1,6 @@
-import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
-import cytoscape from "cytoscape";
+import Layers, { ICanvasLayer, LayersPlugin } from "cytoscape-layers";
+import edgehandles from "cytoscape-edgehandles";
+import cytoscape, { NodeSingular } from "cytoscape";
 import { MutableRefObject, useContext, useEffect, useRef } from "react";
 import { Doc, Map as YMap } from "yjs";
 import { Awareness } from "y-protocols/awareness";
@@ -10,6 +11,7 @@ import { YNode, YNodeData, YNodePosition, YNodes } from "../types";
 import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
 import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
 import { ProviderDocContext } from "../App";
+
 const Graph = ({
   awareness,
   ydoc,
@@ -23,7 +25,8 @@ const Graph = ({
 
   const cy = useRef<cytoscape.Core>();
   const layers = useRef<LayersPlugin>();
-  const cursorLayer = useRef<ICanvasStaticLayer>();
+  const cursorLayer = useRef<ICanvasLayer>();
+  const cursorLinkingLayer = useRef<ICanvasLayer>();
 
   const loadedImages = useRef<Map<number, HTMLImageElement>>();
 
@@ -40,16 +43,53 @@ const Graph = ({
     10,
     []
   );
+
   useEffect(() => {
     Layers(cytoscape);
+    cytoscape.use(edgehandles);
     cy.current = cytoscape({
       container: document.getElementById("cy"),
       ...init_options,
     });
 
+    // init edge options
+    const defaults = {
+      canConnect: function (
+        sourceNode: NodeSingular,
+        targetNode: NodeSingular
+      ) {
+        // whether an edge can be created between source and target
+        return (
+          // disallow loops
+          !sourceNode.same(targetNode) &&
+          // disallow multiple edge
+          !sourceNode.edgesWith(targetNode).length
+        );
+      },
+      // edgeParams: function (
+      //   sourceNode: NodeSingular,
+      //   targetNode: NodeSingular
+      // ) {
+      //   // for edges between the specified source and target
+      //   // return element object to be passed to cy.add() for edge
+      //   return {};
+      // },
+      hoverDelay: 150, // time spent hovering over a target node before it is considered selected
+      snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+      snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
+      snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+      noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
+      disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+    };
+
+    const eh = cy.current.edgehandles(defaults);
+    eh.enable();
+
     // @ts-expect-error cytoscpae ext.
     layers.current = cy.current.layers() as LayersPlugin;
-    cursorLayer.current = layers.current.append("canvas-static");
+    cursorLayer.current = layers.current.append("canvas");
+    cursorLinkingLayer.current = layers.current.append("canvas");
+
     loadedImages.current = new Map<number, HTMLImageElement>();
 
     // event register
@@ -77,65 +117,71 @@ const Graph = ({
     // nodes sync
     ynodes.current.observeDeep((evt) => {
       evt.forEach((e) =>
-        e.changes.keys.forEach((change, key) => {
-          if (!(e.target instanceof YMap)) return;
-          if (!cy.current) return;
+        e.changes.keys.forEach(
+          (change: { action: string; [x: string]: unknown }, key: string) => {
+            if (!(e.target instanceof YMap)) return;
+            if (!cy.current) return;
 
-          const path = e.path.pop();
-          if (change.action === "add") {
-            switch (path) {
-              case "data": {
-                const [nodeId] = e.path;
-                if (!(typeof nodeId === "string")) return;
-                // write only necessary key
-                cy.current.getElementById(nodeId).data(key, e.target.get(key));
-                break;
-              }
+            const path = e.path.pop();
+            if (change.action === "add") {
+              switch (path) {
+                case "data": {
+                  const [nodeId] = e.path;
+                  if (!(typeof nodeId === "string")) return;
+                  // write only necessary key
+                  cy.current
+                    .getElementById(nodeId)
+                    .data(key, e.target.get(key));
+                  break;
+                }
 
-              default: {
-                cy.current.add(e.target.get(key).toJSON());
-                break;
+                default: {
+                  cy.current.add(e.target.get(key).toJSON());
+                  break;
+                }
               }
-            }
-          } else if (change.action === "update") {
-            switch (path) {
-              case "position": {
-                const target = e.target as YNodePosition;
-                const yNode = e.target.parent as YNode;
+            } else if (change.action === "update") {
+              switch (path) {
+                case "position": {
+                  const target = e.target as YNodePosition;
+                  const yNode = e.target.parent as YNode;
 
-                const yNodeData = yNode.get("data") as YNodeData;
-                const id = yNodeData.get("id");
-                if (!id) break;
-                const node = cy.current.getElementById(id.toString());
-                if (!node) break;
-                node.position(target.toJSON());
-                break;
+                  const yNodeData = yNode.get("data") as YNodeData;
+                  const id = yNodeData.get("id");
+                  if (!id) break;
+                  const node = cy.current.getElementById(id.toString());
+                  if (!node) break;
+                  const x = target.get("x");
+                  const y = target.get("y");
+                  if (x && y) node.position({ x, y });
+                  break;
+                }
+                case "data": {
+                  const target = e.target as YNodeData;
+                  const id = target.get("id");
+                  if (!id) break;
+                  const node = cy.current.getElementById(id.toString());
+                  if (!node) break;
+                  node.data(key, target.get(key));
+                  break;
+                }
               }
-              case "data": {
-                const target = e.target as YNodeData;
-                const id = target.get("id");
-                if (!id) break;
-                const node = cy.current.getElementById(id.toString());
-                if (!node) break;
-                node.data(key, target.get(key));
-                break;
-              }
-            }
-          } else if (change.action === "delete") {
-            switch (path) {
-              case "data": {
-                const [nodeId] = e.path;
-                if (!(typeof nodeId === "string")) return;
-                cy.current.getElementById(nodeId).removeData(key);
-                break;
-              }
-              default: {
-                cy.current.getElementById(key).remove();
-                break;
+            } else if (change.action === "delete") {
+              switch (path) {
+                case "data": {
+                  const [nodeId] = e.path;
+                  if (!(typeof nodeId === "string")) return;
+                  cy.current.getElementById(nodeId).removeData(key);
+                  break;
+                }
+                default: {
+                  cy.current.getElementById(key).remove();
+                  break;
+                }
               }
             }
           }
-        })
+        )
       );
     });
 
@@ -172,7 +218,8 @@ const Graph = ({
     });
 
     // cursor update
-    cy.current?.on("mousemove", (e) => {
+    cy.current?.on("vmousemove", (e) => {
+      // cy.current?.on("mousemove", (e) => {
       handleMouseMove(e);
     });
 
@@ -182,7 +229,7 @@ const Graph = ({
 
     // node move update
     cy.current.on("drag", (e) => {
-      e.target.forEach((element: cytoscape.NodeSingular) => {
+      e.target.forEach((element: NodeSingular) => {
         const ynode = ynodes.current?.get(element.data("id"));
         const ynodePosition = ynode?.get("position") as
           | YNodePosition
@@ -195,6 +242,21 @@ const Graph = ({
           });
         }
       });
+    });
+
+    // TODO: context menu
+    // cy.current.on("cxttap", "node", (e) => {
+    //
+    // });
+
+    cy.current.on("cxttapstart", "node", (e) => {
+      const node = e.target as NodeSingular;
+      // @ts-expect-error wrong typed
+      eh.start(node);
+    });
+
+    cy.current.on("cxttapend", "node", (e) => {
+      eh.stop();
     });
 
     // node slected

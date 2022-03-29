@@ -49,16 +49,17 @@ export const NodeAttributes = ({
         if (change.action === "add") {
           updateAttributes();
         } else if (change.action === "update") {
-          const target = e.target as YNodeData;
-          const valueInput = document.getElementById(`${nodeId}-${key}-value`);
-          const pair = target.get(key);
-          if (
-            !(
-              valueInput instanceof HTMLInputElement && typeof pair !== "string"
-            )
-          )
-            return;
-          valueInput.value = pair?.value ?? "";
+          updateAttributes();
+          // const target = e.target as YNodeData;
+          // const valueInput = document.getElementById(`${nodeId}-${key}-value`);
+          // const pair = target.get(key);
+          // if (
+          //   !(
+          //     valueInput instanceof HTMLInputElement && typeof pair !== "string"
+          //   )
+          // )
+          //   return;
+          // valueInput.value = pair?.value ?? "";
         } else if (change.action === "delete") {
           updateAttributes();
         }

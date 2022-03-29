@@ -10,13 +10,13 @@ import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Transaction, YMapEvent } from "yjs";
 import { YNodeData, YNodeProp, YNodes } from "../../types";
 import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
-import { assert } from "console";
 
 export type NodeAttributesProp = {
   nodes: NodeSingular[];
   ynodesRef: MutableRefObject<YNodes | undefined>;
 };
 
+// TODO: need better attribute edit system
 export const NodeAttributes = ({
   nodes,
   ynodesRef,
@@ -48,7 +48,6 @@ export const NodeAttributes = ({
       e.changes.keys.forEach((change, key) => {
         if (change.action === "add") {
           updateAttributes();
-          // setAttributes((prev) => [...prev, key]);
         } else if (change.action === "update") {
           const target = e.target as YNodeData;
           const valueInput = document.getElementById(`${nodeId}-${key}-value`);
@@ -62,7 +61,6 @@ export const NodeAttributes = ({
           valueInput.value = pair?.value ?? "";
         } else if (change.action === "delete") {
           updateAttributes();
-          // setAttributes((prev) => prev.filter((name) => name !== key));
         }
       });
     };
@@ -80,10 +78,12 @@ export const NodeAttributes = ({
 
     if (!(ydata?.has(oldName) && value)) return;
     e.target.name = e.target.value;
+
+    // TODO: attrid dupe resolve (when multiple client edit key)
+
     ydata.doc?.transact(() => {
-      ydata.clone;
-      ydata.set(newName, value);
       ydata.delete(oldName);
+      ydata.set(newName, value);
     });
   };
 
@@ -123,21 +123,19 @@ export const NodeAttributes = ({
                   id={`${nodeId}-id-name`}
                   data-attrid={nodeId}
                   className="flex-1 min-w-0 bg-gray-300 text-ellipsis"
-                  defaultValue="id"
+                  value="id"
                   disabled
-                  // onChange={handleNameChange}
                 />
                 <input
                   id={`${nodeId}-id-value`}
                   data-attrid={nodeId}
                   className="flex-1 min-w-0 border focus:z-10 bg-gray-300 text-ellipsis"
-                  defaultValue={nodeId}
+                  value={nodeId}
                   disabled
-                  // onChange={handleValueChange}
                 />
               </div>
-              {/* // {key: string}: YNodeProp */}
               {attributes.map(([key, attr]) => {
+                console.log(key);
                 if (
                   !(
                     typeof key === "string" &&
@@ -153,14 +151,14 @@ export const NodeAttributes = ({
                       id={`${nodeId}-${key}-name`}
                       data-attrid={attr.attrid}
                       className="flex-1 min-w-0 border-t border-r focus:z-10 text-ellipsis"
-                      defaultValue={key}
+                      value={key}
                       onChange={handleNameChange}
                     />
                     <input
                       id={`${nodeId}-${key}-value`}
                       data-attrid={attr.attrid}
                       className="flex-1 min-w-0 border-t focus:z-10 text-ellipsis"
-                      defaultValue={attr.value}
+                      value={attr.value}
                       onChange={handleValueChange}
                     />
                   </div>

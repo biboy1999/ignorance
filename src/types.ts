@@ -13,6 +13,10 @@ type YNodeGroup = string;
 
 type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
 
+type EdgeData = { source: string; target: string; id: string };
+type YEdgeData = Y.Map<EdgeData>;
+type YEdge = Y.Array<YEdgeData>;
+
 type YNodes = Y.Map<YNode>;
 
 type Providers = {
@@ -25,6 +29,7 @@ type Provider = WebrtcProvider | WebsocketProvider;
 export type {
   YNodes,
   YNode,
+  YEdge,
   YNodeGroup,
   YNodeData,
   YNodeProp,

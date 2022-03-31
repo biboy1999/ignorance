@@ -24,7 +24,7 @@ export const NodeAttributes = ({
   const nodeId = nodes[0]?.id();
   const ynode = ynodesRef.current?.get(nodeId);
   const ydata = ynode?.get("data") as YNodeData | undefined;
-  const [attributes, setAttributes] = useState<any[]>([]);
+  const [attributes, setAttributes] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const updateAttributes = useCallback(() => {
     setAttributes(
       Array.from(ydata?.entries() ?? []).filter(([k, _v]) => k !== "id")
@@ -45,7 +45,7 @@ export const NodeAttributes = ({
     ): void => {
       // add delete happen on name change
       // update happen on value change
-      e.changes.keys.forEach((change, key) => {
+      e.changes.keys.forEach((change, _key) => {
         if (change.action === "add") {
           updateAttributes();
         } else if (change.action === "update") {
@@ -136,7 +136,6 @@ export const NodeAttributes = ({
                 />
               </div>
               {attributes.map(([key, attr]) => {
-                console.log(key);
                 if (
                   !(
                     typeof key === "string" &&

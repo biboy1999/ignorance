@@ -1,6 +1,7 @@
 import Layers, { ICanvasLayer, LayersPlugin } from "cytoscape-layers";
 import edgehandles from "cytoscape-edgehandles";
 import cytoscape, { NodeSingular } from "cytoscape";
+import fcose from "cytoscape-fcose";
 import { MutableRefObject, useContext, useEffect, useRef } from "react";
 import { Doc, Map as YMap } from "yjs";
 import { Awareness } from "y-protocols/awareness";
@@ -23,7 +24,8 @@ const Graph = ({
 }): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const cy = useRef<cytoscape.Core>();
+  // const cy = useRef<cytoscape.Core>();
+  const cy = context.cy;
   const layers = useRef<LayersPlugin>();
   const cursorLayer = useRef<ICanvasLayer>();
   const cursorLinkingLayer = useRef<ICanvasLayer>();
@@ -47,6 +49,7 @@ const Graph = ({
   useEffect(() => {
     Layers(cytoscape);
     cytoscape.use(edgehandles);
+    cytoscape.use(fcose);
     cy.current = cytoscape({
       container: document.getElementById("cy"),
       ...init_options,
@@ -54,10 +57,10 @@ const Graph = ({
 
     // init edge options
     const defaults = {
-      canConnect: function (
+      canConnect: (
         sourceNode: NodeSingular,
         targetNode: NodeSingular
-      ) {
+      ): boolean => {
         // whether an edge can be created between source and target
         return (
           // disallow loops
@@ -74,16 +77,15 @@ const Graph = ({
       //   // return element object to be passed to cy.add() for edge
       //   return {};
       // },
-      hoverDelay: 150, // time spent hovering over a target node before it is considered selected
+      // hoverDelay: 150, // time spent hovering over a target node before it is considered selected
       snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
-      snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
-      snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
-      noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
-      disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+      // snapThreshold: 10, // the target node must be less than or equal to this many pixels away from the cursor/finger
+      // snapFrequency: 5, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+      // noEdgeEventsInDraw: false, // set events:no to edges during draws, prevents mouseouts on compounds
+      // disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     };
 
     const eh = cy.current.edgehandles(defaults);
-    eh.enable();
 
     // @ts-expect-error cytoscpae ext.
     layers.current = cy.current.layers() as LayersPlugin;
@@ -249,14 +251,25 @@ const Graph = ({
     //
     // });
 
+    cy.current.on("layoutstop", (e, x) => {
+      console.dir(e.target.options.eles.forEach((x: any) => console.log(x)));
+    });
+
     cy.current.on("cxttapstart", "node", (e) => {
       const node = e.target as NodeSingular;
+      eh.enable();
       // @ts-expect-error wrong typed
       eh.start(node);
     });
 
-    cy.current.on("cxttapend", "node", (e) => {
+    cy.current.on("cxttapend", "node", () => {
       eh.stop();
+      eh.disable();
+    });
+
+    // @ts-expect-error edgehandles event
+    cy.current.on("ehcomplete", (event, sourceNode, targetNode, addedEdge) => {
+      console.log(addedEdge.json());
     });
 
     // node slected

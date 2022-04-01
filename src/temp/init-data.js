@@ -37,6 +37,14 @@ const init_options = {
       },
     },
     {
+      selector: ":selected",
+      style: {
+        "line-color": "red",
+        "background-color": "red",
+        "target-arrow-color": "red",
+      },
+    },
+    {
       selector: ".eh-handle",
       style: {
         "background-color": "red",

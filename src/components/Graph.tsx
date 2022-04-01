@@ -1,7 +1,12 @@
-import Layers, { ICanvasLayer, LayersPlugin } from "cytoscape-layers";
+import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
 import edgehandles from "cytoscape-edgehandles";
-import cytoscape, { NodeSingular } from "cytoscape";
+import cytoscape, {
+  EdgeDataDefinition,
+  NodeSingular,
+  SingularElementReturnValue,
+} from "cytoscape";
 import fcose from "cytoscape-fcose";
+import layoutUtilities from "cytoscape-layout-utilities";
 import { MutableRefObject, useContext, useEffect, useRef } from "react";
 import { Doc, Map as YMap } from "yjs";
 import { Awareness } from "y-protocols/awareness";
@@ -27,8 +32,7 @@ const Graph = ({
   // const cy = useRef<cytoscape.Core>();
   const cy = context.cy;
   const layers = useRef<LayersPlugin>();
-  const cursorLayer = useRef<ICanvasLayer>();
-  const cursorLinkingLayer = useRef<ICanvasLayer>();
+  const cursorLayer = useRef<ICanvasStaticLayer>();
 
   const loadedImages = useRef<Map<number, HTMLImageElement>>();
 
@@ -49,6 +53,7 @@ const Graph = ({
   useEffect(() => {
     Layers(cytoscape);
     cytoscape.use(edgehandles);
+    cytoscape.use(layoutUtilities);
     cytoscape.use(fcose);
     cy.current = cytoscape({
       container: document.getElementById("cy"),
@@ -89,8 +94,7 @@ const Graph = ({
 
     // @ts-expect-error cytoscpae ext.
     layers.current = cy.current.layers() as LayersPlugin;
-    cursorLayer.current = layers.current.append("canvas");
-    cursorLinkingLayer.current = layers.current.append("canvas");
+    cursorLayer.current = layers.current.append("canvas-static");
 
     loadedImages.current = new Map<number, HTMLImageElement>();
 
@@ -221,7 +225,6 @@ const Graph = ({
 
     // cursor update
     cy.current?.on("vmousemove", (e) => {
-      // cy.current?.on("mousemove", (e) => {
       handleMouseMove(e);
     });
 
@@ -246,13 +249,49 @@ const Graph = ({
       });
     });
 
+    // sync edge
+    context.yedges.current.observe((e, tx) => {
+      if (tx.local) return;
+      e.changes.added.forEach((item) => {
+        const datas = item.content.getContent() as EdgeDataDefinition[];
+        datas.forEach((data: EdgeDataDefinition) => {
+          if ("source" in data && "target" in data && "id" in data) {
+            cy.current?.add({ data });
+          }
+        });
+      });
+    });
+
+    // @ts-expect-error edgehandles event
+    cy.current.on(
+      "ehcomplete",
+      (
+        _event: unknown,
+        _sourceNode: unknown,
+        _targetNode: unknown,
+        addedEdge: EdgeDataDefinition
+      ) => {
+        context.yedges.current.push([addedEdge.data()]);
+      }
+    );
+
     // TODO: context menu
     // cy.current.on("cxttap", "node", (e) => {
     //
     // });
 
-    cy.current.on("layoutstop", (e, x) => {
-      console.dir(e.target.options.eles.forEach((x: any) => console.log(x)));
+    // when layout complete, sync node position
+    cy.current.on("layoutstop", (e) => {
+      ydoc.current.transact(() => {
+        e.target.options.eles.forEach((ele: SingularElementReturnValue) => {
+          if (!ele.isNode()) return;
+          const ynodePosition = ynodes.current
+            .get(ele.id())
+            ?.get("position") as YNodePosition;
+          ynodePosition.set("x", ele.position("x"));
+          ynodePosition.set("y", ele.position("y"));
+        });
+      });
     });
 
     cy.current.on("cxttapstart", "node", (e) => {
@@ -265,11 +304,6 @@ const Graph = ({
     cy.current.on("cxttapend", "node", () => {
       eh.stop();
       eh.disable();
-    });
-
-    // @ts-expect-error edgehandles event
-    cy.current.on("ehcomplete", (event, sourceNode, targetNode, addedEdge) => {
-      console.log(addedEdge.json());
     });
 
     // node slected

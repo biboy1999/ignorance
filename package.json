@@ -17,6 +17,7 @@
     "cytoscape-edgehandles": "^4.0.1",
     "cytoscape-fcose": "^2.1.0",
     "cytoscape-layers": "^2.2.0",
+    "cytoscape-layout-utilities": "^1.1.1",
     "dompurify": "^2.3.6",
     "immer": "^9.0.12",
     "ramda": "^0.28.0",

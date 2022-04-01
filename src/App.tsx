@@ -2,6 +2,7 @@ import { createContext, MutableRefObject, useRef } from "react";
 import { Doc, Map as YMap } from "yjs";
 import { v4 as uuidv4 } from "uuid";
 import { Awareness } from "y-protocols/awareness";
+import { Core } from "cytoscape";
 import "./App.css";
 import {
   YNodeGroup,
@@ -11,6 +12,7 @@ import {
   Provider,
   Providers,
   YNodeProp,
+  YEdges,
 } from "./types";
 import { UserInfo } from "./components/panel/UserInfo";
 import { useSelectedNodes } from "./store/selectedNodes";
@@ -20,11 +22,11 @@ import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
 import { useYDoc } from "./utils/hooks/useYDoc";
 import { useProvider } from "./utils/hooks/useProvider";
-import { Core } from "cytoscape";
 
 type ProviderDocContextProps = {
   ydoc: MutableRefObject<Doc>;
   ynodes: MutableRefObject<YNodes>;
+  yedges: MutableRefObject<YEdges>;
   awareness: Awareness;
   addProvider: (provider: Provider) => Provider;
   providers: Providers;
@@ -39,7 +41,7 @@ export const ProviderDocContext = createContext<ProviderDocContextProps>(
 );
 
 function App(): JSX.Element {
-  const { ydoc, ynodes } = useYDoc();
+  const { ydoc, ynodes, yedges } = useYDoc();
 
   const { isSynced, isOnlineMode, awareness, addProvider, providers } =
     useProvider(ydoc.current);
@@ -75,15 +77,16 @@ function App(): JSX.Element {
   };
 
   const doLayout = (): void => {
-    console.log("layouting");
-    const layout = cy.current?.layout({
+    const selectedEles = cy.current?.$(":selected");
+    if (!selectedEles) return;
+    const layout = selectedEles.layout({
       name: "fcose",
       // 'draft', 'default' or 'proof'
       // - "draft" only applies spectral layout
       // - "default" improves the quality with incremental layout (fast cooling rate)
       // - "proof" improves the quality with incremental layout (slow cooling rate)
       // @ts-expect-error fcose not typped
-      quality: "default",
+      quality: "proof",
       // Use random node positions at beginning of layout
       // if this is set to false, then quality option must be "proof"
       randomize: true,
@@ -100,7 +103,7 @@ function App(): JSX.Element {
       // Whether to include labels in node dimensions. Valid in "proof" quality
       nodeDimensionsIncludeLabels: false,
       // Whether or not simple nodes (non-compound nodes) are of uniform dimensions
-      uniformNodeDimensions: false,
+      uniformNodeDimensions: true,
       // Whether to pack disconnected components - cytoscape-layout-utilities extension should be registered and initialized
       packComponents: true,
       // Layout step - all, transformed, enforced, cose - for debug purpose only
@@ -109,22 +112,22 @@ function App(): JSX.Element {
       /* spectral layout options */
 
       // False for random, true for greedy sampling
-      samplingType: true,
+      // samplingType: true,
       // Sample size to construct distance matrix
-      sampleSize: 25,
+      // sampleSize: 25,
       // Separation amount between nodes
-      nodeSeparation: 150,
+      // nodeSeparation: 150,
       // Power iteration tolerance
-      piTol: 0.0000001,
+      // piTol: 0.0000001,
 
       /* incremental layout options */
 
       // Node repulsion (non overlapping) multiplier
-      nodeRepulsion: (node) => 4500,
+      nodeRepulsion: (_node) => 4500,
       // Ideal edge (non nested) length
-      idealEdgeLength: (edge) => 50,
+      idealEdgeLength: (_edge) => 200,
       // Divisor to compute edge forces
-      edgeElasticity: (edge) => 0.45,
+      edgeElasticity: (_edge) => 0.45,
       // Nesting factor (multiplier) to compute ideal edge length for nested edges
       nestingFactor: 0.1,
       // Maximum number of iterations to perform - this is a suggested value and might be adjusted by the algorithm as required
@@ -168,6 +171,7 @@ function App(): JSX.Element {
   const contextValue = {
     ydoc,
     ynodes,
+    yedges,
     awareness,
     addProvider,
     providers,

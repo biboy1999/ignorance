@@ -7,29 +7,19 @@ import cytoscape, {
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
-import { MutableRefObject, useContext, useEffect, useRef } from "react";
-import { Doc, Map as YMap } from "yjs";
-import { Awareness } from "y-protocols/awareness";
+import { useContext, useEffect, useRef } from "react";
+import { Map as YMap } from "yjs";
 import { init_options } from "../temp/init-data";
 import { useOnlineUsers } from "../store/onlineUsers";
 import { useSelectedNodes } from "../store/selectedNodes";
-import { YNode, YNodeData, YNodePosition, YNodes } from "../types";
+import { YNode, YNodeData, YNodePosition } from "../types";
 import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
 import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
 import { ProviderDocContext } from "../App";
 
-const Graph = ({
-  awareness,
-  ydoc,
-  ynodes,
-}: {
-  awareness: Awareness;
-  ydoc: MutableRefObject<Doc>;
-  ynodes: MutableRefObject<YNodes>;
-}): JSX.Element => {
+const Graph = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  // const cy = useRef<cytoscape.Core>();
   const cy = context.cy;
   const layers = useRef<LayersPlugin>();
   const cursorLayer = useRef<ICanvasStaticLayer>();
@@ -44,7 +34,7 @@ const Graph = ({
   const handleMouseMove = useThrottledCallback(
     (e: cytoscape.EventObject) => {
       if (context.isOnlineMode)
-        awareness.setLocalStateField("position", e.position);
+        context.awareness.setLocalStateField("position", e.position);
     },
     10,
     []
@@ -100,7 +90,7 @@ const Graph = ({
 
     // event register
     // cursor render
-    awareness.on(
+    context.awareness.on(
       "change",
       (
         _actions: {
@@ -111,7 +101,7 @@ const Graph = ({
         _tx: Record<string, unknown> | string
       ): void => {
         const onlineUsers = Array.from(
-          awareness.getStates(),
+          context.awareness.getStates(),
           ([key, value]) => ({ id: key, username: value.username })
         );
         setUsernames(onlineUsers);
@@ -121,7 +111,7 @@ const Graph = ({
     );
 
     // nodes sync
-    ynodes.current.observeDeep((evt) => {
+    context.ynodes.current.observeDeep((evt) => {
       evt.forEach((e) =>
         e.changes.keys.forEach(
           (change: { action: string; [x: string]: unknown }, key: string) => {
@@ -193,8 +183,8 @@ const Graph = ({
 
     // cursor render
     cursorLayer.current.callback((ctx) => {
-      awareness.getStates().forEach((value, key) => {
-        if (awareness.clientID === key) return;
+      context.awareness.getStates().forEach((value, key) => {
+        if (context.awareness.clientID === key) return;
 
         const pos = value.position ?? { x: 0, y: 0 };
         const username = value.username ?? "";
@@ -235,13 +225,13 @@ const Graph = ({
     // node move update
     cy.current.on("drag", (e) => {
       e.target.forEach((element: NodeSingular) => {
-        const ynode = ynodes.current?.get(element.data("id"));
+        const ynode = context.ynodes.current?.get(element.data("id"));
         const ynodePosition = ynode?.get("position") as
           | YNodePosition
           | undefined;
         if (ynodePosition) {
           const nodePos = element.position();
-          ydoc.current?.transact(() => {
+          context.ydoc.current?.transact(() => {
             ynodePosition.set("x", nodePos.x);
             ynodePosition.set("y", nodePos.y);
           });
@@ -275,17 +265,12 @@ const Graph = ({
       }
     );
 
-    // TODO: context menu
-    // cy.current.on("cxttap", "node", (e) => {
-    //
-    // });
-
     // when layout complete, sync node position
     cy.current.on("layoutstop", (e) => {
-      ydoc.current.transact(() => {
+      context.ydoc.current.transact(() => {
         e.target.options.eles.forEach((ele: SingularElementReturnValue) => {
           if (!ele.isNode()) return;
-          const ynodePosition = ynodes.current
+          const ynodePosition = context.ynodes.current
             .get(ele.id())
             ?.get("position") as YNodePosition;
           ynodePosition.set("x", ele.position("x"));

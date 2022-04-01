@@ -19,6 +19,14 @@ type YEdges = Y.Array<EdgeData>;
 
 type YNodes = Y.Map<YNode>;
 
+// type TransformsJob = {
+//   fromClientId: string;
+//   transformId: string;
+//   parameter: any;
+// };
+
+// type YTransformJobsBuffer = Y.Array<TransformsJob>;
+
 type Providers = {
   webrtc: { provider: WebrtcProvider | undefined; isSynced: boolean };
   websocket: { provider: WebsocketProvider | undefined; isSynced: boolean };

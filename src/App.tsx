@@ -1,4 +1,4 @@
-import { createContext, MutableRefObject, useRef } from "react";
+import { createContext, MutableRefObject, useEffect, useRef } from "react";
 import { Doc, Map as YMap } from "yjs";
 import { v4 as uuidv4 } from "uuid";
 import { Awareness } from "y-protocols/awareness";
@@ -22,6 +22,8 @@ import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
 import { useYDoc } from "./utils/hooks/useYDoc";
 import { useProvider } from "./utils/hooks/useProvider";
+import { Transforms } from "./components/panel/Transforms";
+import { WebrtcProvider } from "y-webrtc";
 
 type ProviderDocContextProps = {
   ydoc: MutableRefObject<Doc>;
@@ -183,6 +185,7 @@ function App(): JSX.Element {
     <>
       <ProviderDocContext.Provider value={contextValue}>
         <UserInfo />
+        <Transforms />
         <NodeAttributes nodes={nodes} ynodesRef={ynodes} />
         <Controlbar
           onAdd={handleAddNode}
@@ -190,7 +193,7 @@ function App(): JSX.Element {
           onLayout={doLayout}
         />
         <div className="flex flex-col h-screen w-screen">
-          <Graph awareness={awareness} ydoc={ydoc} ynodes={ynodes} />
+          <Graph />
           <Statusbar isOnlineMode={isOnlineMode} />
         </div>
       </ProviderDocContext.Provider>

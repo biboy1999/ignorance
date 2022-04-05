@@ -3,7 +3,7 @@ import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
 import { Awareness } from "y-protocols/awareness";
 import create from "zustand";
-import { Provider, Providers } from "../types";
+import { Provider, Providers } from "../types/types";
 
 type providerState = {
   providers: Providers;

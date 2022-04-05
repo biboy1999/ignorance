@@ -4,7 +4,7 @@ import { WebsocketProvider } from "y-websocket";
 import { Doc as YDoc } from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { useProviders } from "../../store/providers";
-import { Provider, Providers } from "../../types";
+import { Provider, Providers } from "../../types/types";
 import { generateUsername } from "../username/randomUsername";
 
 export const useProvider = (

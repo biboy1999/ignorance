@@ -1,6 +1,5 @@
 import { createContext, MutableRefObject, useEffect, useRef } from "react";
 import { Doc, Map as YMap } from "yjs";
-import { v4 as uuidv4 } from "uuid";
 import { Awareness } from "y-protocols/awareness";
 import { Core } from "cytoscape";
 import "./App.css";
@@ -11,9 +10,8 @@ import {
   YNodes,
   Provider,
   Providers,
-  YNodeProp,
   YEdges,
-} from "./types";
+} from "./types/types";
 import { UserInfo } from "./components/panel/UserInfo";
 import { useSelectedNodes } from "./store/selectedNodes";
 import { Graph } from "./components/Graph";
@@ -24,6 +22,7 @@ import { useYDoc } from "./utils/hooks/useYDoc";
 import { useProvider } from "./utils/hooks/useProvider";
 import { Transforms } from "./components/panel/Transforms";
 import { WebrtcProvider } from "y-webrtc";
+import { nanoid } from "nanoid";
 
 type ProviderDocContextProps = {
   ydoc: MutableRefObject<Doc>;
@@ -53,13 +52,12 @@ function App(): JSX.Element {
   const nodes = useSelectedNodes((states) => states.nodes);
 
   const handleAddNode = (): void => {
-    const nodeId = uuidv4();
+    const nodeId = nanoid();
 
-    const data = new YMap<string | YNodeProp>();
-
+    const data = new YMap<string>();
     data.set("id", nodeId);
-    data.set("name", { attrid: uuidv4(), value: "New Node" });
-    data.set("testattr", { attrid: uuidv4(), value: "test" });
+    data.set("name", "New Node");
+    data.set("testattr", "test");
 
     const position = new YMap<number>();
     position.set("x", 300);

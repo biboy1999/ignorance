@@ -1,6 +1,6 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 import { Doc as YDoc } from "yjs";
-import { EdgeData, YEdges, YNode, YNodes } from "../../types";
+import { Edge, YEdges, YNode, YNodes } from "../../types/types";
 
 export const useYDoc = (): {
   ydoc: MutableRefObject<YDoc>;
@@ -9,7 +9,7 @@ export const useYDoc = (): {
 } => {
   const ydoc = useRef<YDoc>(new YDoc());
   const ynodes = useRef<YNodes>(ydoc.current.getMap<YNode>("nodes"));
-  const yedges = useRef<YEdges>(ydoc.current.getArray<EdgeData>("edges"));
+  const yedges = useRef<YEdges>(ydoc.current.getArray<Edge>("edges"));
 
   useEffect(() => {
     return (): void => ydoc.current.destroy();

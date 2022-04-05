@@ -12,7 +12,7 @@ import { Map as YMap } from "yjs";
 import { init_options } from "../temp/init-data";
 import { useOnlineUsers } from "../store/onlineUsers";
 import { useSelectedNodes } from "../store/selectedNodes";
-import { YNode, YNodeData, YNodePosition } from "../types";
+import { YNode, YNodeData, YNodePosition } from "../types/types";
 import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
 import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
 import { ProviderDocContext } from "../App";
@@ -153,7 +153,8 @@ const Graph = (): JSX.Element => {
                   break;
                 }
                 case "data": {
-                  const target = e.target as YNodeData;
+                  // const target = e.target as YNodeData;
+                  const target = e.target;
                   const id = target.get("id");
                   if (!id) break;
                   const node = cy.current.getElementById(id.toString());
@@ -215,7 +216,8 @@ const Graph = (): JSX.Element => {
 
     // cursor update
     cy.current?.on("vmousemove", (e) => {
-      handleMouseMove(e);
+      if (e.cy.$(":grabbed").length || e.originalEvent.buttons !== 1)
+        handleMouseMove(e);
     });
 
     cy.current?.on("viewport", () => {

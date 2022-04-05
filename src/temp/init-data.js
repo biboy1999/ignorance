@@ -20,7 +20,7 @@ const init_options = {
       selector: "node[name]",
       style: {
         "background-color": "#666",
-        label: "data(name.value)",
+        label: "data(name)",
         "min-zoomed-font-size": 12,
         "font-size": 18,
       },

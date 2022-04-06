@@ -1,9 +1,11 @@
 import { NodeSingular } from "cytoscape";
 import {
   ChangeEvent,
+  KeyboardEvent,
   MutableRefObject,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
@@ -26,6 +28,9 @@ export const NodeAttributes = ({
   const ynode = ynodesRef.current?.get(nodeId);
   const ydata = ynode?.get("data") as YNodeData | undefined;
   const [attributes, setAttributes] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  const addKeyInput = useRef<HTMLInputElement>(null);
+  const addValueInput = useRef<HTMLInputElement>(null);
 
   const updateAttributes = useCallback(() => {
     setAttributes(Array.from(ydata?.entries() ?? []));
@@ -73,7 +78,7 @@ export const NodeAttributes = ({
           if (!(typeof pair === "string")) return;
           valueInput.value = pair;
         } else if (change.action === "add") {
-          // updateAttributes();
+          updateAttributes();
         } else if (change.action === "delete") {
           // updateAttributes();
         }
@@ -124,6 +129,21 @@ export const NodeAttributes = ({
     if (key && ydata?.has(key)) ydata.set(key, value);
   };
 
+  const handleAddKey = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (!(e.key === "Enter" && addKeyInput.current && addValueInput.current))
+      return;
+    const key = addKeyInput.current.value || `key-${nanoid(10)}`;
+    const value = addValueInput.current.value || "new attribute";
+    if (ydata?.has(key)) return;
+    ydata?.set(key, value);
+    addKeyInput.current.value = "";
+    addKeyInput.current.blur();
+    addValueInput.current.value = "";
+    addValueInput.current.blur();
+    updateAttributes();
+    document.getElementById(`${nodeId}-${key}-key`)?.focus();
+  };
+
   return (
     <CollapsibleDragResizeBox
       sizeOffset={[180, 250]}
@@ -140,7 +160,7 @@ export const NodeAttributes = ({
               <ChevronUpIcon
                 className={`${
                   isOpen ? "transform rotate-180" : ""
-                } w-6 h-6 text-white cursor-pointer`}
+                } w-6 h-6 text-white cursor-pointer hover:bg-purple-300`}
                 onClick={toggle}
               />
             </h1>
@@ -167,28 +187,22 @@ export const NodeAttributes = ({
                   </div>
                 );
               })}
-            {/* {attributes.length > 0 && (
-              <div className="flex flex-col flex-1 overflow-auto">
-                <div key={nanoid()} className="flex">
-                  <input
-                    id={`add-key`}
-                    placeholder="Add Attribute"
-                    // data-key={key}
-                    className="flex-1 min-w-0 border-t border-r focus:z-10 text-ellipsis"
-                    // defaultValue={key}
-                    // onChange={handleKeyChange}
-                  />
-                  <input
-                    id={`add-value`}
-                    placeholder="Add Attribute"
-                    // data-key={key}
-                    className="flex-1 min-w-0 border-t focus:z-10 text-ellipsis"
-                    // defaultValue={value}
-                    // onChange={handleValueChange}
-                  />
-                </div>
+            {attributes.length > 0 && (
+              <div className="flex">
+                <input
+                  ref={addKeyInput}
+                  placeholder="Add Attribute"
+                  className="flex-1 min-w-0 border-t border-r text-ellipsis"
+                  onKeyDown={handleAddKey}
+                />
+                <input
+                  ref={addValueInput}
+                  placeholder="Add value"
+                  className="flex-1 min-w-0 border-t focus:z-10 text-ellipsis"
+                  onKeyDown={handleAddKey}
+                />
               </div>
-            )} */}
+            )}
           </div>
         </>
       )}

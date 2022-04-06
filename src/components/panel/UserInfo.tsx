@@ -33,7 +33,7 @@ export const UserInfo = (): JSX.Element => {
               <ChevronUpIcon
                 className={`${
                   isOpen ? "transform rotate-180" : ""
-                } w-6 h-6 text-white cursor-pointer`}
+                } w-6 h-6 text-white cursor-pointer hover:bg-purple-300`}
                 onClick={toggle}
               />
             </h1>

@@ -16,9 +16,6 @@ export type Node = {
 
 export type YNodePosition = Y.Map<number>;
 
-// export type YNodeId = string;
-// export type YNodeProp = { attrid: string; value: string };
-
 export type YNodeData = Y.Map<string>;
 
 export type YNodeGroup = string;
@@ -64,7 +61,7 @@ type TransformsResponse = {
 };
 
 type TransformsRequest = {
-  nodes?: Node[];
+  nodes?: PartialBy<Node, "position">[];
   edges?: Edge[];
   parameter?: {
     [option: string]: string;
@@ -79,21 +76,23 @@ type TransformsJobParameter = {
   };
 };
 
-type TransformsJob = {
+export type TransformsJob = {
   JobId: string;
   fromClientId: number;
   transformId: string;
   request: TransformsJobParameter;
 };
 
-type YTransformJobsBuffer = Y.Array<TransformsJob>;
-
-type TransformOffer = {
+export type TransformProvider = Omit<TransformInternal, "apiUrl"> & {
   clientId: number;
-  elementType: string[];
+};
+
+export type TransformInternal = {
   transformId: string;
   name: string;
-  desription: string;
+  description: string;
+  elementType: string[];
+  apiUrl: string;
   parameter: {
     [option: string]: string;
   };

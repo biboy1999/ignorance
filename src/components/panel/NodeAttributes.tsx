@@ -192,7 +192,7 @@ export const NodeAttributes = ({
                 <input
                   ref={addKeyInput}
                   placeholder="Add Attribute"
-                  className="flex-1 min-w-0 border-t border-r text-ellipsis"
+                  className="flex-1 min-w-0 border-t border-r focus:z-10 text-ellipsis"
                   onKeyDown={handleAddKey}
                 />
                 <input

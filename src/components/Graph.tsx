@@ -1,13 +1,14 @@
 import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
 import edgehandles from "cytoscape-edgehandles";
 import cytoscape, {
+  Collection,
   EdgeDataDefinition,
   NodeSingular,
   SingularElementReturnValue,
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Map as YMap } from "yjs";
 import { init_options } from "../temp/init-data";
 import { useOnlineUsers } from "../store/onlineUsers";
@@ -16,11 +17,14 @@ import { YNode, YNodeData, YNodePosition } from "../types/types";
 import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
 import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
 import { ProviderDocContext } from "../App";
+import { NodeContextMenu } from "./NodeContextMenu";
 
 const Graph = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
   const cy = context.cy;
+  const [_cy, setCy] = useState<cytoscape.Core | undefined>(undefined);
+
   const layers = useRef<LayersPlugin>();
   const cursorLayer = useRef<ICanvasStaticLayer>();
 
@@ -49,6 +53,7 @@ const Graph = (): JSX.Element => {
       container: document.getElementById("cy"),
       ...init_options,
     });
+    setCy(cy.current);
 
     // init edge options
     const defaults = {
@@ -293,6 +298,11 @@ const Graph = (): JSX.Element => {
       eh.disable();
     });
 
+    cy.current.on("cxttap", "*", (e) => {
+      const ele = e.target as Collection;
+      ele.select();
+    });
+
     // node slected
     cy.current.on("select", (e) => {
       if (e.target.isNode()) addNode(e.target);
@@ -303,7 +313,12 @@ const Graph = (): JSX.Element => {
     };
   }, []);
 
-  return <div id="cy" className="flex-1" />;
+  return (
+    <>
+      <div id="cy" className="flex-1" />
+      <NodeContextMenu cy={_cy} />
+    </>
+  );
 };
 
 export { Graph };

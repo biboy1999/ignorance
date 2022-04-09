@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@floating-ui/react-dom": "^0.6.1",
+    "@floating-ui/react-dom-interactions": "^0.0.15",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
     "@testing-library/jest-dom": "^5.15.1",
@@ -26,6 +28,7 @@
     "react-dom": "^18.0.0",
     "react-draggable": "^4.4.4",
     "react-hook-form": "^7.22.5",
+    "react-merge-refs": "^1.1.0",
     "react-resizable": "^3.0.4",
     "react-scripts": "5.0.0",
     "react-window": "^1.8.6",

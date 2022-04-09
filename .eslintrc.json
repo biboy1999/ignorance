@@ -1,9 +1,9 @@
 {
   "extends": [
-    "plugin:prettier/recommended",
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "plugins": ["prettier", "@typescript-eslint"],
@@ -13,7 +13,6 @@
   },
   "ignorePatterns": "node_modules/*",
   "rules": {
-    "indent": ["error", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["warn", "double"],
     "no-console": "warn",

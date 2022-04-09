@@ -101,6 +101,7 @@ const init_options = {
     name: "grid",
     rows: 1,
   },
+  wheelSensitivity: 0.3,
   // hideEdgesOnViewport: true,
   pixelRatio: 1.0,
   // motionBlur: true,

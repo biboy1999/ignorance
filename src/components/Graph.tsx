@@ -300,6 +300,7 @@ const Graph = (): JSX.Element => {
 
     cy.current.on("cxttap", "*", (e) => {
       const ele = e.target as Collection;
+      cy.current?.$(":selected").unselect();
       ele.select();
     });
 

@@ -18,10 +18,6 @@ export type YNodePosition = Y.Map<number>;
 
 export type YNodeData = Y.Map<string>;
 
-export type YNodeGroup = string;
-
-export type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
-
 export function isYNodeData(x: any): x is Y.Map<string> {
   return x instanceof Y.Map && x.has("id");
 }
@@ -33,6 +29,11 @@ export function isYNodePosition(x: any): x is Y.Map<number> {
     typeof x.get("y") === "number"
   );
 }
+
+export type YNodeGroup = string;
+
+export type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
+
 
 export type YEdges = Y.Array<Edge>;
 
@@ -83,10 +84,12 @@ export type TransformsJob = {
   request: TransformsJobParameter;
 };
 
+// used in ydoc
 export type TransformProvider = Omit<TransformInternal, "apiUrl"> & {
   clientId: number;
 };
 
+// used in local state
 export type TransformInternal = {
   transformId: string;
   name: string;

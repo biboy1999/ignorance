@@ -9,6 +9,7 @@ import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
 import { ProviderDocContext } from "../../App";
 import { TransformProvider } from "../../types/types";
 import { TransformProviderModal } from "../modal/TransformProviderModal/TransformProviderModal";
+import { nanoid } from "nanoid";
 
 export type TransformsProp = null;
 
@@ -33,17 +34,17 @@ export const Transforms = (): JSX.Element => {
   }, []);
 
   // test providers
-  // useEffect(() => {
-  //   const provider = {
-  //     clientId: context.awareness.clientID,
-  //     elementType: ["*"],
-  //     transformId: nanoid(),
-  //     name: "testing",
-  //     description: "a testing transform",
-  //     parameter: {},
-  //   };
-  //   yproviders.push([provider]);
-  // }, []);
+  useEffect(() => {
+    const provider = {
+      clientId: context.awareness.clientID,
+      elementType: ["*"],
+      transformId: nanoid(),
+      name: "testing",
+      description: "a testing transform",
+      parameter: {},
+    };
+    yproviders.push([provider]);
+  }, []);
 
   return (
     <CollapsibleDragResizeBox

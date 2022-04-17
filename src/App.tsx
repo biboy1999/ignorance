@@ -12,15 +12,15 @@ import {
   Providers,
   YEdges,
 } from "./types/types";
-import { UserInfo } from "./components/panel/UserInfo";
+import { UserInfo } from "./components/windows/UserInfo";
+import { NodeAttributes } from "./components/windows/NodeAttributes";
+import { Transforms } from "./components/windows/Transforms/Transforms";
 import { useSelectedNodes } from "./store/selectedNodes";
 import { Graph } from "./components/Graph";
-import { NodeAttributes } from "./components/panel/NodeAttributes";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
 import { useYDoc } from "./utils/hooks/useYDoc";
 import { useProvider } from "./utils/hooks/useProvider";
-import { Transforms } from "./components/panel/Transforms";
 import { WebrtcProvider } from "y-webrtc";
 import { nanoid } from "nanoid";
 
@@ -57,6 +57,7 @@ function App(): JSX.Element {
     const data = new YMap<string>();
     data.set("id", nodeId);
     data.set("name", "New Node");
+    data.set("type", "people");
     data.set("testattr", "test");
 
     const position = new YMap<number>();

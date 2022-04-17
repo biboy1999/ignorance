@@ -26,7 +26,7 @@ export const useYDoc = (): {
   );
   // pending transforms requests
   const ytransformJobs = useRef(
-    ydoc.current.getArray<TransformsJob>("transform-request")
+    ydoc.current.getArray<TransformsJob>("transform-requests")
   );
 
   useEffect(() => {

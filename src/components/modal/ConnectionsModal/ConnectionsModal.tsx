@@ -18,11 +18,7 @@ export const ConnectionsModal = ({
 }: ConnectionsMadelProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const {
-    register,
-    handleSubmit,
-    // formState: { errors },
-  } = useForm<ProvidersParameters>();
+  const { register, handleSubmit } = useForm<ProvidersParameters>();
 
   const onSubmit = handleSubmit((data) => {
     const usingRtc = where({

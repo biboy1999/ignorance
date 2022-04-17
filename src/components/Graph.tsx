@@ -21,7 +21,6 @@ import { NodeContextMenu } from "./NodeContextMenu";
 
 const Graph = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
-
   const cy = context.cy;
   const [_cy, setCy] = useState<cytoscape.Core | undefined>(undefined);
 

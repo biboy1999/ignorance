@@ -34,7 +34,6 @@ export type YNodeGroup = string;
 
 export type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
 
-
 export type YEdges = Y.Array<Edge>;
 
 export type YNodes = Y.Map<YNode>;
@@ -78,7 +77,8 @@ type TransformsJobParameter = {
 };
 
 export type TransformsJob = {
-  JobId: string;
+  jobId: string;
+  status: "failed" | "rejected" | "accepted" | "pending";
   fromClientId: number;
   transformId: string;
   request: TransformsJobParameter;
@@ -88,6 +88,18 @@ export type TransformsJob = {
 export type TransformProvider = Omit<TransformInternal, "apiUrl"> & {
   clientId: number;
 };
+
+export function isTrnasformProvider(x: any): x is TransformProvider {
+  return (
+    typeof x === "object" &&
+    "transformId" in x &&
+    "clientId" in x &&
+    "name" in x &&
+    "description" in x &&
+    "elementType" in x &&
+    "parameter" in x
+  );
+}
 
 // used in local state
 export type TransformInternal = {

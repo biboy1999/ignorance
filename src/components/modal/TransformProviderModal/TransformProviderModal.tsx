@@ -25,10 +25,12 @@ export const TransformProviderModal = ({
 
   const onSubmit = method.handleSubmit((data) => {
     const internal = { ...data, transformId: nanoid(), parameter: {} };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { apiUrl, ...publicTransform } = {
       ...internal,
       clientId: context.awareness.clientID,
     };
+
     addProviders([internal]);
     const ytransform = context.ydoc.current.getArray("transform-provider");
     ytransform.push([publicTransform]);

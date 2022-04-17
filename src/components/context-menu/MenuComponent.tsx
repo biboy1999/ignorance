@@ -33,6 +33,7 @@ import {
   FloatingContext,
 } from "@floating-ui/react-dom-interactions";
 import { ProviderDocContext } from "../../App";
+import { MenuButton } from "./MenuButton";
 
 type Props = {
   cy?: cytoscape.Core;
@@ -51,11 +52,17 @@ export const MenuComponent = forwardRef<
   const [open, setOpen] = useState(false);
 
   const listItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
-  const listContentRef = useRef(
-    Children.map(children, (child) =>
-      isValidElement(child) ? child.props.label : null
-    ) as Array<string | null>
-  );
+  const listContentRef = useRef<Array<string | null>>([]);
+
+  useEffect(() => {
+    listContentRef.current = Children.toArray(children)
+      .map((child) =>
+        isValidElement(child) && child.type === MenuButton
+          ? child.props.label
+          : null
+      )
+      .filter((ele) => ele) as Array<string | null>;
+  }, [children]);
 
   const blockMouseEventsRef = useRef(false);
 
@@ -85,10 +92,19 @@ export const MenuComponent = forwardRef<
       onNavigate: setActiveIndex,
       nested,
       focusItemOnOpen: false,
+      loop: true,
     }),
     useTypeahead(context, {
       listRef: listContentRef,
       onMatch: open ? setActiveIndex : undefined,
+      // findMatch: (list, typedString) => {
+      //   console.log(list);
+      //   return list
+      //     .filter((x) => x)
+      //     .find(
+      //       (itemString) => itemString?.toLowerCase().indexOf(typedString) === 0
+      //     );
+      // },
       activeIndex,
     }),
   ]);
@@ -223,7 +239,7 @@ export const MenuComponent = forwardRef<
       });
       setOpen(true);
     }
-    if (!nested) globalContext.cy.current?.on("cxttap", "*", onContextMenu);
+    if (!nested) globalContext.cy.current?.on("cxttap", onContextMenu);
     return (): void => {
       if (!nested) globalContext.cy.current?.off("cxttap", onContextMenu);
     };
@@ -272,12 +288,16 @@ export const MenuComponent = forwardRef<
                 isValidElement(child) &&
                 cloneElement(child, {
                   ref(node: HTMLButtonElement) {
-                    listItemsRef.current[index] = node;
+                    if (node?.tagName === "BUTTON") {
+                      listItemsRef.current[index] = node;
+                    }
                   },
                   onClick: (
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                   ) => {
-                    child.props.onClick(e);
+                    if (child.props.onClick) {
+                      child.props.onClick(e);
+                    }
                     setOpen(false);
                     // safari
                     e.currentTarget.focus();

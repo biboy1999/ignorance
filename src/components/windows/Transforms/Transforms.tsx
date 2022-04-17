@@ -5,46 +5,20 @@ import {
   PlusSmIcon,
   InformationCircleIcon,
 } from "@heroicons/react/solid";
-import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
-import { ProviderDocContext } from "../../App";
-import { TransformProvider } from "../../types/types";
-import { TransformProviderModal } from "../modal/TransformProviderModal/TransformProviderModal";
+import { CollapsibleDragResizeBox } from "../../CollapsibleDragResizeBox";
+import { ProviderDocContext } from "../../../App";
+import { TransformProvider, TransformsJob } from "../../../types/types";
+import { TransformProviderModal } from "../../modal/TransformProviderModal/TransformProviderModal";
 import { nanoid } from "nanoid";
+import { ProviderPanel } from "./ProvidersPanel";
+import { RequestsPanel } from "./RequestsPanel";
 
 export type TransformsProp = null;
 
 export const Transforms = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
-  const yproviders =
-    context.ydoc.current.getArray<TransformProvider>("transform-provider");
-  // const yrequests =
-  //   context.ydoc.current.getArray<TransformsJob>("transform-request");
-
-  const [providers, setProviders] = useState<TransformProvider[]>([]);
-  // const [requests, setRequests] = useState<TransformsJob[]>([]);
 
   const [isAddModelOpen, setIsAddModelOpen] = useState(false);
-
-  useEffect(() => {
-    const handleChange = (): void => {
-      setProviders(yproviders.toJSON());
-    };
-    yproviders.observe(handleChange);
-    return (): void => yproviders.unobserve(handleChange);
-  }, []);
-
-  // test providers
-  useEffect(() => {
-    const provider = {
-      clientId: context.awareness.clientID,
-      elementType: ["*"],
-      transformId: nanoid(),
-      name: "testing",
-      description: "a testing transform",
-      parameter: {},
-    };
-    yproviders.push([provider]);
-  }, []);
 
   return (
     <CollapsibleDragResizeBox
@@ -94,24 +68,30 @@ export const Transforms = (): JSX.Element => {
                     }`
                   }
                 >
-                  Pending
+                  Requested
                 </Tab>
               </Tab.List>
               <Tab.Panel className="flex flex-col overflow-auto">
-                {providers.map((provider) => {
+                <ProviderPanel />
+              </Tab.Panel>
+              <Tab.Panel className="flex flex-col overflow-auto">
+                <RequestsPanel />
+                {/* {requests.map((request) => {
                   return (
-                    <div className="flex flex-1 gap-2 items-center font-mono py-1 odd:bg-slate-100 even:bg-slate-200 hover:bg-white">
-                      <span>{provider.name}</span>
+                    <div
+                      key={request.JobId}
+                      className="flex flex-1 gap-2 items-center font-mono py-1 odd:bg-slate-100 even:bg-slate-200 hover:bg-white"
+                    >
+                      <span>{request.transformId}</span>
                       <span className="text-gray-500 flex-1 truncate min-w-0">
-                        {context.awareness.getStates().get(provider.clientId)
+                        {context.awareness.getStates().get(request.fromClientId)
                           ?.username ?? "unknown"}
                       </span>
                       <InformationCircleIcon className="w-6 h-6 text-gray-400" />
                     </div>
                   );
-                })}
+                })} */}
               </Tab.Panel>
-              <Tab.Panel>transform pending</Tab.Panel>
             </Tab.Group>
           </div>
         </>

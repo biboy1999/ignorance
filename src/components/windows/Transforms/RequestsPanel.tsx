@@ -1,30 +1,38 @@
 import { Disclosure } from "@headlessui/react";
-import { ExclamationCircleIcon } from "@heroicons/react/outline";
-import {
-  BanIcon,
-  CheckIcon,
-  ChevronUpIcon,
-  XIcon,
-} from "@heroicons/react/solid";
-import { cond } from "ramda";
+import { ClockIcon, ExclamationCircleIcon } from "@heroicons/react/outline";
+import { BanIcon, CheckIcon, ChevronUpIcon } from "@heroicons/react/solid";
 import { useContext, useEffect, useState } from "react";
 import { ProviderDocContext } from "../../../App";
 import { useTransforms } from "../../../store/transforms";
-import { TransformProvider, TransformsJob } from "../../../types/types";
+import {
+  isTransformsResponse,
+  TransformProvider,
+  TransformsJob,
+  TransformsRequest,
+} from "../../../types/types";
+import { AddNode } from "../../../utils/node";
 
 export const RequestsPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
   const interanlTransforms = useTransforms((state) => state.transformProviders);
 
+  const cy = context.cy.current;
+  const ydoc = context.ydoc.current;
+  const ynodes = context.ynodes.current;
+
   const yrequests =
-    context.ydoc.current.getArray<TransformsJob>("transform-requests");
-  const yproviders =
-    context.ydoc.current.getArray<TransformProvider>("transform-provider");
-  const [requests, setRequests] = useState<TransformsJob[]>(yrequests.toJSON());
+    context.ydoc.current.getMap<TransformsJob>("transform-requests");
+  const yproviders = context.ydoc.current.getMap<TransformProvider>(
+    "transform-providers"
+  );
+
+  const [requests, setRequests] = useState<TransformsJob[]>(
+    Array.from(yrequests.entries()).map(([_k, v]) => v)
+  );
 
   useEffect(() => {
     const handleRequestChange = (): void => {
-      setRequests(yrequests.toJSON());
+      setRequests(Array.from(yrequests.entries()).map(([_k, v]) => v));
     };
     yrequests.observe(handleRequestChange);
     return (): void => {
@@ -32,58 +40,69 @@ export const RequestsPanel = (): JSX.Element => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const test: TransformsJob[] = [
-  //     {
-  //       jobId: "a",
-  //       status: "failed",
-  //       fromClientId: 1,
-  //       transformId: "a",
-  //       request: {
-  //         nodesId: ["b"],
-  //         parameter: {},
-  //       },
-  //     },
-  //     {
-  //       jobId: "b",
-  //       status: "rejected",
-  //       fromClientId: 1,
-  //       transformId: "a",
-  //       request: {
-  //         nodesId: ["b"],
-  //         parameter: {},
-  //       },
-  //     },
-  //     {
-  //       jobId: "c",
-  //       status: "accepted",
-  //       fromClientId: 1,
-  //       transformId: "a",
-  //       request: {
-  //         nodesId: ["b"],
-  //         parameter: {},
-  //       },
-  //     },
-  //     {
-  //       jobId: "d",
-  //       status: "pending",
-  //       fromClientId: 1,
-  //       transformId: "a",
-  //       request: {
-  //         nodesId: ["b"],
-  //         parameter: {},
-  //       },
-  //     },
-  //   ];
-  //   yrequests.push(test);
-  // }, []);
+  const handleError = (jobId: string, job: TransformsJob): void => {
+    yrequests.set(jobId, { ...job, status: "failed" });
+  };
 
   const handleRejectJob: React.MouseEventHandler = (e) => {
     e.stopPropagation();
+    const jobId = e.currentTarget.getAttribute("data-jobid");
+    if (!jobId) return;
+    const job = yrequests.get(jobId);
+    if (!job) return;
+    yrequests.set(jobId, { ...job, status: "rejected" });
   };
 
   const handleAcceptJob: React.MouseEventHandler = (e) => {
     e.stopPropagation();
+    const transformId = e.currentTarget.getAttribute("data-transformid");
+    const jobId = e.currentTarget.getAttribute("data-jobid");
+    if (!(transformId && jobId)) return;
+
+    const transform = interanlTransforms.find(
+      (x) => x.transformId === transformId
+    );
+
+    const job = yrequests.get(jobId);
+    if (!(transform && job)) return;
+
+    const request: TransformsRequest = {
+      nodes: job.request.nodesId?.map((nodeId) => cy?.$id(nodeId).data()),
+      edges: job.request.edgesId?.map((edgeId) => cy?.$id(edgeId).data()),
+      parameter: job.request.parameter,
+    };
+
+    fetch(transform.apiUrl, {
+      method: "POST",
+      body: JSON.stringify(request),
+      headers: {
+        "content-type": "application/json",
+      },
+    })
+      .then(
+        (resp) => {
+          return resp.json();
+        },
+        () => handleError(jobId, job)
+      )
+      .then(
+        (data) => {
+          if (!isTransformsResponse(data)) return;
+          ydoc.transact(() => {
+            data.add?.nodes?.forEach((ele) => {
+              const { nodeId, node } = AddNode(
+                0,
+                0,
+                ele.data,
+                cy?.pan(),
+                cy?.zoom()
+              );
+              ynodes.set(nodeId, node);
+            });
+          });
+        },
+        () => handleError(jobId, job)
+      );
   };
 
   return (
@@ -93,10 +112,8 @@ export const RequestsPanel = (): JSX.Element => {
           context.awareness.getStates().get(request.fromClientId)?.username ??
           "unknown";
         const transformName =
-          yproviders
-            .toArray()
-            .find((x) => x.transformId === request.transformId)?.name ??
-          "unknown";
+          yproviders.get(request.transformId)?.name ?? "unknown";
+
         return (
           <Disclosure key={request.jobId}>
             <Disclosure.Button className="flex odd:bg-slate-200 even:bg-purple-200 hover:bg-white">
@@ -121,11 +138,12 @@ export const RequestsPanel = (): JSX.Element => {
                       ),
                       pending: interanlTransforms.some(
                         (x) => x.transformId === request.transformId
-                      ) && (
+                      ) ? (
                         <div className="flex space-x-2">
                           <CheckIcon
                             className="w-6 h-6 text-white bg-green-500"
                             data-jobid={request.jobId}
+                            data-transformid={request.transformId}
                             onClick={handleAcceptJob}
                           />
                           <BanIcon
@@ -134,6 +152,8 @@ export const RequestsPanel = (): JSX.Element => {
                             onClick={handleRejectJob}
                           />
                         </div>
+                      ) : (
+                        <ClockIcon className="w-6 h-6 text-gray-500" />
                       ),
                     }[request.status]
                   }

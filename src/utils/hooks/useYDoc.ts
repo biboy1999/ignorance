@@ -1,6 +1,5 @@
 import { MutableRefObject, useEffect, useRef } from "react";
-import { Doc as YDoc } from "yjs";
-import { YArray } from "yjs/dist/src/internals";
+import { Doc as YDoc, Map as YMap } from "yjs";
 import {
   Edge,
   TransformProvider,
@@ -14,24 +13,24 @@ export const useYDoc = (): {
   ydoc: MutableRefObject<YDoc>;
   ynodes: MutableRefObject<YNodes>;
   yedges: MutableRefObject<YEdges>;
-  ytransformOffers: MutableRefObject<YArray<TransformProvider>>;
-  ytransformJobs: MutableRefObject<YArray<TransformsJob>>;
+  ytransformProviders: MutableRefObject<YMap<TransformProvider>>;
+  ytransformJobs: MutableRefObject<YMap<TransformsJob>>;
 } => {
   const ydoc = useRef<YDoc>(new YDoc());
   const ynodes = useRef<YNodes>(ydoc.current.getMap<YNode>("nodes"));
   const yedges = useRef<YEdges>(ydoc.current.getArray<Edge>("edges"));
   // transforms listing
-  const ytransformOffers = useRef(
-    ydoc.current.getArray<TransformProvider>("transform-provider")
+  const ytransformProviders = useRef(
+    ydoc.current.getMap<TransformProvider>("transform-providers")
   );
   // pending transforms requests
   const ytransformJobs = useRef(
-    ydoc.current.getArray<TransformsJob>("transform-requests")
+    ydoc.current.getMap<TransformsJob>("transform-requests")
   );
 
   useEffect(() => {
     return (): void => ydoc.current.destroy();
   }, []);
 
-  return { ydoc, ynodes, yedges, ytransformOffers, ytransformJobs };
+  return { ydoc, ynodes, yedges, ytransformProviders, ytransformJobs };
 };

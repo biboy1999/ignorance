@@ -1,6 +1,5 @@
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
-import { nanoid } from "nanoid";
 import { useContext, useEffect, useState } from "react";
 import { ProviderDocContext } from "../../../App";
 import { TransformProvider } from "../../../types/types";
@@ -8,40 +7,19 @@ import { TransformProvider } from "../../../types/types";
 export const ProviderPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const yproviders =
-    context.ydoc.current.getArray<TransformProvider>("transform-provider");
+  const yproviders = context.ydoc.current.getMap<TransformProvider>(
+    "transform-providers"
+  );
   const [providers, setProviders] = useState<TransformProvider[]>(
-    yproviders.toJSON()
+    Array.from(yproviders.entries()).map(([_k, v]) => v)
   );
 
   useEffect(() => {
     const handleProvidersChange = (): void => {
-      setProviders(yproviders.toJSON());
+      setProviders(Array.from(yproviders.entries()).map(([_k, v]) => v));
     };
     yproviders.observe(handleProvidersChange);
     return () => yproviders.unobserve(handleProvidersChange);
-  }, []);
-
-  useEffect(() => {
-    const provider = {
-      clientId: context.awareness.clientID,
-      elementType: ["*"],
-      transformId: nanoid(),
-      name: "people all",
-      description: "a testing transform",
-      parameter: {},
-    };
-    yproviders.push([provider]);
-
-    const provider2 = {
-      clientId: context.awareness.clientID,
-      elementType: ["people", "pp"],
-      transformId: nanoid(),
-      name: "test type",
-      description: "a type filtered transform",
-      parameter: {},
-    };
-    yproviders.push([provider2]);
   }, []);
 
   return (

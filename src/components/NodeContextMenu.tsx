@@ -3,7 +3,11 @@ import { MenuButton } from "./context-menu/MenuButton";
 import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
 import { forwardRef, useContext } from "react";
 import { ProviderDocContext } from "../App";
-import { isTrnasformProvider, TransformsJob } from "../types/types";
+import {
+  isTrnasformProvider,
+  TransformProvider,
+  TransformsJob,
+} from "../types/types";
 import { AddNode } from "../utils/node";
 import { nanoid } from "nanoid";
 
@@ -26,10 +30,15 @@ const GroupHeader = forwardRef<
 
 export const NodeContextMenu = ({ cy }: NodeContextMenuProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
+  const providers = Array.from(
+    context.ydoc.current
+      .getMap<TransformProvider>("transform-providers")
+      .entries()
+  );
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {
     const requests =
-      context.ydoc.current.getArray<TransformsJob>("transform-requests");
+      context.ydoc.current.getMap<TransformsJob>("transform-requests");
     const clientId = context.awareness.clientID;
     const transformId = e.currentTarget.getAttribute("data-transformid");
     const collection = cy?.$(":selected");
@@ -45,7 +54,7 @@ export const NodeContextMenu = ({ cy }: NodeContextMenuProp): JSX.Element => {
         parameter: {},
       },
     };
-    requests.push([job]);
+    requests.set(job.jobId, job);
   };
 
   return (
@@ -61,7 +70,13 @@ export const NodeContextMenu = ({ cy }: NodeContextMenuProp): JSX.Element => {
           const currentTarget = e.currentTarget as HTMLElement;
           const parent = currentTarget.parentElement as HTMLElement;
 
-          const { nodeId, node } = AddNode(parent.offsetLeft, parent.offsetTop);
+          const { nodeId, node } = AddNode(
+            parent.offsetLeft,
+            parent.offsetTop,
+            {},
+            cy?.pan(),
+            cy?.zoom()
+          );
           if (nodeId) context.ynodes.current.set(nodeId, node);
         }}
       />
@@ -75,31 +90,29 @@ export const NodeContextMenu = ({ cy }: NodeContextMenuProp): JSX.Element => {
       />
       <Divider />
       <GroupHeader>Transform</GroupHeader>
-      {context.ydoc.current
-        .getArray("transform-provider")
-        .map((value, _key) => {
-          const type = cy?.$(":selected");
-          if (
-            !(
-              isTrnasformProvider(value) &&
-              type?.isNode() &&
-              (value.elementType.includes(type?.data("type")) ||
-                value.elementType.includes("*"))
-            )
-          ) {
-            return;
-          }
-          return (
-            <MenuButton
-              key={value.transformId}
-              data-transformid={value.transformId}
-              className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10 ring-inset"
-              label={value.name}
-              title={value.name}
-              onClick={handleAddRequest}
-            />
-          );
-        })}
+      {providers.map(([_key, value]) => {
+        const type = cy?.$(":selected");
+        if (
+          !(
+            isTrnasformProvider(value) &&
+            type?.isNode() &&
+            (value.elementType.includes(type?.data("type")) ||
+              value.elementType.includes("*"))
+          )
+        ) {
+          return;
+        }
+        return (
+          <MenuButton
+            key={value.transformId}
+            data-transformid={value.transformId}
+            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10 ring-inset"
+            label={value.name}
+            title={value.name}
+            onClick={handleAddRequest}
+          />
+        );
+      })}
       <Divider />
     </Menu>
   );

@@ -1,15 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { Tab } from "@headlessui/react";
-import {
-  ChevronUpIcon,
-  PlusSmIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/solid";
+import { ChevronUpIcon, PlusSmIcon } from "@heroicons/react/solid";
 import { CollapsibleDragResizeBox } from "../../CollapsibleDragResizeBox";
 import { ProviderDocContext } from "../../../App";
-import { TransformProvider, TransformsJob } from "../../../types/types";
 import { TransformProviderModal } from "../../modal/TransformProviderModal/TransformProviderModal";
-import { nanoid } from "nanoid";
 import { ProviderPanel } from "./ProvidersPanel";
 import { RequestsPanel } from "./RequestsPanel";
 
@@ -76,21 +70,6 @@ export const Transforms = (): JSX.Element => {
               </Tab.Panel>
               <Tab.Panel className="flex flex-col overflow-auto">
                 <RequestsPanel />
-                {/* {requests.map((request) => {
-                  return (
-                    <div
-                      key={request.JobId}
-                      className="flex flex-1 gap-2 items-center font-mono py-1 odd:bg-slate-100 even:bg-slate-200 hover:bg-white"
-                    >
-                      <span>{request.transformId}</span>
-                      <span className="text-gray-500 flex-1 truncate min-w-0">
-                        {context.awareness.getStates().get(request.fromClientId)
-                          ?.username ?? "unknown"}
-                      </span>
-                      <InformationCircleIcon className="w-6 h-6 text-gray-400" />
-                    </div>
-                  );
-                })} */}
               </Tab.Panel>
             </Tab.Group>
           </div>

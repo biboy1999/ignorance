@@ -1,4 +1,10 @@
-import { Fragment, useContext, Dispatch, SetStateAction } from "react";
+import {
+  Fragment,
+  useContext,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useForm, FormProvider } from "react-hook-form";
 import { ProviderDocContext } from "../../../App";
@@ -32,8 +38,8 @@ export const TransformProviderModal = ({
     };
 
     addProviders([internal]);
-    const ytransform = context.ydoc.current.getArray("transform-provider");
-    ytransform.push([publicTransform]);
+    const ytransform = context.ydoc.current.getMap("transform-providers");
+    ytransform.set(publicTransform.transformId, publicTransform);
   });
 
   return (
@@ -86,10 +92,10 @@ export const TransformProviderModal = ({
                   form="connectionForm"
                   className="w-auto inline-flex justify-center border border-gray-300 shadow-sm px-4 py-2 my-0 bg-green-300 text-sm font-medium font-mono text-gray-700 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   onClick={(): void => {
-                    // setOpen(false);
+                    setOpen(false);
                   }}
                 >
-                  Connect
+                  Add
                 </button>
               </div>
             </div>

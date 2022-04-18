@@ -46,7 +46,7 @@ type ResponseNode = {
   position?: { x: number; y: number };
 };
 
-type TransformsResponse = {
+export type TransformsResponse = {
   add?: {
     nodes?: ResponseNode[];
     edges?: PartialBy<Edge, "id">[];
@@ -60,7 +60,11 @@ type TransformsResponse = {
   };
 };
 
-type TransformsRequest = {
+export function isTransformsResponse(x: any): x is TransformsResponse {
+  return x instanceof Object;
+}
+
+export type TransformsRequest = {
   nodes?: PartialBy<Node, "position">[];
   edges?: Edge[];
   parameter?: {

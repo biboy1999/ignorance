@@ -27,7 +27,9 @@ export const TransformProviderModal = ({
   const context = useContext(ProviderDocContext);
   const addProviders = useTransforms((state) => state.addProviders);
 
-  const method = useForm<TransformProviderParamters>();
+  const method = useForm<TransformProviderParamters>({
+    defaultValues: { elementType: ["*"] },
+  });
 
   const onSubmit = method.handleSubmit((data) => {
     const internal = { ...data, transformId: nanoid(), parameter: {} };
@@ -40,6 +42,7 @@ export const TransformProviderModal = ({
     addProviders([internal]);
     const ytransform = context.ydoc.current.getMap("transform-providers");
     ytransform.set(publicTransform.transformId, publicTransform);
+    setOpen(false);
   });
 
   return (
@@ -91,9 +94,6 @@ export const TransformProviderModal = ({
                   type="submit"
                   form="connectionForm"
                   className="w-auto inline-flex justify-center border border-gray-300 shadow-sm px-4 py-2 my-0 bg-green-300 text-sm font-medium font-mono text-gray-700 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={(): void => {
-                    setOpen(false);
-                  }}
                 >
                   Add
                 </button>

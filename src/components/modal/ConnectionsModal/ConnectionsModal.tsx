@@ -1,7 +1,7 @@
 import React, { Fragment, useContext } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Connections, ProvidersParameters } from "./Connections";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { where, is, equals } from "ramda";
 import { ProviderDocContext } from "../../../App";
 import { WebrtcProvider } from "y-webrtc";
@@ -18,7 +18,9 @@ export const ConnectionsModal = ({
 }: ConnectionsMadelProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const { register, handleSubmit } = useForm<ProvidersParameters>();
+  // const { register, handleSubmit } = useForm<ProvidersParameters>();
+  const formMethod = useForm<ProvidersParameters>();
+  const { handleSubmit, trigger, formState } = formMethod;
 
   const onSubmit = handleSubmit((data) => {
     const usingRtc = where({
@@ -44,6 +46,7 @@ export const ConnectionsModal = ({
           filterBcConns: false,
         })
       );
+      setOpen(false);
     } else if (usingWebSocket(data) && !context.providers.websocket.provider) {
       context.addProvider(
         new WebsocketProvider(
@@ -55,6 +58,7 @@ export const ConnectionsModal = ({
           }
         )
       );
+      setOpen(false);
     }
   });
 
@@ -96,18 +100,17 @@ export const ConnectionsModal = ({
                 </Dialog.Title>
               </div>
               <div className="bg-slate-100 max-h-[76vh] overflow-y-auto">
-                <form onSubmit={onSubmit} id="connectionForm">
-                  <Connections register={register} />
-                </form>
+                <FormProvider {...formMethod}>
+                  <form onSubmit={onSubmit} id="connectionForm">
+                    <Connections />
+                  </form>
+                </FormProvider>
               </div>
-              <div className="flex-row-reverse flex bg-slate-100 px-3 py-2">
+              <div className="flex-row-reverse flex bg-slate-100 px-3 py-2 border-t-2">
                 <button
                   type="submit"
                   form="connectionForm"
                   className="w-auto inline-flex justify-center border border-gray-300 shadow-sm px-4 py-2 my-0 bg-green-300 text-sm font-medium font-mono text-gray-700 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={(): void => {
-                    setOpen(false);
-                  }}
                 >
                   Connect
                 </button>

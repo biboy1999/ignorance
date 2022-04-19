@@ -13,7 +13,9 @@ export const Statusbar = ({ isOnlineMode }: StatusbarProp): JSX.Element => {
       <div
         onClick={(): void => setIsOpen((state) => !state)}
         className={`font-mono text-white h-fit w-fit  cursor-pointer ${
-          isOnlineMode ? "bg-green-500" : "bg-red-500"
+          isOnlineMode
+            ? "bg-green-500 hover:bg-green-400"
+            : "bg-red-500 hover:bg-red-400"
         }`}
       >
         {isOnlineMode ? "Online " : "Local"}

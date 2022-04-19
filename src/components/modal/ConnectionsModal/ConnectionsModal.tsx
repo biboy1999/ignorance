@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from "react";
+import React, { Fragment, useContext, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Connections, ProvidersParameters } from "./Connections";
 import { FormProvider, useForm } from "react-hook-form";
@@ -18,7 +18,8 @@ export const ConnectionsModal = ({
 }: ConnectionsMadelProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  // const { register, handleSubmit } = useForm<ProvidersParameters>();
+  const buttonRef = useRef(null);
+
   const formMethod = useForm<ProvidersParameters>();
   const { handleSubmit, trigger, formState } = formMethod;
 
@@ -68,6 +69,7 @@ export const ConnectionsModal = ({
         as="div"
         className="fixed inset-0 overflow-y-auto z-50"
         onClose={setOpen}
+        initialFocus={buttonRef}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20">
           <Transition.Child
@@ -110,6 +112,7 @@ export const ConnectionsModal = ({
                 <button
                   type="submit"
                   form="connectionForm"
+                  ref={buttonRef}
                   className="w-auto inline-flex justify-center border border-gray-300 shadow-sm px-4 py-2 my-0 bg-green-300 text-sm font-medium font-mono text-gray-700 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Connect

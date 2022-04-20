@@ -31,7 +31,7 @@ type YjsSliceState = {
 const YjsSlice: StoreSlice<YjsSliceState> = (set, get) => ({
   ydoc: new YDoc(),
   ynodes: () => get().ydoc.getMap<YNode>("nodes"),
-  yedges: () => get().ydoc.getArray<Edge>("edges"),
+  yedges: () => get().ydoc.getMap<Edge>("edges"),
   ytransformProviders: () =>
     get().ydoc.getMap<TransformProvider>("transform-providers"),
   ytransformJobs: () => get().ydoc.getMap<TransformsJob>("transform-jobs"),

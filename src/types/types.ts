@@ -40,7 +40,7 @@ export type YNodeGroup = string;
 
 export type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
 
-export type YEdges = Y.Array<Edge>;
+export type YEdges = Y.Map<Edge>;
 
 export type YNodes = Y.Map<YNode>;
 

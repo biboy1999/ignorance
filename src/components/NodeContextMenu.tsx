@@ -4,7 +4,7 @@ import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
 import { forwardRef, useContext } from "react";
 import { ProviderDocContext } from "../App";
 import { isTrnasformProvider, TransformsJob } from "../types/types";
-import { AddNode, deleteNodes } from "../utils/node";
+import { AddNode, deleteEdges, deleteNodes } from "../utils/node";
 import { nanoid } from "nanoid";
 import { useGlobals } from "../store/globals";
 
@@ -25,6 +25,7 @@ export const NodeContextMenu = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
   const ynodes = useGlobals((state) => state.ynodes());
+  const yedges = useGlobals((state) => state.yedges());
   const yproviders = useGlobals((state) => state.ytransformProviders());
   const yjobs = useGlobals((state) => state.ytransformJobs());
   const cy = useGlobals((state) => state.cy);
@@ -32,11 +33,22 @@ export const NodeContextMenu = (): JSX.Element => {
   const providers = Array.from(yproviders.entries());
 
   const handleDelete: React.MouseEventHandler = (_e) => {
-    const ids = cy
-      ?.$(":selected")
-      .nodes()
-      .map((ele) => ele.id());
-    if (ids) deleteNodes(ids, ynodes);
+    const eles = cy?.$(":selected");
+    if (!eles?.length) return;
+
+    // selected edge and node connected edge
+    const edges = eles
+      .connectedEdges()
+      .add(eles.edges())
+      .map((e) => e.id());
+
+    deleteEdges(edges, yedges);
+
+    // last delete node
+    deleteNodes(
+      eles.nodes().map((e) => e.id()),
+      ynodes
+    );
   };
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {

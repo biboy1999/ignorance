@@ -1,7 +1,7 @@
 import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
 import edgehandles from "cytoscape-edgehandles";
 import cytoscape, {
-  EdgeDataDefinition,
+  EdgeSingular,
   ElementDefinition,
   NodeSingular,
   SingularElementReturnValue,
@@ -120,28 +120,36 @@ const Graph = (): JSX.Element => {
       }
     );
 
-    // sync node (add)
+    // sync node (add, delete)
     ynodes.observe((e, _tx) => {
       e.changes.keys.forEach((change, key) => {
         if (!(e.target instanceof YMap)) return;
         if (!cy.current) return;
+
         if (change.action === "add") {
           const node = e.target.get(key);
           if (node) cy.current.add(node.toJSON() as ElementDefinition);
+        } else if (change.action === "delete") {
+          cy.current.getElementById(key).remove();
         }
       });
     });
 
-    // sync edge (add)
+    // sync edge (add, delete)
     yedges.observe((e, tx) => {
-      if (tx.local) return;
-      e.changes.added.forEach((item) => {
-        const datas = item.content.getContent() as EdgeDataDefinition[];
-        datas.forEach((data: EdgeDataDefinition) => {
-          if ("source" in data && "target" in data && "id" in data) {
+      e.changes.keys.forEach((change, key) => {
+        if (!cy.current) return;
+
+        if (change.action === "add") {
+          const data = yedges.get(key);
+          if (data && "source" in data && "target" in data && "id" in data) {
+            // local edge handled by edgehadle plugin
+            if (tx.local) return;
             cy.current?.add({ data });
           }
-        });
+        } else if (change.action === "delete") {
+          cy.current.getElementById(key).remove();
+        }
       });
     });
 
@@ -199,10 +207,6 @@ const Graph = (): JSX.Element => {
                   const [nodeId] = e.path;
                   if (!(typeof nodeId === "string")) return;
                   cy.current.getElementById(nodeId).removeData(key);
-                  break;
-                }
-                default: {
-                  cy.current.getElementById(key).remove();
                   break;
                 }
               }
@@ -278,9 +282,9 @@ const Graph = (): JSX.Element => {
         _event: unknown,
         _sourceNode: unknown,
         _targetNode: unknown,
-        addedEdge: EdgeDataDefinition
+        addedEdge: EdgeSingular
       ) => {
-        yedges.push([addedEdge.data()]);
+        yedges.set(addedEdge.id(), addedEdge.data());
       }
     );
 

@@ -1,6 +1,7 @@
 import { createContext, useEffect } from "react";
 import { Map as YMap } from "yjs";
 import { Awareness } from "y-protocols/awareness";
+import { nanoid } from "nanoid";
 import "./App.css";
 import {
   YNodeGroup,
@@ -17,8 +18,6 @@ import { Graph } from "./components/Graph";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
 import { useProvider } from "./utils/hooks/useProvider";
-import { WebrtcProvider } from "y-webrtc";
-import { nanoid } from "nanoid";
 import { useGlobals } from "./store/globals";
 
 type ProviderDocContextProps = {

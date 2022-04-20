@@ -1,7 +1,6 @@
 import Layers, { ICanvasStaticLayer, LayersPlugin } from "cytoscape-layers";
 import edgehandles from "cytoscape-edgehandles";
 import cytoscape, {
-  Collection,
   EdgeDataDefinition,
   ElementDefinition,
   NodeSingular,
@@ -312,8 +311,8 @@ const Graph = (): JSX.Element => {
     });
 
     cy.current.on("cxttap", "*", (e) => {
-      const ele = e.target as Collection;
-      cy.current?.$(":selected").unselect();
+      const ele = e.target as SingularElementReturnValue;
+      if (!ele.selected()) cy.current?.$(":selected").unselect();
       ele.select();
     });
 

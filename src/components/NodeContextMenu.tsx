@@ -3,12 +3,8 @@ import { MenuButton } from "./context-menu/MenuButton";
 import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
 import { forwardRef, useContext } from "react";
 import { ProviderDocContext } from "../App";
-import {
-  isTrnasformProvider,
-  TransformProvider,
-  TransformsJob,
-} from "../types/types";
-import { AddNode } from "../utils/node";
+import { isTrnasformProvider, TransformsJob } from "../types/types";
+import { AddNode, deleteNodes } from "../utils/node";
 import { nanoid } from "nanoid";
 import { useGlobals } from "../store/globals";
 
@@ -28,20 +24,26 @@ const GroupHeader = forwardRef<
 export const NodeContextMenu = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const ydoc = useGlobals((state) => state.ydoc);
   const ynodes = useGlobals((state) => state.ynodes());
+  const yproviders = useGlobals((state) => state.ytransformProviders());
+  const yjobs = useGlobals((state) => state.ytransformJobs());
   const cy = useGlobals((state) => state.cy);
 
-  const providers = Array.from(
-    ydoc.getMap<TransformProvider>("transform-providers").entries()
-  );
+  const providers = Array.from(yproviders.entries());
+
+  const handleDelete: React.MouseEventHandler = (_e) => {
+    const ids = cy
+      ?.$(":selected")
+      .nodes()
+      .map((ele) => ele.id());
+    if (ids) deleteNodes(ids, ynodes);
+  };
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    const requests = ydoc.getMap<TransformsJob>("transform-requests");
     const clientId = context.awareness.clientID;
     const transformId = e.currentTarget.getAttribute("data-transformid");
     const collection = cy?.$(":selected");
-    if (!(requests && clientId && transformId && collection)) return;
+    if (!(yjobs && clientId && transformId && collection)) return;
     const job: TransformsJob = {
       jobId: nanoid(),
       fromClientId: clientId,
@@ -53,7 +55,7 @@ export const NodeContextMenu = (): JSX.Element => {
         parameter: {},
       },
     };
-    requests.set(job.jobId, job);
+    yjobs.set(job.jobId, job);
   };
 
   return (
@@ -83,9 +85,7 @@ export const NodeContextMenu = (): JSX.Element => {
         className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-red-100  hover:z-10 ring-inset hover:text-red-800"
         label="Delete"
         icon={<TrashIcon className="h-5 w-5 mr-2" />}
-        onClick={(): void => {
-          cy?.$(":selected").remove();
-        }}
+        onClick={handleDelete}
       />
       <Divider />
       <GroupHeader>Transform</GroupHeader>

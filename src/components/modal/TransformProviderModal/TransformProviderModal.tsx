@@ -21,7 +21,7 @@ export const TransformProviderModal = ({
 }: ConnectionsMadelProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const ydoc = useGlobals((state) => state.ydoc);
+  const yproviders = useGlobals((state) => state.ytransformProviders());
 
   const addProviders = useTransforms((state) => state.addProviders);
 
@@ -38,8 +38,7 @@ export const TransformProviderModal = ({
     };
 
     addProviders([internal]);
-    const ytransform = ydoc.getMap("transform-providers");
-    ytransform.set(publicTransform.transformId, publicTransform);
+    yproviders.set(publicTransform.transformId, publicTransform);
     setOpen(false);
   });
 

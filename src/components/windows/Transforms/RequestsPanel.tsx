@@ -7,7 +7,6 @@ import { useGlobals } from "../../../store/globals";
 import { useTransforms } from "../../../store/transforms";
 import {
   isTransformsResponse,
-  TransformProvider,
   TransformsJob,
   TransformsRequest,
 } from "../../../types/types";
@@ -21,34 +20,34 @@ export const RequestsPanel = (): JSX.Element => {
   const ydoc = useGlobals((state) => state.ydoc);
   const ynodes = useGlobals((state) => state.ynodes());
 
-  const yrequests = ydoc.getMap<TransformsJob>("transform-requests");
-  const yproviders = ydoc.getMap<TransformProvider>("transform-providers");
+  const yjobs = useGlobals((state) => state.ytransformJobs());
+  const yproviders = useGlobals((state) => state.ytransformProviders());
 
   const [requests, setRequests] = useState<TransformsJob[]>(
-    Array.from(yrequests.entries()).map(([_k, v]) => v)
+    Array.from(yjobs.entries()).map(([_k, v]) => v)
   );
 
   useEffect(() => {
     const handleRequestChange = (): void => {
-      setRequests(Array.from(yrequests.entries()).map(([_k, v]) => v));
+      setRequests(Array.from(yjobs.entries()).map(([_k, v]) => v));
     };
-    yrequests.observe(handleRequestChange);
+    yjobs.observe(handleRequestChange);
     return (): void => {
-      yrequests.unobserve(handleRequestChange);
+      yjobs.unobserve(handleRequestChange);
     };
   }, []);
 
   const handleError = (jobId: string, job: TransformsJob): void => {
-    yrequests.set(jobId, { ...job, status: "failed" });
+    yjobs.set(jobId, { ...job, status: "failed" });
   };
 
   const handleRejectJob: React.MouseEventHandler = (e) => {
     e.stopPropagation();
     const jobId = e.currentTarget.getAttribute("data-jobid");
     if (!jobId) return;
-    const job = yrequests.get(jobId);
+    const job = yjobs.get(jobId);
     if (!job) return;
-    yrequests.set(jobId, { ...job, status: "rejected" });
+    yjobs.set(jobId, { ...job, status: "rejected" });
   };
 
   const handleAcceptJob: React.MouseEventHandler = (e) => {
@@ -61,7 +60,7 @@ export const RequestsPanel = (): JSX.Element => {
       (x) => x.transformId === transformId
     );
 
-    const job = yrequests.get(jobId);
+    const job = yjobs.get(jobId);
     if (!(transform && job)) return;
 
     const request: TransformsRequest = {

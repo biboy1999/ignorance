@@ -8,9 +8,8 @@ import { TransformProvider } from "../../../types/types";
 export const ProviderPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const ydoc = useGlobals((state) => state.ydoc);
+  const yproviders = useGlobals((state) => state.ytransformProviders());
 
-  const yproviders = ydoc.getMap<TransformProvider>("transform-providers");
   const [providers, setProviders] = useState<TransformProvider[]>(
     Array.from(yproviders.entries()).map(([_k, v]) => v)
   );

@@ -1,8 +1,14 @@
 import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
+import { GetState, SetState } from "zustand";
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<T>;
+
+export type StoreSlice<T extends object, E extends object = T> = (
+  set: SetState<E extends T ? E : E & T>,
+  get: GetState<E extends T ? E : E & T>
+) => T;
 
 export type Edge = { source: string; target: string; id: string };
 
@@ -18,11 +24,11 @@ export type YNodePosition = Y.Map<number>;
 
 export type YNodeData = Y.Map<string>;
 
-export function isYNodeData(x: any): x is Y.Map<string> {
+export function isYNodeData(x: object): x is Y.Map<string> {
   return x instanceof Y.Map && x.has("id");
 }
 
-export function isYNodePosition(x: any): x is Y.Map<number> {
+export function isYNodePosition(x: object): x is Y.Map<number> {
   return (
     x instanceof Y.Map &&
     typeof x.get("x") === "number" &&
@@ -60,7 +66,7 @@ export type TransformsResponse = {
   };
 };
 
-export function isTransformsResponse(x: any): x is TransformsResponse {
+export function isTransformsResponse(x: object): x is TransformsResponse {
   return x instanceof Object;
 }
 
@@ -93,7 +99,7 @@ export type TransformProvider = Omit<TransformInternal, "apiUrl"> & {
   clientId: number;
 };
 
-export function isTrnasformProvider(x: any): x is TransformProvider {
+export function isTrnasformProvider(x: object): x is TransformProvider {
   return (
     typeof x === "object" &&
     "transformId" in x &&

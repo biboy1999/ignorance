@@ -10,10 +10,7 @@ import {
 } from "../types/types";
 import { AddNode } from "../utils/node";
 import { nanoid } from "nanoid";
-
-type NodeContextMenuProp = {
-  cy: cytoscape.Core | undefined;
-};
+import { useGlobals } from "../store/globals";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 bg-white font-mono leading-5 text-base border-b" />
@@ -28,17 +25,19 @@ const GroupHeader = forwardRef<
   </p>
 ));
 
-export const NodeContextMenu = ({ cy }: NodeContextMenuProp): JSX.Element => {
+export const NodeContextMenu = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
+
+  const ydoc = useGlobals((state) => state.ydoc);
+  const ynodes = useGlobals((state) => state.ynodes());
+  const cy = useGlobals((state) => state.cy);
+
   const providers = Array.from(
-    context.ydoc.current
-      .getMap<TransformProvider>("transform-providers")
-      .entries()
+    ydoc.getMap<TransformProvider>("transform-providers").entries()
   );
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    const requests =
-      context.ydoc.current.getMap<TransformsJob>("transform-requests");
+    const requests = ydoc.getMap<TransformsJob>("transform-requests");
     const clientId = context.awareness.clientID;
     const transformId = e.currentTarget.getAttribute("data-transformid");
     const collection = cy?.$(":selected");
@@ -77,7 +76,7 @@ export const NodeContextMenu = ({ cy }: NodeContextMenuProp): JSX.Element => {
             cy?.pan(),
             cy?.zoom()
           );
-          if (nodeId) context.ynodes.current.set(nodeId, node);
+          if (nodeId) ynodes.set(nodeId, node);
         }}
       />
       <MenuButton

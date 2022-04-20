@@ -3,7 +3,6 @@ import {
   cloneElement,
   forwardRef,
   isValidElement,
-  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -32,8 +31,8 @@ import {
   FloatingNode,
   FloatingContext,
 } from "@floating-ui/react-dom-interactions";
-import { ProviderDocContext } from "../../App";
 import { MenuButton } from "./MenuButton";
+import { useGlobals } from "../../store/globals";
 
 type Props = {
   cy?: cytoscape.Core;
@@ -45,8 +44,8 @@ type Props = {
 export const MenuComponent = forwardRef<
   unknown,
   Props & React.HTMLProps<HTMLButtonElement>
->(({ children, cy, label, className, buttonClassName }, ref) => {
-  const globalContext = useContext(ProviderDocContext);
+>(({ children, label, className, buttonClassName }, ref) => {
+  const cy = useGlobals((state) => state.cy);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -239,9 +238,9 @@ export const MenuComponent = forwardRef<
       });
       setOpen(true);
     }
-    if (!nested) globalContext.cy.current?.on("cxttap", onContextMenu);
+    if (!nested) cy?.on("cxttap", onContextMenu);
     return (): void => {
-      if (!nested) globalContext.cy.current?.off("cxttap", onContextMenu);
+      if (!nested) cy?.off("cxttap", onContextMenu);
     };
   }, [mergedReferenceRef, cy]);
 

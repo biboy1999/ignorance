@@ -1,10 +1,4 @@
-import {
-  Fragment,
-  useContext,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-} from "react";
+import { Fragment, useContext, Dispatch, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useForm, FormProvider } from "react-hook-form";
 import { ProviderDocContext } from "../../../App";
@@ -14,6 +8,7 @@ import {
 } from "./TransformProviderForm";
 import { useTransforms } from "../../../store/transforms";
 import { nanoid } from "nanoid";
+import { useGlobals } from "../../../store/globals";
 
 export type ConnectionsMadelProp = {
   open: boolean;
@@ -25,6 +20,9 @@ export const TransformProviderModal = ({
   setOpen,
 }: ConnectionsMadelProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
+
+  const ydoc = useGlobals((state) => state.ydoc);
+
   const addProviders = useTransforms((state) => state.addProviders);
 
   const method = useForm<TransformProviderParamters>({
@@ -40,7 +38,7 @@ export const TransformProviderModal = ({
     };
 
     addProviders([internal]);
-    const ytransform = context.ydoc.current.getMap("transform-providers");
+    const ytransform = ydoc.getMap("transform-providers");
     ytransform.set(publicTransform.transformId, publicTransform);
     setOpen(false);
   });

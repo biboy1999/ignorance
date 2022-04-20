@@ -3,6 +3,7 @@ import { ClockIcon, ExclamationCircleIcon } from "@heroicons/react/outline";
 import { BanIcon, CheckIcon, ChevronUpIcon } from "@heroicons/react/solid";
 import { useContext, useEffect, useState } from "react";
 import { ProviderDocContext } from "../../../App";
+import { useGlobals } from "../../../store/globals";
 import { useTransforms } from "../../../store/transforms";
 import {
   isTransformsResponse,
@@ -16,15 +17,12 @@ export const RequestsPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
   const interanlTransforms = useTransforms((state) => state.transformProviders);
 
-  const cy = context.cy.current;
-  const ydoc = context.ydoc.current;
-  const ynodes = context.ynodes.current;
+  const cy = useGlobals((state) => state.cy);
+  const ydoc = useGlobals((state) => state.ydoc);
+  const ynodes = useGlobals((state) => state.ynodes());
 
-  const yrequests =
-    context.ydoc.current.getMap<TransformsJob>("transform-requests");
-  const yproviders = context.ydoc.current.getMap<TransformProvider>(
-    "transform-providers"
-  );
+  const yrequests = ydoc.getMap<TransformsJob>("transform-requests");
+  const yproviders = ydoc.getMap<TransformProvider>("transform-providers");
 
   const [requests, setRequests] = useState<TransformsJob[]>(
     Array.from(yrequests.entries()).map(([_k, v]) => v)

@@ -3,12 +3,13 @@ import edgehandles from "cytoscape-edgehandles";
 import cytoscape, {
   Collection,
   EdgeDataDefinition,
+  ElementDefinition,
   NodeSingular,
   SingularElementReturnValue,
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { Map as YMap } from "yjs";
 import { init_options } from "../temp/init-data";
 import { useOnlineUsers } from "../store/onlineUsers";
@@ -18,11 +19,17 @@ import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
 import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
 import { ProviderDocContext } from "../App";
 import { NodeContextMenu } from "./NodeContextMenu";
+import { useGlobals } from "../store/globals";
 
 const Graph = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
-  const cy = context.cy;
-  const [_cy, setCy] = useState<cytoscape.Core | undefined>(undefined);
+
+  const ydoc = useGlobals((state) => state.ydoc);
+  const ynodes = useGlobals((state) => state.ynodes());
+  const yedges = useGlobals((state) => state.yedges());
+
+  const setCy = useGlobals((state) => state.setCy);
+  const cy = useRef<cytoscape.Core>();
 
   const layers = useRef<LayersPlugin>();
   const cursorLayer = useRef<ICanvasStaticLayer>();
@@ -30,7 +37,7 @@ const Graph = (): JSX.Element => {
   const loadedImages = useRef<Map<number, HTMLImageElement>>();
 
   const setUsernames = useOnlineUsers((states) => states.setUsernames);
-  // const nodes = useSelectedNodes((states) => states.nodes);
+
   const addNode = useSelectedNodes((states) => states.addNode);
 
   // update cursor move
@@ -114,8 +121,33 @@ const Graph = (): JSX.Element => {
       }
     );
 
-    // nodes sync
-    context.ynodes.current.observeDeep((evt) => {
+    // sync node (add)
+    ynodes.observe((e, _tx) => {
+      e.changes.keys.forEach((change, key) => {
+        if (!(e.target instanceof YMap)) return;
+        if (!cy.current) return;
+        if (change.action === "add") {
+          const node = e.target.get(key);
+          if (node) cy.current.add(node.toJSON() as ElementDefinition);
+        }
+      });
+    });
+
+    // sync edge (add)
+    yedges.observe((e, tx) => {
+      if (tx.local) return;
+      e.changes.added.forEach((item) => {
+        const datas = item.content.getContent() as EdgeDataDefinition[];
+        datas.forEach((data: EdgeDataDefinition) => {
+          if ("source" in data && "target" in data && "id" in data) {
+            cy.current?.add({ data });
+          }
+        });
+      });
+    });
+
+    // nodes sync (data change)
+    ynodes.observeDeep((evt) => {
       evt.forEach((e) =>
         e.changes.keys.forEach(
           (change: { action: string; [x: string]: unknown }, key: string) => {
@@ -132,11 +164,6 @@ const Graph = (): JSX.Element => {
                   cy.current
                     .getElementById(nodeId)
                     .data(key, e.target.get(key));
-                  break;
-                }
-
-                default: {
-                  cy.current.add(e.target.get(key).toJSON());
                   break;
                 }
               }
@@ -219,42 +246,29 @@ const Graph = (): JSX.Element => {
     });
 
     // cursor update
-    cy.current?.on("vmousemove", (e) => {
+    cy.current.on("vmousemove", (e) => {
       if (e.cy.$(":grabbed").length || e.originalEvent.buttons !== 1)
         handleMouseMove(e);
     });
 
-    cy.current?.on("viewport", () => {
+    cy.current.on("viewport", () => {
       cursorLayer.current?.update();
     });
 
     // node move update
     cy.current.on("drag", (e) => {
       e.target.forEach((element: NodeSingular) => {
-        const ynode = context.ynodes.current?.get(element.data("id"));
+        const ynode = ynodes.get(element.data("id"));
         const ynodePosition = ynode?.get("position") as
           | YNodePosition
           | undefined;
         if (ynodePosition) {
           const nodePos = element.position();
-          context.ydoc.current?.transact(() => {
-            ynodePosition.set("x", nodePos.x);
+          ydoc.transact(() => {
             ynodePosition.set("y", nodePos.y);
+            ynodePosition.set("x", nodePos.x);
           });
         }
-      });
-    });
-
-    // sync edge
-    context.yedges.current.observe((e, tx) => {
-      if (tx.local) return;
-      e.changes.added.forEach((item) => {
-        const datas = item.content.getContent() as EdgeDataDefinition[];
-        datas.forEach((data: EdgeDataDefinition) => {
-          if ("source" in data && "target" in data && "id" in data) {
-            cy.current?.add({ data });
-          }
-        });
       });
     });
 
@@ -267,16 +281,16 @@ const Graph = (): JSX.Element => {
         _targetNode: unknown,
         addedEdge: EdgeDataDefinition
       ) => {
-        context.yedges.current.push([addedEdge.data()]);
+        yedges.push([addedEdge.data()]);
       }
     );
 
     // when layout complete, sync node position
     cy.current.on("layoutstop", (e) => {
-      context.ydoc.current.transact(() => {
+      ydoc.transact(() => {
         e.target.options.eles.forEach((ele: SingularElementReturnValue) => {
           if (!ele.isNode()) return;
-          const ynodePosition = context.ynodes.current
+          const ynodePosition = ynodes
             .get(ele.id())
             ?.get("position") as YNodePosition;
           ynodePosition.set("x", ele.position("x"));
@@ -316,7 +330,7 @@ const Graph = (): JSX.Element => {
   return (
     <>
       <div id="cy" className="flex-1" />
-      <NodeContextMenu cy={_cy} />
+      <NodeContextMenu />
     </>
   );
 };

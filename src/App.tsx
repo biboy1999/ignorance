@@ -1,16 +1,13 @@
-import { createContext, MutableRefObject, useEffect, useRef } from "react";
-import { Doc, Map as YMap } from "yjs";
+import { createContext, useEffect } from "react";
+import { Map as YMap } from "yjs";
 import { Awareness } from "y-protocols/awareness";
-import { Core } from "cytoscape";
 import "./App.css";
 import {
   YNodeGroup,
   YNodeData,
   YNodePosition,
-  YNodes,
   Provider,
   Providers,
-  YEdges,
 } from "./types/types";
 import { UserInfo } from "./components/windows/UserInfo";
 import { NodeAttributes } from "./components/windows/NodeAttributes";
@@ -19,21 +16,17 @@ import { useSelectedNodes } from "./store/selectedNodes";
 import { Graph } from "./components/Graph";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
-import { useYDoc } from "./utils/hooks/useYDoc";
 import { useProvider } from "./utils/hooks/useProvider";
 import { WebrtcProvider } from "y-webrtc";
 import { nanoid } from "nanoid";
+import { useGlobals } from "./store/globals";
 
 type ProviderDocContextProps = {
-  ydoc: MutableRefObject<Doc>;
-  ynodes: MutableRefObject<YNodes>;
-  yedges: MutableRefObject<YEdges>;
   awareness: Awareness;
   addProvider: (provider: Provider) => Provider;
   providers: Providers;
   isSynced: boolean;
   isOnlineMode: boolean;
-  cy: MutableRefObject<Core | undefined>;
 };
 
 // im sure is defined, i think. :/
@@ -42,12 +35,19 @@ export const ProviderDocContext = createContext<ProviderDocContextProps>(
 );
 
 function App(): JSX.Element {
-  const { ydoc, ynodes, yedges } = useYDoc();
+  const ydoc = useGlobals((state) => state.ydoc);
 
   const { isSynced, isOnlineMode, awareness, addProvider, providers } =
-    useProvider(ydoc.current);
+    useProvider(ydoc);
 
-  const cy = useRef<cytoscape.Core>();
+  const cy = useGlobals((state) => state.cy);
+  const ynodes = useGlobals((state) => state.ynodes());
+  // const cy = useRef<cytoscape.Core>();
+
+  useEffect(() => {
+    // @ts-expect-error ignore debug
+    window.cyto = cy;
+  }, [cy]);
 
   const nodes = useSelectedNodes((states) => states.nodes);
 
@@ -69,16 +69,16 @@ function App(): JSX.Element {
     node.set("data", data);
     node.set("position", position);
 
-    ynodes.current?.set(nodeId, node);
+    ynodes.set(nodeId, node);
   };
 
   const handleDeleteNode = (): void => {
     const nodes = useSelectedNodes.getState().nodes;
-    nodes.forEach((node) => ynodes.current?.delete(node.id()));
+    nodes.forEach((node) => ynodes.delete(node.id()));
   };
 
   const doLayout = (): void => {
-    const selectedEles = cy.current?.$(":selected");
+    const selectedEles = cy?.$(":selected");
     if (!selectedEles) return;
     const layout = selectedEles.layout({
       name: "fcose",
@@ -170,22 +170,18 @@ function App(): JSX.Element {
   };
 
   const contextValue = {
-    ydoc,
-    ynodes,
-    yedges,
     awareness,
     addProvider,
     providers,
     isSynced,
     isOnlineMode,
-    cy,
   };
   return (
     <>
       <ProviderDocContext.Provider value={contextValue}>
         <UserInfo />
         <Transforms />
-        <NodeAttributes nodes={nodes} ynodesRef={ynodes} />
+        <NodeAttributes nodes={nodes} />
         <Controlbar
           onAdd={handleAddNode}
           onDelete={handleDeleteNode}

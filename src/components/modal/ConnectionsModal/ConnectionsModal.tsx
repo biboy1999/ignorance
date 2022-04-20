@@ -6,6 +6,7 @@ import { where, is, equals } from "ramda";
 import { ProviderDocContext } from "../../../App";
 import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
+import { useGlobals } from "../../../store/globals";
 
 export type ConnectionsMadelProp = {
   open: boolean;
@@ -18,10 +19,12 @@ export const ConnectionsModal = ({
 }: ConnectionsMadelProp): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
+  const ydoc = useGlobals((state) => state.ydoc);
+
   const buttonRef = useRef(null);
 
   const formMethod = useForm<ProvidersParameters>();
-  const { handleSubmit, trigger, formState } = formMethod;
+  const { handleSubmit } = formMethod;
 
   const onSubmit = handleSubmit((data) => {
     const usingRtc = where({
@@ -50,14 +53,9 @@ export const ConnectionsModal = ({
       setOpen(false);
     } else if (usingWebSocket(data) && !context.providers.websocket.provider) {
       context.addProvider(
-        new WebsocketProvider(
-          data.webSocketServer,
-          data.webSocketRoom,
-          context.ydoc.current,
-          {
-            awareness: context.awareness,
-          }
-        )
+        new WebsocketProvider(data.webSocketServer, data.webSocketRoom, ydoc, {
+          awareness: context.awareness,
+        })
       );
       setOpen(false);
     }

@@ -2,7 +2,6 @@ import { NodeSingular } from "cytoscape";
 import {
   ChangeEvent,
   KeyboardEvent,
-  MutableRefObject,
   useCallback,
   useEffect,
   useRef,
@@ -11,21 +10,19 @@ import {
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Transaction, YMapEvent } from "yjs";
 import { nanoid } from "nanoid";
-import { YNodeData, YNodes } from "../../types/types";
+import { YNodeData } from "../../types/types";
 import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
+import { useGlobals } from "../../store/globals";
 
 export type NodeAttributesProp = {
   nodes: NodeSingular[];
-  ynodesRef: MutableRefObject<YNodes | undefined>;
 };
 
 // TODO: need better attribute edit system
-export const NodeAttributes = ({
-  nodes,
-  ynodesRef,
-}: NodeAttributesProp): JSX.Element => {
+export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
   const nodeId = nodes[0]?.id();
-  const ynode = ynodesRef.current?.get(nodeId);
+  const ynodes = useGlobals((state) => state.ynodes());
+  const ynode = ynodes.get(nodeId);
   const ydata = ynode?.get("data") as YNodeData | undefined;
   const [attributes, setAttributes] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
 

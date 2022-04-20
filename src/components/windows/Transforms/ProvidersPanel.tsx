@@ -2,14 +2,15 @@ import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { useContext, useEffect, useState } from "react";
 import { ProviderDocContext } from "../../../App";
+import { useGlobals } from "../../../store/globals";
 import { TransformProvider } from "../../../types/types";
 
 export const ProviderPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
 
-  const yproviders = context.ydoc.current.getMap<TransformProvider>(
-    "transform-providers"
-  );
+  const ydoc = useGlobals((state) => state.ydoc);
+
+  const yproviders = ydoc.getMap<TransformProvider>("transform-providers");
   const [providers, setProviders] = useState<TransformProvider[]>(
     Array.from(yproviders.entries()).map(([_k, v]) => v)
   );

@@ -1,5 +1,5 @@
-import { Disclosure, Switch } from "@headlessui/react";
-import { useFormContext, UseFormRegister } from "react-hook-form";
+import { Disclosure } from "@headlessui/react";
+import { useFormContext } from "react-hook-form";
 import { ChevronUpIcon } from "@heroicons/react/solid";
 
 export type WebrtcProviderParameters = {
@@ -41,7 +41,7 @@ export const Connections = (): JSX.Element => {
                 type="checkbox"
                 className="w-6 h-6"
                 aria-label="use Webrtc"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e): void => e.stopPropagation()}
                 {...register("useWebrtc", { value: false })}
               />
               <span className="flex-1">WebRTC</span>
@@ -122,7 +122,7 @@ export const Connections = (): JSX.Element => {
                 type="checkbox"
                 className="w-6 h-6"
                 aria-label="use Websocket"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e): void => e.stopPropagation()}
                 {...register("useWebSocket", { value: false })}
               />
               <span className="flex-1">WebSocket</span>

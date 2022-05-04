@@ -1,5 +1,5 @@
 import create from "zustand";
-import { TransformInternal, TransformsJob } from "../types/types";
+import { TransformInternal } from "../types/types";
 
 type TransformsState = {
   transformProviders: TransformInternal[];

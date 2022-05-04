@@ -1,8 +1,7 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Tab } from "@headlessui/react";
 import { ChevronUpIcon, PlusSmIcon } from "@heroicons/react/solid";
 import { CollapsibleDragResizeBox } from "../../CollapsibleDragResizeBox";
-import { ProviderDocContext } from "../../../App";
 import { TransformProviderModal } from "../../modal/TransformProviderModal/TransformProviderModal";
 import { ProviderPanel } from "./ProvidersPanel";
 import { RequestsPanel } from "./RequestsPanel";
@@ -10,8 +9,6 @@ import { RequestsPanel } from "./RequestsPanel";
 export type TransformsProp = null;
 
 export const Transforms = (): JSX.Element => {
-  const context = useContext(ProviderDocContext);
-
   const [isAddModelOpen, setIsAddModelOpen] = useState(false);
 
   return (

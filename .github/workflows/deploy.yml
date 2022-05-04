@@ -1,0 +1,30 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [lts/gallium]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: pnpm/action-setup@v2.1.0
+      with:
+        version: latest
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: pnpm
+    - name: Install Packages
+      run: pnpm install
+    - name: Build page
+      run: pnpm run build
+    - name: Deploy to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_dir: ./build

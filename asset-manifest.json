@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ignorance/static/css/main.eb27f38d.css",
+    "main.js": "/ignorance/static/js/main.3b50dba2.js",
+    "static/js/68.ed8c096e.chunk.js": "/ignorance/static/js/68.ed8c096e.chunk.js",
+    "index.html": "/ignorance/index.html",
+    "main.eb27f38d.css.map": "/ignorance/static/css/main.eb27f38d.css.map",
+    "main.3b50dba2.js.map": "/ignorance/static/js/main.3b50dba2.js.map",
+    "68.ed8c096e.chunk.js.map": "/ignorance/static/js/68.ed8c096e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.eb27f38d.css",
+    "static/js/main.3b50dba2.js"
+  ]
+}

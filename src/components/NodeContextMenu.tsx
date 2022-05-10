@@ -4,9 +4,10 @@ import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
 import { forwardRef, useContext } from "react";
 import { ProviderDocContext } from "../App";
 import { isTrnasformProvider, TransformsJob } from "../types/types";
-import { AddNode, deleteEdges, deleteNodes } from "../utils/node";
+import { AddNode, deleteEdges, deleteNodes } from "../utils/graph";
 import { nanoid } from "nanoid";
 import { useGlobals } from "../store/globals";
+import { curry, curryN, __ } from "ramda";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 bg-white font-mono leading-5 text-base border-b" />
@@ -71,60 +72,66 @@ export const NodeContextMenu = (): JSX.Element => {
   };
 
   return (
-    <Menu
-      cy={cy}
-      className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
-    >
-      <MenuButton
-        className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10"
-        label="Add"
-        icon={<PlusIcon className="h-5 w-5 mr-2" />}
-        onClick={(e): void => {
-          const currentTarget = e.currentTarget as HTMLElement;
-          const parent = currentTarget.parentElement as HTMLElement;
-
-          const { nodeId, node } = AddNode(
-            parent.offsetLeft,
-            parent.offsetTop,
-            {},
-            cy?.pan(),
-            cy?.zoom()
-          );
-          if (nodeId) ynodes.set(nodeId, node);
-        }}
-      />
-      <MenuButton
-        className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-red-100  hover:z-10 ring-inset hover:text-red-800"
-        label="Delete"
-        icon={<TrashIcon className="h-5 w-5 mr-2" />}
-        onClick={handleDelete}
-      />
-      <Divider />
-      <GroupHeader>Transform</GroupHeader>
-      {providers.map(([_key, value]) => {
-        const type = cy?.$(":selected");
-        if (
-          !(
-            isTrnasformProvider(value) &&
-            type?.isNode() &&
-            (value.elementType.includes(type?.data("type")) ||
-              value.elementType.includes("*"))
-          )
-        ) {
-          return;
-        }
-        return (
+    <>
+      {cy && (
+        <Menu
+          className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
+          onEventListener={curry<
+            (events: string, handler: cytoscape.EventHandler) => cytoscape.Core
+          >(cy.on)("cxttap", __)}
+        >
           <MenuButton
-            key={value.transformId}
-            data-transformid={value.transformId}
-            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10 ring-inset"
-            label={value.name}
-            title={value.name}
-            onClick={handleAddRequest}
+            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10"
+            label="Add"
+            icon={<PlusIcon className="h-5 w-5 mr-2" />}
+            onClick={(e): void => {
+              const currentTarget = e.currentTarget as HTMLElement;
+              const parent = currentTarget.parentElement as HTMLElement;
+
+              const { nodeId, node } = AddNode(
+                parent.offsetLeft,
+                parent.offsetTop,
+                {},
+                cy.pan(),
+                cy.zoom()
+              );
+              if (nodeId) ynodes.set(nodeId, node);
+            }}
           />
-        );
-      })}
-      <Divider />
-    </Menu>
+          <MenuButton
+            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-red-100  hover:z-10 ring-inset hover:text-red-800"
+            label="Delete"
+            icon={<TrashIcon className="h-5 w-5 mr-2" />}
+            onClick={handleDelete}
+          />
+          <Divider />
+          <GroupHeader>Transform</GroupHeader>
+          {providers.map(([_key, value]) => {
+            const type = cy.$(":selected");
+            if (
+              !(
+                isTrnasformProvider(value) &&
+                type?.isNode() &&
+                (value.elementType.includes(type?.data("type")) ||
+                  value.elementType.includes("*"))
+              )
+            ) {
+              return;
+            }
+            return (
+              <MenuButton
+                key={value.transformId}
+                data-transformid={value.transformId}
+                className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10 ring-inset"
+                label={value.name}
+                title={value.name}
+                onClick={handleAddRequest}
+              />
+            );
+          })}
+          <Divider />
+        </Menu>
+      )}
+    </>
   );
 };

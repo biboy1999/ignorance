@@ -6,10 +6,11 @@ import {
 import { MenuComponent } from "./MenuComponent";
 
 type Props = {
-  cy?: cytoscape.Core;
   label?: string;
   buttonClassName?: string;
   nested?: boolean;
+  onEventListener: (handle: (event: MouseEvent) => void) => unknown;
+  // offEventListener?: Function;
 };
 
 export const Menu = forwardRef<

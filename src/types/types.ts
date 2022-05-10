@@ -89,7 +89,7 @@ type TransformsJobParameter = {
 
 export type TransformsJob = {
   jobId: string;
-  status: "failed" | "rejected" | "accepted" | "pending";
+  status: "failed" | "rejected" | "completed" | "pending" | "running";
   fromClientId: number;
   transformId: string;
   request: TransformsJobParameter;

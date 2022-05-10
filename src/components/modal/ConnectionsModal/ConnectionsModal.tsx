@@ -43,7 +43,7 @@ export const ConnectionsModal = ({
     if (usingRtc(data) && !context.providers.webrtc.provider) {
       context.addProvider(
         // @ts-expect-error most property are optional
-        new WebrtcProvider(data.webrtcRoom, context.ydoc.current, {
+        new WebrtcProvider(data.webrtcRoom, ydoc, {
           signaling: [data.webrtcSignaling],
           password: data.webrtcPassword,
           awareness: context.awareness,

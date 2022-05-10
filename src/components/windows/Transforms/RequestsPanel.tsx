@@ -1,6 +1,11 @@
 import { Disclosure } from "@headlessui/react";
 import { ClockIcon, ExclamationCircleIcon } from "@heroicons/react/outline";
-import { BanIcon, CheckIcon, ChevronUpIcon } from "@heroicons/react/solid";
+import {
+  BanIcon,
+  CheckIcon,
+  ChevronUpIcon,
+  CogIcon,
+} from "@heroicons/react/solid";
 import { useContext, useEffect, useState } from "react";
 import { ProviderDocContext } from "../../../App";
 import { useGlobals } from "../../../store/globals";
@@ -10,7 +15,7 @@ import {
   TransformsJob,
   TransformsRequest,
 } from "../../../types/types";
-import { addEdge, AddNode } from "../../../utils/node";
+import { addEdge, AddNode } from "../../../utils/graph";
 
 export const RequestsPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
@@ -42,6 +47,14 @@ export const RequestsPanel = (): JSX.Element => {
     yjobs.set(jobId, { ...job, status: "failed" });
   };
 
+  const handleComplete = (jobId: string, job: TransformsJob): void => {
+    yjobs.set(jobId, { ...job, status: "completed" });
+  };
+
+  const handleRunning = (jobId: string, job: TransformsJob): void => {
+    yjobs.set(jobId, { ...job, status: "running" });
+  };
+
   const handleRejectJob: React.MouseEventHandler = (e) => {
     e.stopPropagation();
     const jobId = e.currentTarget.getAttribute("data-jobid");
@@ -69,7 +82,7 @@ export const RequestsPanel = (): JSX.Element => {
       edges: job.request.edgesId?.map((edgeId) => cy?.$id(edgeId).data()),
       parameter: job.request.parameter,
     };
-
+    handleRunning(jobId, job);
     fetch(transform.apiUrl, {
       method: "POST",
       body: JSON.stringify(request),
@@ -78,16 +91,14 @@ export const RequestsPanel = (): JSX.Element => {
       },
     })
       .then(
-        (resp) => {
-          return resp.json();
-        },
+        (resp) => resp.json(),
         () => handleError(jobId, job)
       )
       .then(
         (data) => {
           if (!isTransformsResponse(data)) return;
           ydoc.transact(() => {
-            data.add?.nodes?.forEach((ele) => {
+            data.add?.nodes?.forEach((ele, index) => {
               const { nodeId, node } = AddNode(
                 0,
                 0,
@@ -102,6 +113,7 @@ export const RequestsPanel = (): JSX.Element => {
               }
             });
           });
+          handleComplete(jobId, job);
         },
         () => handleError(jobId, job)
       );
@@ -135,8 +147,11 @@ export const RequestsPanel = (): JSX.Element => {
                         <ExclamationCircleIcon className="w-6 h-6 text-red-500" />
                       ),
                       rejected: <BanIcon className="w-6 h-6 text-red-500" />,
-                      accepted: (
+                      completed: (
                         <CheckIcon className="w-6 h-6 text-green-500" />
+                      ),
+                      running: (
+                        <CogIcon className="w-6 h-6 text-gray-500 animate-spin" />
                       ),
                       pending: interanlTransforms.some(
                         (x) => x.transformId === request.transformId

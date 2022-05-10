@@ -35,16 +35,17 @@ import { MenuButton } from "./MenuButton";
 import { useGlobals } from "../../store/globals";
 
 type Props = {
-  cy?: cytoscape.Core;
   label?: string;
   buttonClassName?: string;
   nested?: boolean;
+  onEventListener: (handle: (event: MouseEvent) => void) => unknown;
+  // offEventListener?: Function;
 };
 
 export const MenuComponent = forwardRef<
   unknown,
   Props & React.HTMLProps<HTMLButtonElement>
->(({ children, label, className, buttonClassName }, ref) => {
+>(({ children, label, className, buttonClassName, onEventListener }, ref) => {
   const cy = useGlobals((state) => state.cy);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -219,9 +220,12 @@ export const MenuComponent = forwardRef<
   );
 
   useEffect(() => {
-    function onContextMenu(ce: cytoscape.EventObject): void {
-      const e = ce.originalEvent;
-      ce.preventDefault();
+    // function onContextMenu(ce: cytoscape.EventObject): void {
+    //   const e = ce.originalEvent;
+    //   ce.preventDefault();
+    function onContextMenu(e: MouseEvent): void {
+      console.log(e);
+      e.preventDefault();
       mergedReferenceRef({
         getBoundingClientRect() {
           return {
@@ -238,12 +242,13 @@ export const MenuComponent = forwardRef<
       });
       setOpen(true);
     }
-    if (!nested) cy?.on("cxttap", onContextMenu);
+    console.log(onEventListener);
+    // if (!nested) cy?.on("cxttap", onContextMenu);
+    // if (!nested) onEventListener(onContextMenu);
     return (): void => {
-      if (!nested) cy?.off("cxttap", onContextMenu);
+      // if (!nested) cy?.off("cxttap", onContextMenu);
     };
   }, [mergedReferenceRef, cy]);
-
   return (
     <FloatingNode id={nodeId}>
       {nested && (

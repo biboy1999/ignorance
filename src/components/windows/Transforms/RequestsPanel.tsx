@@ -10,7 +10,7 @@ import {
   TransformsJob,
   TransformsRequest,
 } from "../../../types/types";
-import { AddNode } from "../../../utils/node";
+import { addEdge, AddNode } from "../../../utils/node";
 
 export const RequestsPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
@@ -19,6 +19,7 @@ export const RequestsPanel = (): JSX.Element => {
   const cy = useGlobals((state) => state.cy);
   const ydoc = useGlobals((state) => state.ydoc);
   const ynodes = useGlobals((state) => state.ynodes());
+  const yedges = useGlobals((state) => state.yedges());
 
   const yjobs = useGlobals((state) => state.ytransformJobs());
   const yproviders = useGlobals((state) => state.ytransformProviders());
@@ -95,6 +96,10 @@ export const RequestsPanel = (): JSX.Element => {
                 cy?.zoom()
               );
               ynodes.set(nodeId, node);
+              if (ele.linkToNodeId) {
+                const { edgeId, edge } = addEdge(ele.linkToNodeId, nodeId);
+                yedges.set(edgeId, edge);
+              }
             });
           });
         },

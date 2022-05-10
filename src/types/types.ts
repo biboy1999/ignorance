@@ -49,6 +49,7 @@ type ResponseNode = {
     id?: string;
     [key: string]: string | undefined;
   };
+  linkToNodeId?: string;
   position?: { x: number; y: number };
 };
 

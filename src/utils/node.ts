@@ -19,6 +19,11 @@ export type AddNodeReturnValue = {
   node: YMap<string | YNodeData | YNodePosition>;
 };
 
+export type AddEdgeReturnValue = {
+  edgeId: string;
+  edge: Edge;
+};
+
 export const AddNode = (
   x: number,
   y: number,
@@ -61,6 +66,16 @@ export const deleteNodes = (id: string[], ynodes: YNodes): void => {
   ynodes.doc?.transact(() => {
     id.forEach((id) => ynodes.delete(id));
   });
+};
+
+export const addEdge = (
+  source: string,
+  target: string,
+  id?: string
+): AddEdgeReturnValue => {
+  const edgeId = id ?? nanoid();
+
+  return { edgeId, edge: { source, target, id: edgeId } };
 };
 
 export const deleteEdges = (id: string[], ynodes: YMap<Edge>): void => {

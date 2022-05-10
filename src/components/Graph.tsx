@@ -144,13 +144,14 @@ const Graph = (): JSX.Element => {
           const data = yedges.get(key);
           if (data && "source" in data && "target" in data && "id" in data) {
             // local edge handled by edgehadle plugin
-            if (tx.local) return;
+            // if (tx.local) return;
             cy.current?.add({ data });
           }
         } else if (change.action === "delete") {
           cy.current.getElementById(key).remove();
         }
       });
+      console.log(yedges.toJSON());
     });
 
     // nodes sync (data change)
@@ -284,6 +285,7 @@ const Graph = (): JSX.Element => {
         _targetNode: unknown,
         addedEdge: EdgeSingular
       ) => {
+        cy.current?.getElementById(addedEdge.id()).remove();
         yedges.set(addedEdge.id(), addedEdge.data());
       }
     );

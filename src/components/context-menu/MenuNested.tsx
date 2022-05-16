@@ -3,7 +3,6 @@ import {
   cloneElement,
   forwardRef,
   isValidElement,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -13,7 +12,6 @@ import mergeRefs from "react-merge-refs";
 import {
   autoUpdate,
   flip,
-  FloatingPortal,
   offset,
   safePolygon,
   shift,
@@ -25,11 +23,8 @@ import {
   useInteractions,
   useListNavigation,
   useTypeahead,
-  FloatingOverlay,
-  FloatingTree,
   useFloatingNodeId,
 } from "@floating-ui/react-dom-interactions";
-import { ProviderDocContext } from "../../App";
 
 type buttonProp = JSX.IntrinsicElements["button"];
 

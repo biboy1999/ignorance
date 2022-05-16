@@ -9,8 +9,7 @@ type Props = {
   label?: string;
   buttonClassName?: string;
   nested?: boolean;
-  onEventListener: (handle: (event: MouseEvent) => void) => unknown;
-  // offEventListener?: Function;
+  onEventListener: (handle: (event: MouseEvent) => void) => () => void;
 };
 
 export const Menu = forwardRef<

@@ -16,6 +16,12 @@ import {
   TransformsRequest,
 } from "../../../types/types";
 import { addEdge, AddNode } from "../../../utils/graph";
+import {
+  handleComplete,
+  handleError,
+  handleReject,
+  handleRunning,
+} from "../../../utils/providers";
 
 export const RequestsPanel = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
@@ -43,25 +49,13 @@ export const RequestsPanel = (): JSX.Element => {
     };
   }, []);
 
-  const handleError = (jobId: string, job: TransformsJob): void => {
-    yjobs.set(jobId, { ...job, status: "failed" });
-  };
-
-  const handleComplete = (jobId: string, job: TransformsJob): void => {
-    yjobs.set(jobId, { ...job, status: "completed" });
-  };
-
-  const handleRunning = (jobId: string, job: TransformsJob): void => {
-    yjobs.set(jobId, { ...job, status: "running" });
-  };
-
   const handleRejectJob: React.MouseEventHandler = (e) => {
     e.stopPropagation();
     const jobId = e.currentTarget.getAttribute("data-jobid");
     if (!jobId) return;
     const job = yjobs.get(jobId);
     if (!job) return;
-    yjobs.set(jobId, { ...job, status: "rejected" });
+    handleReject(yjobs, job);
   };
 
   const handleAcceptJob: React.MouseEventHandler = (e) => {
@@ -82,7 +76,7 @@ export const RequestsPanel = (): JSX.Element => {
       edges: job.request.edgesId?.map((edgeId) => cy?.$id(edgeId).data()),
       parameter: job.request.parameter,
     };
-    handleRunning(jobId, job);
+    handleRunning(yjobs, job);
     fetch(transform.apiUrl, {
       method: "POST",
       body: JSON.stringify(request),
@@ -92,19 +86,24 @@ export const RequestsPanel = (): JSX.Element => {
     })
       .then(
         (resp) => resp.json(),
-        () => handleError(jobId, job)
+        () => handleError(yjobs, job)
       )
       .then(
         (data) => {
           if (!isTransformsResponse(data)) return;
+          if (!cy) return;
+
           ydoc.transact(() => {
-            data.add?.nodes?.forEach((ele, index) => {
+            data.add?.nodes?.forEach((ele, _index) => {
+              const nodePosition = cy.$id(ele.linkToNodeId ?? "")?.position();
               const { nodeId, node } = AddNode(
-                0,
-                0,
+                nodePosition?.x ?? 0,
+                nodePosition?.y ?? 0,
                 ele.data,
-                cy?.pan(),
-                cy?.zoom()
+                {
+                  pan: cy.pan(),
+                  zoom: cy.zoom(),
+                }
               );
               ynodes.set(nodeId, node);
               if (ele.linkToNodeId) {
@@ -113,9 +112,9 @@ export const RequestsPanel = (): JSX.Element => {
               }
             });
           });
-          handleComplete(jobId, job);
+          handleComplete(yjobs, job);
         },
-        () => handleError(jobId, job)
+        () => handleError(yjobs, job)
       );
   };
 

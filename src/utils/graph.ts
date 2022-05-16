@@ -28,8 +28,10 @@ export const AddNode = (
   x: number,
   y: number,
   nodeData?: NodeData,
-  pan?: { x: number; y: number },
-  zoom?: number
+  opt?: {
+    pan?: { x: number; y: number };
+    zoom?: number;
+  }
 ): AddNodeReturnValue => {
   const { id: preDefindedId, ...remainData } = nodeData ?? {};
   const nodeId = preDefindedId ?? nanoid();
@@ -46,7 +48,8 @@ export const AddNode = (
   }
 
   const position = new YMap<number>();
-  if (zoom && pan) ({ x, y } = renderedPositionToModel({ x, y }, zoom, pan));
+  if (opt?.zoom && opt?.pan)
+    ({ x, y } = renderedPositionToModel({ x, y }, opt.zoom, opt.pan));
   position.set("x", x);
   position.set("y", y);
 
@@ -84,7 +87,9 @@ export const deleteEdges = (id: string[], ynodes: YMap<Edge>): void => {
   });
 };
 
-export const doLayout = (elementsToLayout: cytoscape.CollectionReturnValue) => {
+export const doLayout = (
+  elementsToLayout: cytoscape.CollectionReturnValue
+): void => {
   const layout = elementsToLayout.layout({
     name: "fcose",
     // 'draft', 'default' or 'proof'

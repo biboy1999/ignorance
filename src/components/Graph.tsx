@@ -136,7 +136,7 @@ const Graph = (): JSX.Element => {
     });
 
     // sync edge (add, delete)
-    yedges.observe((e, tx) => {
+    yedges.observe((e, _tx) => {
       e.changes.keys.forEach((change, key) => {
         if (!cy.current) return;
 
@@ -151,7 +151,6 @@ const Graph = (): JSX.Element => {
           cy.current.getElementById(key).remove();
         }
       });
-      console.log(yedges.toJSON());
     });
 
     // nodes sync (data change)

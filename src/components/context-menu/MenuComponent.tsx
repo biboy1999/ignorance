@@ -38,7 +38,7 @@ type Props = {
   label?: string;
   buttonClassName?: string;
   nested?: boolean;
-  onEventListener: (handle: (event: MouseEvent) => void) => unknown;
+  onEventListener: (handle: (event: MouseEvent) => void) => () => void;
   // offEventListener?: Function;
 };
 
@@ -220,11 +220,7 @@ export const MenuComponent = forwardRef<
   );
 
   useEffect(() => {
-    // function onContextMenu(ce: cytoscape.EventObject): void {
-    //   const e = ce.originalEvent;
-    //   ce.preventDefault();
     function onContextMenu(e: MouseEvent): void {
-      console.log(e);
       e.preventDefault();
       mergedReferenceRef({
         getBoundingClientRect() {
@@ -242,11 +238,15 @@ export const MenuComponent = forwardRef<
       });
       setOpen(true);
     }
-    console.log(onEventListener);
-    // if (!nested) cy?.on("cxttap", onContextMenu);
-    // if (!nested) onEventListener(onContextMenu);
+
+    // register listener from top component then return remove listener
+    // TODO: refator?
+    let handle: (() => void) | undefined = undefined;
+    if (!nested) {
+      handle = onEventListener(onContextMenu);
+    }
     return (): void => {
-      // if (!nested) cy?.off("cxttap", onContextMenu);
+      if (!nested && handle) handle();
     };
   }, [mergedReferenceRef, cy]);
   return (

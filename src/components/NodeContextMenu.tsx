@@ -7,7 +7,6 @@ import { isTrnasformProvider, TransformsJob } from "../types/types";
 import { AddNode, deleteEdges, deleteNodes } from "../utils/graph";
 import { nanoid } from "nanoid";
 import { useGlobals } from "../store/globals";
-import { curry, curryN, __ } from "ramda";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 bg-white font-mono leading-5 text-base border-b" />
@@ -71,14 +70,24 @@ export const NodeContextMenu = (): JSX.Element => {
     yjobs.set(job.jobId, job);
   };
 
+  // bind handle and return unbind function
+  const onContextTrigger = (
+    onContextMenu: (e: MouseEvent) => void
+  ): (() => void) => {
+    const handle = (e: cytoscape.EventObject): void => {
+      onContextMenu(e.originalEvent);
+    };
+    cy?.on("cxttap", handle);
+
+    return () => cy?.off("cxttap", handle);
+  };
+
   return (
     <>
       {cy && (
         <Menu
           className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
-          onEventListener={curry<
-            (events: string, handler: cytoscape.EventHandler) => cytoscape.Core
-          >(cy.on)("cxttap", __)}
+          onEventListener={onContextTrigger}
         >
           <MenuButton
             className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10"
@@ -92,8 +101,7 @@ export const NodeContextMenu = (): JSX.Element => {
                 parent.offsetLeft,
                 parent.offsetTop,
                 {},
-                cy.pan(),
-                cy.zoom()
+                { pan: cy.pan(), zoom: cy.zoom() }
               );
               if (nodeId) ynodes.set(nodeId, node);
             }}

@@ -2,6 +2,7 @@ import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 import useWindowDimensions from "../utils/hooks/useWindowDimensions";
+import { usezIndex } from "../store/zIndexHelper";
 
 export type DragResizeBoxPropOnResizeProp = (
   width: number,
@@ -56,7 +57,10 @@ export const DragResizeBox = ({
   const [_width, setWidth] = useState(-1);
   const [_height, setHeight] = useState(-1);
 
-  //  init
+  const zIndex = usezIndex((states) => states.zIndex);
+  const increasezIndex = usezIndex((states) => states.increasezIndex);
+
+  //  init calc min constraint
   useEffect(() => {
     const width = nodeRef.current?.offsetWidth ?? -1;
     const height = nodeRef.current?.offsetHeight ?? -1;
@@ -105,6 +109,13 @@ export const DragResizeBox = ({
     setYPos(y);
   };
 
+  const onDraggableStart = (): void => {
+    if (nodeRef.current) {
+      nodeRef.current.style.zIndex = zIndex.toString();
+      increasezIndex();
+    }
+  };
+
   const onResizableResize = (
     e: SyntheticEvent<Element, Event>,
     { size: { height, width } }: ResizeCallbackData
@@ -119,6 +130,7 @@ export const DragResizeBox = ({
     <Draggable
       nodeRef={nodeRef}
       onDrag={onDraggableDrag}
+      onStart={onDraggableStart}
       position={{ x: xPos, y: yPos }}
       bounds={isBounded && "parent"}
       cancel=".react-resizable-handle"
@@ -133,7 +145,7 @@ export const DragResizeBox = ({
         resizeHandles={["se"]}
       >
         <div
-          className="z-50 h-min w-max flex flex-col bg-slate-100"
+          className="z-10 h-min w-max flex flex-col bg-slate-100"
           style={{ width: _width + "px", height: _height + "px" }}
           ref={nodeRef}
         >

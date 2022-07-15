@@ -20,7 +20,8 @@ import {
   useRole,
   useDismiss,
   useFloating,
-  useFocusTrap,
+  useFocus,
+  FloatingFocusManager,
   useHover,
   useInteractions,
   useListNavigation,
@@ -83,9 +84,7 @@ export const MenuComponent = forwardRef<
     useHover(context, { handleClose: safePolygon(), enabled: nested }),
     useRole(context, { role: "menu" }),
     useDismiss(context),
-    useFocusTrap(context, {
-      inert: true,
-    }),
+    useFocus(context),
     useListNavigation(context, {
       listRef: listItemsRef,
       activeIndex,
@@ -269,47 +268,49 @@ export const MenuComponent = forwardRef<
       )}
       <FloatingPortal>
         {open && (
-          <div
-            {...getFloatingProps({
-              className,
-              ref: floating,
-              style: {
-                position: strategy,
-                top: y ?? "",
-                left: x ?? "",
-              },
-              onPointerMove() {
-                blockMouseEventsRef.current = false;
-              },
-              onKeyDown() {
-                blockMouseEventsRef.current = true;
-              },
-            })}
-          >
-            {Children.map(
-              children,
-              (child, index) =>
-                isValidElement(child) &&
-                cloneElement(child, {
-                  ref(node: HTMLButtonElement) {
-                    if (node?.tagName === "BUTTON") {
-                      listItemsRef.current[index] = node;
-                    }
-                  },
-                  onClick: (
-                    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-                  ) => {
-                    if (child.props.onClick) {
-                      child.props.onClick(e);
-                    }
-                    setOpen(false);
-                    // safari
-                    e.currentTarget.focus();
-                  },
-                  ...pointerFocusListeners,
-                })
-            )}
-          </div>
+          <FloatingFocusManager context={context}>
+            <div
+              {...getFloatingProps({
+                className,
+                ref: floating,
+                style: {
+                  position: strategy,
+                  top: y ?? "",
+                  left: x ?? "",
+                },
+                onPointerMove() {
+                  blockMouseEventsRef.current = false;
+                },
+                onKeyDown() {
+                  blockMouseEventsRef.current = true;
+                },
+              })}
+            >
+              {Children.map(
+                children,
+                (child, index) =>
+                  isValidElement(child) &&
+                  cloneElement(child, {
+                    ref(node: HTMLButtonElement) {
+                      if (node?.tagName === "BUTTON") {
+                        listItemsRef.current[index] = node;
+                      }
+                    },
+                    onClick: (
+                      e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+                    ) => {
+                      if (child.props.onClick) {
+                        child.props.onClick(e);
+                      }
+                      setOpen(false);
+                      // safari
+                      e.currentTarget.focus();
+                    },
+                    ...pointerFocusListeners,
+                  })
+              )}
+            </div>
+          </FloatingFocusManager>
         )}
       </FloatingPortal>
     </FloatingNode>

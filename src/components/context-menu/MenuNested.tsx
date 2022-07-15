@@ -18,7 +18,8 @@ import {
   useRole,
   useDismiss,
   useFloating,
-  useFocusTrap,
+  useFocus,
+  FloatingFocusManager,
   useHover,
   useInteractions,
   useListNavigation,
@@ -60,10 +61,7 @@ export const MenuNested = forwardRef<HTMLButtonElement, buttonProp>(
       useHover(context, { handleClose: safePolygon() }),
       useRole(context, { role: "menu" }),
       useDismiss(context),
-      useFocusTrap(context, {
-        inert: true,
-        order: ["floating"],
-      }),
+      useFocus(context),
       useListNavigation(context, {
         listRef: listItemsRef,
         activeIndex,
@@ -132,29 +130,31 @@ export const MenuNested = forwardRef<HTMLButtonElement, buttonProp>(
         </button>
 
         {open && (
-          <div
-            {...getFloatingProps({
-              className: "ContextMenu",
-              ref: floating,
-              style: {
-                position: strategy,
-                top: y ?? "",
-                left: x ?? "",
-              },
-            })}
-          >
-            {Children.map(
-              children,
-              (child, index) =>
-                isValidElement(child) &&
-                cloneElement(child, {
-                  ref(node: HTMLButtonElement) {
-                    listItemsRef.current[index] = node;
-                  },
-                  ...pointerFocusListeners,
-                })
-            )}
-          </div>
+          <FloatingFocusManager context={context}>
+            <div
+              {...getFloatingProps({
+                className: "ContextMenu",
+                ref: floating,
+                style: {
+                  position: strategy,
+                  top: y ?? "",
+                  left: x ?? "",
+                },
+              })}
+            >
+              {Children.map(
+                children,
+                (child, index) =>
+                  isValidElement(child) &&
+                  cloneElement(child, {
+                    ref(node: HTMLButtonElement) {
+                      listItemsRef.current[index] = node;
+                    },
+                    ...pointerFocusListeners,
+                  })
+              )}
+            </div>
+          </FloatingFocusManager>
         )}
       </>
     );

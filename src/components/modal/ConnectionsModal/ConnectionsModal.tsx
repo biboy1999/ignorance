@@ -65,7 +65,7 @@ export const ConnectionsModal = ({
     <Transition show={open} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 overflow-y-auto z-50"
+        className="fixed inset-0 overflow-y-auto z-max"
         onClose={setOpen}
         initialFocus={buttonRef}
       >
@@ -79,7 +79,7 @@ export const ConnectionsModal = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -90,7 +90,7 @@ export const ConnectionsModal = ({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="flex flex-col z-50 self-center align-bottom text-left overflow-hidden shadow-xl transition-all max-w-lg w-full">
+            <Dialog.Panel className="flex flex-col self-center align-bottom text-left overflow-hidden shadow-xl transition-all max-w-lg w-full">
               <div className="bg-purple-400">
                 <Dialog.Title
                   as="h1"
@@ -116,7 +116,7 @@ export const ConnectionsModal = ({
                   Connect
                 </button>
               </div>
-            </div>
+            </Dialog.Panel>
           </Transition.Child>
         </div>
       </Dialog>

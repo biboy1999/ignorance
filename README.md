@@ -19,7 +19,7 @@ Web-based and local or online real-time collaboration(thanks to yjs).
   
 ## Warning
 
-Still in development, assume everything will change in future update and not be backward compatible.
+Still in development, everything is likely to change in future updates and not be backward compatible.
 
 Look out who collaborates with you.
   - Your shared transform can be attacked.

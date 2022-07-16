@@ -29,10 +29,8 @@ Use VM, VPN.
 Sock pupprt account.
 Collab with people you trust.
 
-Stay safe.
-
 ## Installation
-try it here: [https://biboy1999.github.io/apodcalypse-frontend/](https://biboy1999.github.io/ignorance/)
+try it here: [https://biboy1999.github.io/ignorance/](https://biboy1999.github.io/ignorance/)
 
 ## Development
 

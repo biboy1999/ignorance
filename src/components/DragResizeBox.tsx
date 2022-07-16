@@ -2,7 +2,7 @@ import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 import useWindowDimensions from "../utils/hooks/useWindowDimensions";
-import { usezIndex } from "../store/zIndexHelper";
+import { usezIndex } from "../store/zIndexManager";
 
 export type DragResizeBoxPropOnResizeProp = (
   width: number,

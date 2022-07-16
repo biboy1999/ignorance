@@ -28,7 +28,7 @@ type YjsSliceState = {
   ytransformJobs: () => YMap<TransformsJob>;
 };
 
-const YjsSlice: StoreSlice<YjsSliceState> = (set, get) => ({
+const YjsSlice: StoreSlice<YjsSliceState> = (_set, get) => ({
   ydoc: new YDoc(),
   ynodes: () => get().ydoc.getMap<YNode>("nodes"),
   yedges: () => get().ydoc.getMap<Edge>("edges"),
@@ -43,4 +43,6 @@ const createRootSlice = (set: SetState<any>, get: GetState<any>) => ({
   ...YjsSlice(set, get),
 });
 
-export const useGlobals = create(createRootSlice);
+export const useGlobals = create<GraphSliceState & YjsSliceState>()(
+  createRootSlice
+);

@@ -1,3 +1,4 @@
+import memoizee from "memoizee";
 import { cursor } from "./svg";
 
 export const modelToRenderedPosition = (
@@ -18,9 +19,10 @@ export const renderedPositionToModel = (
   y: (pos.y - pan.y) / zoom,
 });
 
-export const generateCursor = (color: string): HTMLImageElement => {
+const _generateCursor = (color: string): HTMLImageElement => {
   const img = new Image();
-  img.src = "data:image/svg+xml;utf8," + encodeURIComponent(cursor(color));
-  img.alt = color;
+  img.src = `data:image/svg+xml;base64,${window.btoa(cursor(color))}`;
   return img;
 };
+
+export const generateCursor = memoizee(_generateCursor, { max: 250 });

@@ -14,7 +14,7 @@
     "@testing-library/user-event": "^14.2.5",
     "@types/cytoscape-edgehandles": "^4.0.0",
     "@types/jest": "^26.0.24",
-    "@types/node": "^18.0.4",
+    "@types/node": "^18.0.5",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "cytoscape": "^3.22.1",
@@ -25,6 +25,7 @@
     "dompurify": "^2.3.9",
     "eslint": "^8.19.0",
     "immer": "^9.0.15",
+    "memoizee": "^0.4.15",
     "nanoid": "^4.0.0",
     "ramda": "^0.28.0",
     "react": "^18.2.0",
@@ -41,7 +42,7 @@
     "y-webrtc": "^10.2.3",
     "y-websocket": "^1.4.3",
     "yjs": "^13.5.39",
-    "zustand": "^3.7.2"
+    "zustand": "^4.0.0-rc.1"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
@@ -74,11 +75,11 @@
     "@babel/plugin-transform-react-jsx": "^7.18.6",
     "@testing-library/dom": "^8.16.0",
     "@types/cytoscape": "^3.19.6",
+    "@types/memoizee": "^0.4.8",
     "@types/ramda": "^0.28.15",
     "@types/react-resizable": "^1.7.4",
     "@types/react-window": "^1.8.5",
     "@types/testing-library__jest-dom": "^5.14.5",
-    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "autoprefixer": "^10.4.7",

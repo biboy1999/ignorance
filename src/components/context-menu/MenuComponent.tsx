@@ -40,7 +40,6 @@ type Props = {
   buttonClassName?: string;
   nested?: boolean;
   onEventListener: (handle: (event: MouseEvent) => void) => () => void;
-  // offEventListener?: Function;
 };
 
 export const MenuComponent = forwardRef<

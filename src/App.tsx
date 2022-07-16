@@ -11,9 +11,7 @@ import {
   Providers,
 } from "./types/types";
 import { UserInfo } from "./components/windows/UserInfo";
-import { NodeAttributes } from "./components/windows/NodeAttributes";
 import { Transforms } from "./components/windows/Transforms/Transforms";
-import { useSelectedNodes } from "./store/selectedNodes";
 import { Graph } from "./components/Graph";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
@@ -42,7 +40,6 @@ function App(): JSX.Element {
 
   const cy = useGlobals((state) => state.cy);
   const ynodes = useGlobals((state) => state.ynodes());
-  // const cy = useRef<cytoscape.Core>();
 
   useEffect(() => {
     // @ts-expect-error ignore debug
@@ -50,8 +47,6 @@ function App(): JSX.Element {
     // cy?.json(JSON.parse(test));
     // cy?.elements().select();
   }, [cy]);
-
-  const nodes = useSelectedNodes((states) => states.nodes);
 
   const handleAddNode = (): void => {
     const nodeId = nanoid();
@@ -75,8 +70,8 @@ function App(): JSX.Element {
   };
 
   const handleDeleteNode = (): void => {
-    const nodes = useSelectedNodes.getState().nodes;
-    nodes.forEach((node) => ynodes.delete(node.id()));
+    const selectedNodes = cy?.$(":selected");
+    selectedNodes?.forEach((node) => ynodes.delete(node.id()));
   };
 
   const handleLayout = (): void => {
@@ -99,7 +94,6 @@ function App(): JSX.Element {
       <ProviderDocContext.Provider value={contextValue}>
         <UserInfo />
         <Transforms />
-        <NodeAttributes nodes={nodes} />
         <Controlbar
           onAdd={handleAddNode}
           onDelete={handleDeleteNode}

@@ -8,17 +8,17 @@ import cytoscape, {
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Map as YMap } from "yjs";
 import { init_options } from "../temp/init-data";
 import { useOnlineUsers } from "../store/onlineUsers";
-import { useSelectedNodes } from "../store/selectedNodes";
 import { YNode, YNodeData, YNodePosition } from "../types/types";
 import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
 import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
 import { ProviderDocContext } from "../App";
 import { NodeContextMenu } from "./NodeContextMenu";
 import { useGlobals } from "../store/globals";
+import { NodeAttributes } from "./windows/NodeAttributes";
 
 const Graph = (): JSX.Element => {
   const context = useContext(ProviderDocContext);
@@ -30,14 +30,14 @@ const Graph = (): JSX.Element => {
   const setCy = useGlobals((state) => state.setCy);
   const cy = useRef<cytoscape.Core>();
 
+  const [selectedNode, setSelectedNode] = useState<NodeSingular>();
+
   const layers = useRef<LayersPlugin>();
   const cursorLayer = useRef<ICanvasStaticLayer>();
 
   const loadedImages = useRef<Map<number, HTMLImageElement>>();
 
   const setUsernames = useOnlineUsers((states) => states.setUsernames);
-
-  const addNode = useSelectedNodes((states) => states.addNode);
 
   // update cursor move
   const handleMouseMove = useThrottledCallback(
@@ -224,11 +224,7 @@ const Graph = (): JSX.Element => {
         const pos = value.position ?? { x: 0, y: 0 };
         const username = value.username ?? "";
         const color = value.color ?? "#000000";
-        // XXX: why? act as cache not to create cursor every movement.
-        const img =
-          loadedImages.current?.get(key)?.alt == color
-            ? loadedImages.current?.get(key)
-            : loadedImages.current?.set(key, generateCursor(color)).get(key);
+        const img = generateCursor(color);
         const pan = cy.current?.pan() ?? { x: 0, y: 0 };
         const zoom = cy.current?.zoom() ?? 1;
         // start drawing
@@ -323,7 +319,7 @@ const Graph = (): JSX.Element => {
 
     // node slected
     cy.current.on("select", (e) => {
-      if (e.target.isNode()) addNode(e.target);
+      if (e.target.isNode()) setSelectedNode(e.target);
     });
 
     return (): void => {
@@ -335,6 +331,7 @@ const Graph = (): JSX.Element => {
     <>
       <div id="cy" className="flex-1" />
       <NodeContextMenu />
+      <NodeAttributes nodes={selectedNode} />
     </>
   );
 };

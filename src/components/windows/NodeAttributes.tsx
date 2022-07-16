@@ -15,14 +15,14 @@ import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
 import { useGlobals } from "../../store/globals";
 
 export type NodeAttributesProp = {
-  nodes: NodeSingular[];
+  nodes: NodeSingular | undefined;
 };
 
 // TODO: need better attribute edit system
 export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
-  const nodeId = nodes[0]?.id();
+  const nodeId = nodes?.id();
   const ynodes = useGlobals((state) => state.ynodes());
-  const ynode = ynodes.get(nodeId);
+  const ynode = ynodes.get(nodeId ?? "");
   const ydata = ynode?.get("data") as YNodeData | undefined;
   const [attributes, setAttributes] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -163,7 +163,7 @@ export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
             </h1>
           </div>
           <div className="flex flex-col flex-1 overflow-auto">
-            {nodes.length !== 0 &&
+            {nodes?.length !== 0 &&
               attributes.map(([key, value], _index) => {
                 return (
                   <div key={nanoid()} className="flex">

@@ -90,7 +90,7 @@ export const NodeContextMenu = (): JSX.Element => {
           onEventListener={onContextTrigger}
         >
           <MenuButton
-            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10"
+            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 focus:z-10"
             label="Add"
             icon={<PlusIcon className="h-5 w-5 mr-2" />}
             onClick={(e): void => {
@@ -107,7 +107,7 @@ export const NodeContextMenu = (): JSX.Element => {
             }}
           />
           <MenuButton
-            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-red-100  hover:z-10 ring-inset hover:text-red-800"
+            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-red-100 focus:z-10 hover:text-red-800"
             label="Delete"
             icon={<TrashIcon className="h-5 w-5 mr-2" />}
             onClick={handleDelete}

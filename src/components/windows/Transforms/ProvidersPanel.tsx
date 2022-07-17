@@ -1,14 +1,14 @@
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
-import { useContext, useEffect, useState } from "react";
-import { ProviderDocContext } from "../../../App";
-import { useGlobals } from "../../../store/globals";
+import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { awarenessAtom } from "../../../atom/provider";
+import { ytransformProvidersAtom } from "../../../atom/yjs";
 import { TransformProvider } from "../../../types/types";
 
 export const ProviderPanel = (): JSX.Element => {
-  const context = useContext(ProviderDocContext);
-
-  const yproviders = useGlobals((state) => state.ytransformProviders());
+  const yproviders = useAtomValue(ytransformProvidersAtom);
+  const awareness = useAtomValue(awarenessAtom);
 
   const [providers, setProviders] = useState<TransformProvider[]>(
     Array.from(yproviders.entries()).map(([_k, v]) => v)
@@ -26,8 +26,7 @@ export const ProviderPanel = (): JSX.Element => {
     <>
       {providers.map((provider) => {
         const username =
-          context.awareness.getStates().get(provider.clientId)?.username ??
-          "unknown";
+          awareness?.getStates().get(provider.clientId)?.username ?? "unknown";
         return (
           <Disclosure key={provider.transformId}>
             <Disclosure.Button className="flex odd:bg-slate-200 even:bg-purple-200 hover:bg-white">

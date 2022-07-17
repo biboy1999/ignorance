@@ -33,7 +33,8 @@ import {
   FloatingContext,
 } from "@floating-ui/react-dom-interactions";
 import { MenuButton } from "./MenuButton";
-import { useGlobals } from "../../store/globals";
+import { useAtomValue } from "jotai";
+import { cyAtom } from "../../atom/cy";
 
 type Props = {
   label?: string;
@@ -46,7 +47,7 @@ export const MenuComponent = forwardRef<
   unknown,
   Props & React.HTMLProps<HTMLButtonElement>
 >(({ children, label, className, buttonClassName, onEventListener }, ref) => {
-  const cy = useGlobals((state) => state.cy);
+  const cy = useAtomValue(cyAtom);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [open, setOpen] = useState(false);

@@ -8,26 +8,29 @@ import cytoscape, {
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Map as YMap } from "yjs";
-import { init_options } from "../temp/init-data";
-import { useOnlineUsers } from "../store/onlineUsers";
-import { YNode, YNodeData, YNodePosition } from "../types/types";
-import { generateCursor, modelToRenderedPosition } from "../utils/canvas";
-import { useThrottledCallback } from "../utils/hooks/useThrottledCallback";
-import { ProviderDocContext } from "../App";
-import { NodeContextMenu } from "./NodeContextMenu";
-import { useGlobals } from "../store/globals";
-import { NodeAttributes } from "./windows/NodeAttributes";
+import { init_options } from "../../temp/init-data";
+import { useOnlineUsers } from "../../store/onlineUsers";
+import { YNode, YNodeData, YNodePosition } from "../../types/types";
+import { generateCursor, modelToRenderedPosition } from "../../utils/canvas";
+import { useThrottledCallback } from "../../utils/hooks/useThrottledCallback";
+import { NodeContextMenu } from "../NodeContextMenu";
+import { NodeAttributes } from "../windows/NodeAttributes";
+import { useAtomValue, useSetAtom } from "jotai";
+import { ydocAtom, yedgesAtom, ynodesAtom } from "../../atom/yjs";
+import { cyAtom } from "../../atom/cy";
+import { awarenessAtom, isOnlineModeAtom } from "../../atom/provider";
 
 const Graph = (): JSX.Element => {
-  const context = useContext(ProviderDocContext);
+  const ydoc = useAtomValue(ydocAtom);
+  const ynodes = useAtomValue(ynodesAtom);
+  const yedges = useAtomValue(yedgesAtom);
+  const isOnlineMode = useAtomValue(isOnlineModeAtom);
+  const awareness = useAtomValue(awarenessAtom);
 
-  const ydoc = useGlobals((state) => state.ydoc);
-  const ynodes = useGlobals((state) => state.ynodes());
-  const yedges = useGlobals((state) => state.yedges());
+  const setCy = useSetAtom(cyAtom);
 
-  const setCy = useGlobals((state) => state.setCy);
   const cy = useRef<cytoscape.Core>();
 
   const [selectedNode, setSelectedNode] = useState<NodeSingular>();
@@ -42,8 +45,7 @@ const Graph = (): JSX.Element => {
   // update cursor move
   const handleMouseMove = useThrottledCallback(
     (e: cytoscape.EventObject) => {
-      if (context.isOnlineMode)
-        context.awareness.setLocalStateField("position", e.position);
+      if (isOnlineMode) awareness?.setLocalStateField("position", e.position);
     },
     10,
     []
@@ -99,27 +101,6 @@ const Graph = (): JSX.Element => {
     loadedImages.current = new Map<number, HTMLImageElement>();
 
     // event register
-    // cursor render
-    context.awareness.on(
-      "change",
-      (
-        _actions: {
-          added: Array<number>;
-          updated: Array<number>;
-          removed: Array<number>;
-        },
-        _tx: Record<string, unknown> | string
-      ): void => {
-        const onlineUsers = Array.from(
-          context.awareness.getStates(),
-          ([key, value]) => ({ id: key, username: value.username })
-        );
-        setUsernames(onlineUsers);
-
-        cursorLayer.current?.update();
-      }
-    );
-
     // sync node (add, delete)
     ynodes.observe((e, _tx) => {
       e.changes.keys.forEach((change, key) => {
@@ -216,34 +197,6 @@ const Graph = (): JSX.Element => {
       );
     });
 
-    // cursor render
-    cursorLayer.current.callback((ctx) => {
-      context.awareness.getStates().forEach((value, key) => {
-        if (context.awareness.clientID === key) return;
-
-        const pos = value.position ?? { x: 0, y: 0 };
-        const username = value.username ?? "";
-        const color = value.color ?? "#000000";
-        const img = generateCursor(color);
-        const pan = cy.current?.pan() ?? { x: 0, y: 0 };
-        const zoom = cy.current?.zoom() ?? 1;
-        // start drawing
-        const { x, y } = modelToRenderedPosition(pos, zoom, pan);
-        ctx.save();
-        if (img) ctx.drawImage(img, x, y);
-        if (username !== "") {
-          ctx.font = "1em sans-serif";
-          ctx.textBaseline = "top";
-          ctx.fillStyle = color;
-          const width = ctx.measureText(username).width;
-          ctx.fillRect(x + 10, y + 24, width + 4, 18);
-          ctx.fillStyle = "white";
-          ctx.fillText(username, x + 12, y + 25);
-        }
-        ctx.restore();
-      });
-    });
-
     // cursor update
     cy.current.on("vmousemove", (e) => {
       if (e.cy.$(":grabbed").length || e.originalEvent.buttons !== 1)
@@ -326,6 +279,56 @@ const Graph = (): JSX.Element => {
       cy.current?.destroy();
     };
   }, []);
+
+  useEffect(() => {
+    // username update
+    awareness?.on(
+      "change",
+      (
+        _actions: {
+          added: Array<number>;
+          updated: Array<number>;
+          removed: Array<number>;
+        },
+        _tx: Record<string, unknown> | string
+      ): void => {
+        const onlineUsers = Array.from(
+          awareness.getStates(),
+          ([key, value]) => ({ id: key, username: value.username })
+        );
+        setUsernames(onlineUsers);
+        cursorLayer.current?.update();
+      }
+    );
+
+    // cursor render
+    cursorLayer.current?.callback((ctx) => {
+      awareness?.getStates().forEach((value, key) => {
+        if (awareness.clientID === key) return;
+
+        const pos = value.position ?? { x: 0, y: 0 };
+        const username = value.username ?? "";
+        const color = value.color ?? "#000000";
+        const img = generateCursor(color);
+        const pan = cy.current?.pan() ?? { x: 0, y: 0 };
+        const zoom = cy.current?.zoom() ?? 1;
+        // start drawing
+        const { x, y } = modelToRenderedPosition(pos, zoom, pan);
+        ctx.save();
+        if (img) ctx.drawImage(img, x, y);
+        if (username !== "") {
+          ctx.font = "1em sans-serif";
+          ctx.textBaseline = "top";
+          ctx.fillStyle = color;
+          const width = ctx.measureText(username).width;
+          ctx.fillRect(x + 10, y + 24, width + 4, 18);
+          ctx.fillStyle = "white";
+          ctx.fillText(username, x + 12, y + 25);
+        }
+        ctx.restore();
+      });
+    });
+  }, [awareness]);
 
   return (
     <>

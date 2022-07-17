@@ -1,12 +1,14 @@
-import React, { Fragment, useContext, useRef } from "react";
+import React, { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Connections, ProvidersParameters } from "./Connections";
 import { FormProvider, useForm } from "react-hook-form";
 import { where, is, equals } from "ramda";
-import { ProviderDocContext } from "../../../App";
 import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
-import { useGlobals } from "../../../store/globals";
+import { useAtomValue } from "jotai";
+import { ydocAtom } from "../../../atom/yjs";
+import { awarenessAtom, providersStoreAtom } from "../../../atom/provider";
+import { providersStore } from "../../../store/providers";
 
 export type ConnectionsMadelProp = {
   open: boolean;
@@ -17,9 +19,12 @@ export const ConnectionsModal = ({
   open,
   setOpen,
 }: ConnectionsMadelProp): JSX.Element => {
-  const context = useContext(ProviderDocContext);
+  // const context = useContext(ProviderDocContext);
+  const addProvider = providersStore((state) => state.setProvider);
 
-  const ydoc = useGlobals((state) => state.ydoc);
+  const ydoc = useAtomValue(ydocAtom);
+  const providers = useAtomValue(providersStoreAtom).providers;
+  const awareness = useAtomValue(awarenessAtom);
 
   const buttonRef = useRef(null);
 
@@ -40,21 +45,25 @@ export const ConnectionsModal = ({
       webSocketServer: is(String),
     });
 
-    if (usingRtc(data) && !context.providers.webrtc.provider) {
-      context.addProvider(
+    if (usingRtc(data) && !providers.webrtc.provider && awareness) {
+      addProvider(
         // @ts-expect-error most property are optional
         new WebrtcProvider(data.webrtcRoom, ydoc, {
           signaling: [data.webrtcSignaling],
           password: data.webrtcPassword,
-          awareness: context.awareness,
+          awareness: awareness,
           filterBcConns: false,
         })
       );
       setOpen(false);
-    } else if (usingWebSocket(data) && !context.providers.websocket.provider) {
-      context.addProvider(
+    } else if (
+      usingWebSocket(data) &&
+      !providers.websocket.provider &&
+      awareness
+    ) {
+      addProvider(
         new WebsocketProvider(data.webSocketServer, data.webSocketRoom, ydoc, {
-          awareness: context.awareness,
+          awareness: awareness,
         })
       );
       setOpen(false);

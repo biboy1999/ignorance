@@ -1,14 +1,15 @@
-import { Fragment, useContext, Dispatch, SetStateAction } from "react";
+import { Fragment, Dispatch, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useForm, FormProvider } from "react-hook-form";
-import { ProviderDocContext } from "../../../App";
 import {
   TransformProviderForm,
   TransformProviderParamters,
 } from "./TransformProviderForm";
 import { useTransforms } from "../../../store/transforms";
 import { nanoid } from "nanoid";
-import { useGlobals } from "../../../store/globals";
+import { useAtomValue } from "jotai";
+import { ytransformProvidersAtom } from "../../../atom/yjs";
+import { awarenessAtom } from "../../../atom/provider";
 
 export type ConnectionsMadelProp = {
   open: boolean;
@@ -19,9 +20,8 @@ export const TransformProviderModal = ({
   open,
   setOpen,
 }: ConnectionsMadelProp): JSX.Element => {
-  const context = useContext(ProviderDocContext);
-
-  const yproviders = useGlobals((state) => state.ytransformProviders());
+  const awareness = useAtomValue(awarenessAtom);
+  const yproviders = useAtomValue(ytransformProvidersAtom);
 
   const addProviders = useTransforms((state) => state.addProviders);
 
@@ -34,7 +34,7 @@ export const TransformProviderModal = ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { apiUrl, ...publicTransform } = {
       ...internal,
-      clientId: context.awareness.clientID,
+      clientId: awareness?.clientID ?? 0,
     };
 
     addProviders([internal]);

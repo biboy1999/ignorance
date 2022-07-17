@@ -1,45 +1,24 @@
-import { createContext, useEffect } from "react";
+import { useEffect } from "react";
 import { Map as YMap } from "yjs";
-import { Awareness } from "y-protocols/awareness";
 import { nanoid } from "nanoid";
+import { Provider as StateProvider, useAtomValue } from "jotai";
 import "./App.css";
-import {
-  YNodeGroup,
-  YNodeData,
-  YNodePosition,
-  Provider,
-  Providers,
-} from "./types/types";
+import { YNodeGroup, YNodeData, YNodePosition } from "./types/types";
 import { UserInfo } from "./components/windows/UserInfo";
 import { Transforms } from "./components/windows/Transforms/Transforms";
-import { Graph } from "./components/Graph";
+import { Graph } from "./components/graph/Graph";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
-import { useProvider } from "./utils/hooks/useProvider";
-import { useGlobals } from "./store/globals";
 import { doLayout } from "./utils/graph";
-
-type ProviderDocContextProps = {
-  awareness: Awareness;
-  addProvider: (provider: Provider) => Provider;
-  providers: Providers;
-  isSynced: boolean;
-  isOnlineMode: boolean;
-};
-
-// im sure is defined, i think. :/
-export const ProviderDocContext = createContext<ProviderDocContextProps>(
-  {} as ProviderDocContextProps
-);
+import { ynodesAtom } from "./atom/yjs";
+import { cyAtom } from "./atom/cy";
+import { isOnlineModeAtom } from "./atom/provider";
 
 function App(): JSX.Element {
-  const ydoc = useGlobals((state) => state.ydoc);
+  const ynodes = useAtomValue(ynodesAtom);
+  const cy = useAtomValue(cyAtom);
 
-  const { isSynced, isOnlineMode, awareness, addProvider, providers } =
-    useProvider(ydoc);
-
-  const cy = useGlobals((state) => state.cy);
-  const ynodes = useGlobals((state) => state.ynodes());
+  const isOnlineMode = useAtomValue(isOnlineModeAtom);
 
   useEffect(() => {
     // @ts-expect-error ignore debug
@@ -82,16 +61,9 @@ function App(): JSX.Element {
     doLayout(elementsToLayout);
   };
 
-  const contextValue = {
-    awareness,
-    addProvider,
-    providers,
-    isSynced,
-    isOnlineMode,
-  };
   return (
     <>
-      <ProviderDocContext.Provider value={contextValue}>
+      <StateProvider>
         <UserInfo />
         <Transforms />
         <Controlbar
@@ -103,7 +75,7 @@ function App(): JSX.Element {
           <Graph />
           <Statusbar isOnlineMode={isOnlineMode} />
         </div>
-      </ProviderDocContext.Provider>
+      </StateProvider>
     </>
   );
 }

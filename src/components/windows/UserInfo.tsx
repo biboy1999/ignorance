@@ -1,14 +1,19 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import { equals } from "ramda";
 import { useOnlineUsers } from "../../store/onlineUsers";
-import { useProviders } from "../../store/providers";
 import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
+import { generateUsername } from "../../utils/username/randomUsername";
+import { useAtomValue } from "jotai";
+import { awarenessAtom } from "../../atom/provider";
 
 export const UserInfo = (): JSX.Element => {
   const onlineUsers = useOnlineUsers((states) => states.usernames, equals);
-  // TODO: clean up. replace with context hook.
-  const awareness = useProviders((states) => states.awareness);
+  const awareness = useAtomValue(awarenessAtom);
+
+  useEffect(() => {
+    awareness?.setLocalStateField("username", generateUsername());
+  }, [awareness]);
 
   const handleUpdateUsername = (e: ChangeEvent<HTMLInputElement>): void => {
     awareness?.setLocalStateField("username", e.target.value);

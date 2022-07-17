@@ -1,12 +1,19 @@
 import { Menu } from "./context-menu/Menu";
 import { MenuButton } from "./context-menu/MenuButton";
 import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
-import { forwardRef, useContext } from "react";
-import { ProviderDocContext } from "../App";
+import { forwardRef } from "react";
 import { isTrnasformProvider, TransformsJob } from "../types/types";
 import { AddNode, deleteEdges, deleteNodes } from "../utils/graph";
 import { nanoid } from "nanoid";
-import { useGlobals } from "../store/globals";
+import { useAtomValue } from "jotai";
+import {
+  yedgesAtom,
+  ynodesAtom,
+  ytransformJobsAtom,
+  ytransformProvidersAtom,
+} from "../atom/yjs";
+import { cyAtom } from "../atom/cy";
+import { awarenessAtom } from "../atom/provider";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 bg-white font-mono leading-5 text-base border-b" />
@@ -22,13 +29,13 @@ const GroupHeader = forwardRef<
 ));
 
 export const NodeContextMenu = (): JSX.Element => {
-  const context = useContext(ProviderDocContext);
+  const ynodes = useAtomValue(ynodesAtom);
+  const yedges = useAtomValue(yedgesAtom);
+  const yproviders = useAtomValue(ytransformProvidersAtom);
+  const yjobs = useAtomValue(ytransformJobsAtom);
+  const awareness = useAtomValue(awarenessAtom);
 
-  const ynodes = useGlobals((state) => state.ynodes());
-  const yedges = useGlobals((state) => state.yedges());
-  const yproviders = useGlobals((state) => state.ytransformProviders());
-  const yjobs = useGlobals((state) => state.ytransformJobs());
-  const cy = useGlobals((state) => state.cy);
+  const cy = useAtomValue(cyAtom);
 
   const providers = Array.from(yproviders.entries());
 
@@ -52,7 +59,7 @@ export const NodeContextMenu = (): JSX.Element => {
   };
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    const clientId = context.awareness.clientID;
+    const clientId = awareness?.clientID;
     const transformId = e.currentTarget.getAttribute("data-transformid");
     const collection = cy?.$(":selected");
     if (!(yjobs && clientId && transformId && collection)) return;

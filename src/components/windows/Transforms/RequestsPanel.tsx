@@ -6,9 +6,17 @@ import {
   ChevronUpIcon,
   CogIcon,
 } from "@heroicons/react/solid";
-import { useContext, useEffect, useState } from "react";
-import { ProviderDocContext } from "../../../App";
-import { useGlobals } from "../../../store/globals";
+import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { cyAtom } from "../../../atom/cy";
+import { awarenessAtom } from "../../../atom/provider";
+import {
+  ydocAtom,
+  yedgesAtom,
+  ynodesAtom,
+  ytransformJobsAtom,
+  ytransformProvidersAtom,
+} from "../../../atom/yjs";
 import { useTransforms } from "../../../store/transforms";
 import {
   isTransformsResponse,
@@ -24,16 +32,15 @@ import {
 } from "../../../utils/providers";
 
 export const RequestsPanel = (): JSX.Element => {
-  const context = useContext(ProviderDocContext);
   const interanlTransforms = useTransforms((state) => state.transformProviders);
 
-  const cy = useGlobals((state) => state.cy);
-  const ydoc = useGlobals((state) => state.ydoc);
-  const ynodes = useGlobals((state) => state.ynodes());
-  const yedges = useGlobals((state) => state.yedges());
-
-  const yjobs = useGlobals((state) => state.ytransformJobs());
-  const yproviders = useGlobals((state) => state.ytransformProviders());
+  const ydoc = useAtomValue(ydocAtom);
+  const ynodes = useAtomValue(ynodesAtom);
+  const yedges = useAtomValue(yedgesAtom);
+  const yjobs = useAtomValue(ytransformJobsAtom);
+  const yproviders = useAtomValue(ytransformProvidersAtom);
+  const cy = useAtomValue(cyAtom);
+  const awareness = useAtomValue(awarenessAtom);
 
   const [requests, setRequests] = useState<TransformsJob[]>(
     Array.from(yjobs.entries()).map(([_k, v]) => v)
@@ -122,7 +129,7 @@ export const RequestsPanel = (): JSX.Element => {
     <>
       {requests.map((request) => {
         const username =
-          context.awareness.getStates().get(request.fromClientId)?.username ??
+          awareness?.getStates().get(request.fromClientId)?.username ??
           "unknown";
         const transformName =
           yproviders.get(request.transformId)?.name ?? "unknown";

@@ -12,8 +12,7 @@ import { Transaction, YMapEvent } from "yjs";
 import { nanoid } from "nanoid";
 import { YNodeData } from "../../types/types";
 import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
-import { ynodesAtom } from "../../atom/yjs";
-import { useAtomValue } from "jotai";
+import { useStore } from "../../store/store";
 
 export type NodeAttributesProp = {
   nodes: NodeSingular | undefined;
@@ -22,7 +21,7 @@ export type NodeAttributesProp = {
 // TODO: need better attribute edit system
 export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
   const nodeId = nodes?.id();
-  const ynodes = useAtomValue(ynodesAtom);
+  const ynodes = useStore((state) => state.ynodes());
   const ynode = ynodes.get(nodeId ?? "");
   const ydata = ynode?.get("data") as YNodeData | undefined;
   const [attributes, setAttributes] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any

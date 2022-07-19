@@ -1,32 +1,30 @@
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
-import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { awarenessAtom } from "../../../atom/provider";
-import { ytransformProvidersAtom } from "../../../atom/yjs";
-import { TransformProvider } from "../../../types/types";
+import { useStore } from "../../../store/store";
+import { SharedTransform } from "../../../types/types";
 
 export const ProviderPanel = (): JSX.Element => {
-  const yproviders = useAtomValue(ytransformProvidersAtom);
-  const awareness = useAtomValue(awarenessAtom);
+  const awareness = useStore((state) => state.getAwareness());
+  const sharedTransforms = useStore((state) => state.sharedTransforms());
 
-  const [providers, setProviders] = useState<TransformProvider[]>(
-    Array.from(yproviders.entries()).map(([_k, v]) => v)
+  const [providers, setProviders] = useState<SharedTransform[]>(
+    Array.from(sharedTransforms.entries()).map(([_k, v]) => v)
   );
 
   useEffect(() => {
     const handleProvidersChange = (): void => {
-      setProviders(Array.from(yproviders.entries()).map(([_k, v]) => v));
+      setProviders(Array.from(sharedTransforms.entries()).map(([_k, v]) => v));
     };
-    yproviders.observe(handleProvidersChange);
-    return () => yproviders.unobserve(handleProvidersChange);
+    sharedTransforms.observe(handleProvidersChange);
+    return () => sharedTransforms.unobserve(handleProvidersChange);
   }, []);
 
   return (
     <>
       {providers.map((provider) => {
         const username =
-          awareness?.getStates().get(provider.clientId)?.username ?? "unknown";
+          awareness.getStates().get(provider.clientId)?.username ?? "unknown";
         return (
           <Disclosure key={provider.transformId}>
             <Disclosure.Button className="flex odd:bg-slate-200 even:bg-purple-200 hover:bg-white">

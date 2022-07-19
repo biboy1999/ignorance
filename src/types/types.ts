@@ -96,11 +96,11 @@ export type TransformsJob = {
 };
 
 // used in ydoc
-export type TransformProvider = Omit<TransformInternal, "apiUrl"> & {
+export type SharedTransform = Omit<InternalTransform, "apiUrl"> & {
   clientId: number;
 };
 
-export function isTrnasformProvider(x: object): x is TransformProvider {
+export function isTrnasformProvider(x: object): x is SharedTransform {
   return (
     typeof x === "object" &&
     "transformId" in x &&
@@ -113,7 +113,7 @@ export function isTrnasformProvider(x: object): x is TransformProvider {
 }
 
 // used in local state
-export type TransformInternal = {
+export type InternalTransform = {
   transformId: string;
   name: string;
   description: string;
@@ -124,9 +124,9 @@ export type TransformInternal = {
   };
 };
 
-export type Providers = {
+export type YjsProvidersStore = {
   webrtc: { provider: WebrtcProvider | undefined; isSynced: boolean };
   websocket: { provider: WebsocketProvider | undefined; isSynced: boolean };
 };
 
-export type Provider = WebrtcProvider | WebsocketProvider;
+export type YjsProvider = WebrtcProvider | WebsocketProvider;

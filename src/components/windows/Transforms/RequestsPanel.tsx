@@ -6,18 +6,8 @@ import {
   ChevronUpIcon,
   CogIcon,
 } from "@heroicons/react/solid";
-import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { cyAtom } from "../../../atom/cy";
-import { awarenessAtom } from "../../../atom/provider";
-import {
-  ydocAtom,
-  yedgesAtom,
-  ynodesAtom,
-  ytransformJobsAtom,
-  ytransformProvidersAtom,
-} from "../../../atom/yjs";
-import { useTransforms } from "../../../store/transforms";
+import { useStore } from "../../../store/store";
 import {
   isTransformsResponse,
   TransformsJob,
@@ -32,27 +22,27 @@ import {
 } from "../../../utils/providers";
 
 export const RequestsPanel = (): JSX.Element => {
-  const interanlTransforms = useTransforms((state) => state.transformProviders);
+  const interanlTransforms = useStore((state) => state.internalTransforms);
 
-  const ydoc = useAtomValue(ydocAtom);
-  const ynodes = useAtomValue(ynodesAtom);
-  const yedges = useAtomValue(yedgesAtom);
-  const yjobs = useAtomValue(ytransformJobsAtom);
-  const yproviders = useAtomValue(ytransformProvidersAtom);
-  const cy = useAtomValue(cyAtom);
-  const awareness = useAtomValue(awarenessAtom);
+  const ydoc = useStore((state) => state.ydoc);
+  const ynodes = useStore((state) => state.ynodes());
+  const yedges = useStore((state) => state.yedges());
+  const awareness = useStore((state) => state.getAwareness());
+  const transformJobs = useStore((state) => state.transformJobs());
+  const sharedTransforms = useStore((state) => state.sharedTransforms());
+  const cytoscape = useStore((state) => state.cytoscape);
 
   const [requests, setRequests] = useState<TransformsJob[]>(
-    Array.from(yjobs.entries()).map(([_k, v]) => v)
+    Array.from(transformJobs.entries()).map(([_k, v]) => v)
   );
 
   useEffect(() => {
     const handleRequestChange = (): void => {
-      setRequests(Array.from(yjobs.entries()).map(([_k, v]) => v));
+      setRequests(Array.from(transformJobs.entries()).map(([_k, v]) => v));
     };
-    yjobs.observe(handleRequestChange);
+    transformJobs.observe(handleRequestChange);
     return (): void => {
-      yjobs.unobserve(handleRequestChange);
+      transformJobs.unobserve(handleRequestChange);
     };
   }, []);
 
@@ -60,9 +50,9 @@ export const RequestsPanel = (): JSX.Element => {
     e.stopPropagation();
     const jobId = e.currentTarget.getAttribute("data-jobid");
     if (!jobId) return;
-    const job = yjobs.get(jobId);
+    const job = transformJobs.get(jobId);
     if (!job) return;
-    handleReject(yjobs, job);
+    handleReject(transformJobs, job);
   };
 
   const handleAcceptJob: React.MouseEventHandler = (e) => {
@@ -75,15 +65,19 @@ export const RequestsPanel = (): JSX.Element => {
       (x) => x.transformId === transformId
     );
 
-    const job = yjobs.get(jobId);
+    const job = transformJobs.get(jobId);
     if (!(transform && job)) return;
 
     const request: TransformsRequest = {
-      nodes: job.request.nodesId?.map((nodeId) => cy?.$id(nodeId).data()),
-      edges: job.request.edgesId?.map((edgeId) => cy?.$id(edgeId).data()),
+      nodes: job.request.nodesId?.map((nodeId) =>
+        cytoscape?.$id(nodeId).data()
+      ),
+      edges: job.request.edgesId?.map((edgeId) =>
+        cytoscape?.$id(edgeId).data()
+      ),
       parameter: job.request.parameter,
     };
-    handleRunning(yjobs, job);
+    handleRunning(transformJobs, job);
     fetch(transform.apiUrl, {
       method: "POST",
       body: JSON.stringify(request),
@@ -93,23 +87,25 @@ export const RequestsPanel = (): JSX.Element => {
     })
       .then(
         (resp) => resp.json(),
-        () => handleError(yjobs, job)
+        () => handleError(transformJobs, job)
       )
       .then(
         (data) => {
           if (!isTransformsResponse(data)) return;
-          if (!cy) return;
+          if (!cytoscape) return;
 
           ydoc.transact(() => {
             data.add?.nodes?.forEach((ele, _index) => {
-              const nodePosition = cy.$id(ele.linkToNodeId ?? "")?.position();
+              const nodePosition = cytoscape
+                .$id(ele.linkToNodeId ?? "")
+                ?.position();
               const { nodeId, node } = AddNode(
                 nodePosition?.x ?? 0,
                 nodePosition?.y ?? 0,
                 ele.data,
                 {
-                  pan: cy.pan(),
-                  zoom: cy.zoom(),
+                  pan: cytoscape.pan(),
+                  zoom: cytoscape.zoom(),
                 }
               );
               ynodes.set(nodeId, node);
@@ -119,9 +115,9 @@ export const RequestsPanel = (): JSX.Element => {
               }
             });
           });
-          handleComplete(yjobs, job);
+          handleComplete(transformJobs, job);
         },
-        () => handleError(yjobs, job)
+        () => handleError(transformJobs, job)
       );
   };
 
@@ -129,10 +125,10 @@ export const RequestsPanel = (): JSX.Element => {
     <>
       {requests.map((request) => {
         const username =
-          awareness?.getStates().get(request.fromClientId)?.username ??
+          awareness.getStates().get(request.fromClientId)?.username ??
           "unknown";
         const transformName =
-          yproviders.get(request.transformId)?.name ?? "unknown";
+          sharedTransforms.get(request.transformId)?.name ?? "unknown";
 
         return (
           <Disclosure key={request.jobId}>

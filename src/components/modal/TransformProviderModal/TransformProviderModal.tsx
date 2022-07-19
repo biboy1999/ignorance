@@ -5,13 +5,10 @@ import {
   TransformProviderForm,
   TransformProviderParamters,
 } from "./TransformProviderForm";
-import { useTransforms } from "../../../store/transforms";
 import { nanoid } from "nanoid";
-import { useAtomValue } from "jotai";
-import { ytransformProvidersAtom } from "../../../atom/yjs";
-import { awarenessAtom } from "../../../atom/provider";
+import { useStore } from "../../../store/store";
 
-export type ConnectionsMadelProp = {
+export type ConnectionsModelProp = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 };
@@ -19,11 +16,13 @@ export type ConnectionsMadelProp = {
 export const TransformProviderModal = ({
   open,
   setOpen,
-}: ConnectionsMadelProp): JSX.Element => {
-  const awareness = useAtomValue(awarenessAtom);
-  const yproviders = useAtomValue(ytransformProvidersAtom);
+}: ConnectionsModelProp): JSX.Element => {
+  const awareness = useStore((state) => state.getAwareness());
+  const sharedTransforms = useStore((state) => state.sharedTransforms());
 
-  const addProviders = useTransforms((state) => state.addProviders);
+  const addInternalTransforms = useStore(
+    (state) => state.addInternalTransforms
+  );
 
   const method = useForm<TransformProviderParamters>({
     defaultValues: { elementType: ["*"] },
@@ -34,11 +33,11 @@ export const TransformProviderModal = ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { apiUrl, ...publicTransform } = {
       ...internal,
-      clientId: awareness?.clientID ?? 0,
+      clientId: awareness.clientID,
     };
 
-    addProviders([internal]);
-    yproviders.set(publicTransform.transformId, publicTransform);
+    addInternalTransforms([internal]);
+    sharedTransforms.set(publicTransform.transformId, publicTransform);
     setOpen(false);
   });
 

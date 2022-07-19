@@ -5,10 +5,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { where, is, equals } from "ramda";
 import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
-import { useAtomValue } from "jotai";
-import { ydocAtom } from "../../../atom/yjs";
-import { awarenessAtom, providersStoreAtom } from "../../../atom/provider";
-import { providersStore } from "../../../store/providers";
+import { useStore } from "../../../store/store";
 
 export type ConnectionsMadelProp = {
   open: boolean;
@@ -19,12 +16,11 @@ export const ConnectionsModal = ({
   open,
   setOpen,
 }: ConnectionsMadelProp): JSX.Element => {
-  // const context = useContext(ProviderDocContext);
-  const addProvider = providersStore((state) => state.setProvider);
+  const addProvider = useStore((state) => state.addProvider);
 
-  const ydoc = useAtomValue(ydocAtom);
-  const providers = useAtomValue(providersStoreAtom).providers;
-  const awareness = useAtomValue(awarenessAtom);
+  const ydoc = useStore((state) => state.ydoc);
+  const providers = useStore((state) => state.providersStore);
+  const awareness = useStore((state) => state.getAwareness());
 
   const buttonRef = useRef(null);
 

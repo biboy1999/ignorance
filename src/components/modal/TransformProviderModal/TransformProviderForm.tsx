@@ -1,8 +1,8 @@
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { PlusSmIcon, XIcon } from "@heroicons/react/solid";
-import { TransformInternal } from "../../../types/types";
+import { InternalTransform } from "../../../types/types";
 
-export type TransformProviderParamters = TransformInternal;
+export type TransformProviderParamters = InternalTransform;
 
 export const TransformProviderForm = (): JSX.Element => {
   const { register } = useFormContext();

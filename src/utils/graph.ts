@@ -90,6 +90,7 @@ export const deleteEdges = (id: string[], ynodes: YMap<Edge>): void => {
 export const doLayout = (
   elementsToLayout: cytoscape.CollectionReturnValue
 ): void => {
+  // TODO: better config
   const layout = elementsToLayout.layout({
     name: "fcose",
     // 'draft', 'default' or 'proof'

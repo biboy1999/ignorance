@@ -17,19 +17,18 @@ import { generateCursor, modelToRenderedPosition } from "../../utils/canvas";
 import { useThrottledCallback } from "../../utils/hooks/useThrottledCallback";
 import { NodeContextMenu } from "../NodeContextMenu";
 import { NodeAttributes } from "../windows/NodeAttributes";
-import { useAtomValue, useSetAtom } from "jotai";
-import { ydocAtom, yedgesAtom, ynodesAtom } from "../../atom/yjs";
-import { cyAtom } from "../../atom/cy";
-import { awarenessAtom, isOnlineModeAtom } from "../../atom/provider";
+import { useAtomValue } from "jotai";
+import { isOnlineModeAtom } from "../../atom/provider";
+import { useStore } from "../../store/store";
 
 const Graph = (): JSX.Element => {
-  const ydoc = useAtomValue(ydocAtom);
-  const ynodes = useAtomValue(ynodesAtom);
-  const yedges = useAtomValue(yedgesAtom);
+  const ydoc = useStore((state) => state.ydoc);
+  const ynodes = useStore((state) => state.ynodes());
+  const yedges = useStore((state) => state.yedges());
+  const awareness = useStore((state) => state.getAwareness());
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
-  const awareness = useAtomValue(awarenessAtom);
 
-  const setCy = useSetAtom(cyAtom);
+  const setCytoscape = useStore((state) => state.setCytoscape);
 
   const cy = useRef<cytoscape.Core>();
 
@@ -45,7 +44,7 @@ const Graph = (): JSX.Element => {
   // update cursor move
   const handleMouseMove = useThrottledCallback(
     (e: cytoscape.EventObject) => {
-      if (isOnlineMode) awareness?.setLocalStateField("position", e.position);
+      if (isOnlineMode) awareness.setLocalStateField("position", e.position);
     },
     10,
     []
@@ -60,7 +59,7 @@ const Graph = (): JSX.Element => {
       container: document.getElementById("cy"),
       ...init_options,
     });
-    setCy(cy.current);
+    setCytoscape(cy.current);
 
     // init edge options
     const defaults = {
@@ -282,7 +281,8 @@ const Graph = (): JSX.Element => {
 
   useEffect(() => {
     // username update
-    awareness?.on(
+    // TODO: sperate cursor layer?
+    awareness.on(
       "change",
       (
         _actions: {
@@ -303,7 +303,7 @@ const Graph = (): JSX.Element => {
 
     // cursor render
     cursorLayer.current?.callback((ctx) => {
-      awareness?.getStates().forEach((value, key) => {
+      awareness.getStates().forEach((value, key) => {
         if (awareness.clientID === key) return;
 
         const pos = value.position ?? { x: 0, y: 0 };

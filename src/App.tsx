@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Map as YMap } from "yjs";
 import { nanoid } from "nanoid";
 import { Provider as StateProvider, useAtomValue } from "jotai";
@@ -10,22 +9,16 @@ import { Graph } from "./components/graph/Graph";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
 import { doLayout } from "./utils/graph";
-import { ynodesAtom } from "./atom/yjs";
-import { cyAtom } from "./atom/cy";
+import { WebrtcProvider } from "y-webrtc";
 import { isOnlineModeAtom } from "./atom/provider";
+import { useStore } from "./store/store";
 
 function App(): JSX.Element {
-  const ynodes = useAtomValue(ynodesAtom);
-  const cy = useAtomValue(cyAtom);
+  const ynodes = useStore((state) => state.ynodes());
 
+  // const readCy = useAtomCallback(useCallback((get) => get(cyAtom), []));
+  const cyotscape = useStore((state) => state.cytoscape);
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
-
-  useEffect(() => {
-    // @ts-expect-error ignore debug
-    window.cyto = cy;
-    // cy?.json(JSON.parse(test));
-    // cy?.elements().select();
-  }, [cy]);
 
   const handleAddNode = (): void => {
     const nodeId = nanoid();
@@ -48,13 +41,13 @@ function App(): JSX.Element {
     ynodes.set(nodeId, node);
   };
 
-  const handleDeleteNode = (): void => {
-    const selectedNodes = cy?.$(":selected");
+  const handleDeleteNode = async (): Promise<void> => {
+    const selectedNodes = cyotscape?.$(":selected");
     selectedNodes?.forEach((node) => ynodes.delete(node.id()));
   };
 
-  const handleLayout = (): void => {
-    const selectedEles = cy?.$(":selected");
+  const handleLayout = async (): Promise<void> => {
+    const selectedEles = cyotscape?.$(":selected");
     if (!selectedEles) return;
     const connectedEdge = selectedEles.connectedEdges();
     const elementsToLayout = selectedEles.add(connectedEdge);

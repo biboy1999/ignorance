@@ -4,23 +4,22 @@ import { equals } from "ramda";
 import { useOnlineUsers } from "../../store/onlineUsers";
 import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
 import { generateUsername } from "../../utils/username/randomUsername";
-import { useAtomValue } from "jotai";
-import { awarenessAtom } from "../../atom/provider";
+import { useStore } from "../../store/store";
 
 export const UserInfo = (): JSX.Element => {
   const onlineUsers = useOnlineUsers((states) => states.usernames, equals);
-  const awareness = useAtomValue(awarenessAtom);
+  const awareness = useStore((state) => state.getAwareness());
 
   useEffect(() => {
-    awareness?.setLocalStateField("username", generateUsername());
+    awareness.setLocalStateField("username", generateUsername());
   }, [awareness]);
 
   const handleUpdateUsername = (e: ChangeEvent<HTMLInputElement>): void => {
-    awareness?.setLocalStateField("username", e.target.value);
+    awareness.setLocalStateField("username", e.target.value);
   };
 
   const handleColorOnChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    awareness?.setLocalStateField("color", e.target.value);
+    awareness.setLocalStateField("color", e.target.value);
   };
   return (
     <CollapsibleDragResizeBox

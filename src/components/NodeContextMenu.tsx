@@ -5,15 +5,7 @@ import { forwardRef } from "react";
 import { isTrnasformProvider, TransformsJob } from "../types/types";
 import { AddNode, deleteEdges, deleteNodes } from "../utils/graph";
 import { nanoid } from "nanoid";
-import { useAtomValue } from "jotai";
-import {
-  yedgesAtom,
-  ynodesAtom,
-  ytransformJobsAtom,
-  ytransformProvidersAtom,
-} from "../atom/yjs";
-import { cyAtom } from "../atom/cy";
-import { awarenessAtom } from "../atom/provider";
+import { useStore } from "../store/store";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 bg-white font-mono leading-5 text-base border-b" />
@@ -29,18 +21,19 @@ const GroupHeader = forwardRef<
 ));
 
 export const NodeContextMenu = (): JSX.Element => {
-  const ynodes = useAtomValue(ynodesAtom);
-  const yedges = useAtomValue(yedgesAtom);
-  const yproviders = useAtomValue(ytransformProvidersAtom);
-  const yjobs = useAtomValue(ytransformJobsAtom);
-  const awareness = useAtomValue(awarenessAtom);
+  const ynodes = useStore((state) => state.ynodes());
+  const yedges = useStore((state) => state.yedges());
+  const awareness = useStore((state) => state.getAwareness());
 
-  const cy = useAtomValue(cyAtom);
+  const sharedTransforms = useStore((state) => state.sharedTransforms());
+  const transformJobs = useStore((state) => state.transformJobs());
 
-  const providers = Array.from(yproviders.entries());
+  const cytoscape = useStore((state) => state.cytoscape);
+
+  const providers = Array.from(sharedTransforms.entries());
 
   const handleDelete: React.MouseEventHandler = (_e) => {
-    const eles = cy?.$(":selected");
+    const eles = cytoscape?.$(":selected");
     if (!eles?.length) return;
 
     // selected edge and node connected edge
@@ -59,10 +52,10 @@ export const NodeContextMenu = (): JSX.Element => {
   };
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    const clientId = awareness?.clientID;
+    const clientId = awareness.clientID;
     const transformId = e.currentTarget.getAttribute("data-transformid");
-    const collection = cy?.$(":selected");
-    if (!(yjobs && clientId && transformId && collection)) return;
+    const collection = cytoscape?.$(":selected");
+    if (!(transformJobs && clientId && transformId && collection)) return;
     const job: TransformsJob = {
       jobId: nanoid(),
       fromClientId: clientId,
@@ -74,7 +67,7 @@ export const NodeContextMenu = (): JSX.Element => {
         parameter: {},
       },
     };
-    yjobs.set(job.jobId, job);
+    transformJobs.set(job.jobId, job);
   };
 
   // bind handle and return unbind function
@@ -84,14 +77,14 @@ export const NodeContextMenu = (): JSX.Element => {
     const handle = (e: cytoscape.EventObject): void => {
       onContextMenu(e.originalEvent);
     };
-    cy?.on("cxttap", handle);
+    cytoscape?.on("cxttap", handle);
 
-    return () => cy?.off("cxttap", handle);
+    return () => cytoscape?.off("cxttap", handle);
   };
 
   return (
     <>
-      {cy && (
+      {cytoscape && (
         <Menu
           className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
           onEventListener={onContextTrigger}
@@ -108,7 +101,7 @@ export const NodeContextMenu = (): JSX.Element => {
                 parent.offsetLeft,
                 parent.offsetTop,
                 {},
-                { pan: cy.pan(), zoom: cy.zoom() }
+                { pan: cytoscape.pan(), zoom: cytoscape.zoom() }
               );
               if (nodeId) ynodes.set(nodeId, node);
             }}
@@ -122,7 +115,7 @@ export const NodeContextMenu = (): JSX.Element => {
           <Divider />
           <GroupHeader>Transform</GroupHeader>
           {providers.map(([_key, value]) => {
-            const type = cy.$(":selected");
+            const type = cytoscape.$(":selected");
             if (
               !(
                 isTrnasformProvider(value) &&

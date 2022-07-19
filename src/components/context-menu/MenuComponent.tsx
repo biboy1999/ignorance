@@ -33,8 +33,7 @@ import {
   FloatingContext,
 } from "@floating-ui/react-dom-interactions";
 import { MenuButton } from "./MenuButton";
-import { useAtomValue } from "jotai";
-import { cyAtom } from "../../atom/cy";
+import { useStore } from "../../store/store";
 
 type Props = {
   label?: string;
@@ -47,7 +46,7 @@ export const MenuComponent = forwardRef<
   unknown,
   Props & React.HTMLProps<HTMLButtonElement>
 >(({ children, label, className, buttonClassName, onEventListener }, ref) => {
-  const cy = useAtomValue(cyAtom);
+  const cytoscape = useStore((state) => state.cytoscape);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -239,7 +238,7 @@ export const MenuComponent = forwardRef<
     }
 
     // register listener from top component then return remove listener
-    // TODO: refator?
+    // TODO: refactor?
     let handle: (() => void) | undefined = undefined;
     if (!nested) {
       handle = onEventListener(onContextMenu);
@@ -247,7 +246,7 @@ export const MenuComponent = forwardRef<
     return (): void => {
       if (!nested && handle) handle();
     };
-  }, [mergedReferenceRef, cy]);
+  }, [mergedReferenceRef, cytoscape]);
   return (
     <FloatingNode id={nodeId}>
       {nested && (

@@ -100,9 +100,9 @@ export const RequestsPanel = (): JSX.Element => {
                 .$id(ele.linkToNodeId ?? "")
                 ?.position();
               const { nodeId, node } = AddNode(
-                nodePosition?.x ?? 0,
-                nodePosition?.y ?? 0,
                 ele.data,
+                nodePosition.x,
+                nodePosition.y,
                 {
                   pan: cytoscape.pan(),
                   zoom: cytoscape.zoom(),

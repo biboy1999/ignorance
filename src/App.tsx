@@ -9,14 +9,11 @@ import { Graph } from "./components/graph/Graph";
 import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
 import { doLayout } from "./utils/graph";
-import { WebrtcProvider } from "y-webrtc";
 import { isOnlineModeAtom } from "./atom/provider";
 import { useStore } from "./store/store";
 
 function App(): JSX.Element {
   const ynodes = useStore((state) => state.ynodes());
-
-  // const readCy = useAtomCallback(useCallback((get) => get(cyAtom), []));
   const cyotscape = useStore((state) => state.cytoscape);
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
 

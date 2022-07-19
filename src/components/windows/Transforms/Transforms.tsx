@@ -15,7 +15,7 @@ export const Transforms = (): JSX.Element => {
     <CollapsibleDragResizeBox
       sizeOffset={[180, 200]}
       constraintOffset={[0, 40]}
-      top={150}
+      top={325}
       right={20}
       handle=".drag-handle"
     >

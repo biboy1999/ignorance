@@ -25,9 +25,9 @@ export type AddEdgeReturnValue = {
 };
 
 export const AddNode = (
+  nodeData: NodeData,
   x: number,
   y: number,
-  nodeData?: NodeData,
   opt?: {
     pan?: { x: number; y: number };
     zoom?: number;
@@ -177,5 +177,5 @@ export const doLayout = (
     // ready: () => {}, // on layoutready
     // stop: () => {}, // on layoutstop
   });
-  layout?.run();
+  layout.run();
 };

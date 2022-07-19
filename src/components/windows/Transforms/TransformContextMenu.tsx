@@ -17,8 +17,24 @@
 // ));
 
 // export const TransformContextMenu = (): JSX.Element => {
+//   // bind handle and return unbind function
+//   // TODO: better way to do this :/
+//   const onContextTrigger = (
+//     onContextMenu: (e: MouseEvent) => void
+//   ): (() => void) => {
+//     const handle = (e: cytoscape.EventObject): void => {
+//       onContextMenu(e.originalEvent);
+//     };
+//     cytoscape.on("cxttap", handle);
+
+//     return () => cytoscape.off("cxttap", handle);
+//   };
+
 //   return (
-//     <Menu className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none">
+//     <Menu
+//       className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
+//       onEventListener={onContextTrigger}
+//     >
 //       <MenuButton
 //         className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10"
 //         label="Add"

@@ -145,7 +145,7 @@ export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
     <CollapsibleDragResizeBox
       sizeOffset={[180, 250]}
       constraintOffset={[0, 0]}
-      top={250}
+      top={625}
       right={20}
       handle=".drag-handle"
     >

@@ -15,7 +15,7 @@ import { useOnlineUsers } from "../../store/onlineUsers";
 import { YNode, YNodeData, YNodePosition } from "../../types/types";
 import { generateCursor, modelToRenderedPosition } from "../../utils/canvas";
 import { useThrottledCallback } from "../../utils/hooks/useThrottledCallback";
-import { NodeContextMenu } from "../NodeContextMenu";
+import { NodeContextMenu } from "./GraphContextMenu";
 import { NodeAttributes } from "../windows/NodeAttributes";
 import { useAtomValue } from "jotai";
 import { isOnlineModeAtom } from "../../atom/provider";
@@ -88,7 +88,7 @@ const Graph = (): JSX.Element => {
       // snapThreshold: 10, // the target node must be less than or equal to this many pixels away from the cursor/finger
       // snapFrequency: 5, // the number of times per second (Hz) that snap checks done (lower is less expensive)
       // noEdgeEventsInDraw: false, // set events:no to edges during draws, prevents mouseouts on compounds
-      // disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+      disableBrowserGestures: false, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     };
 
     const eh = cy.current.edgehandles(defaults);
@@ -223,20 +223,6 @@ const Graph = (): JSX.Element => {
       });
     });
 
-    // @ts-expect-error edgehandles event
-    cy.current.on(
-      "ehcomplete",
-      (
-        _event: unknown,
-        _sourceNode: unknown,
-        _targetNode: unknown,
-        addedEdge: EdgeSingular
-      ) => {
-        cy.current?.getElementById(addedEdge.id()).remove();
-        yedges.set(addedEdge.id(), addedEdge.data());
-      }
-    );
-
     // when layout complete, sync node position
     cy.current.on("layoutstop", (e) => {
       ydoc.transact(() => {
@@ -250,6 +236,21 @@ const Graph = (): JSX.Element => {
         });
       });
     });
+
+    // @ts-expect-error edgehandles event
+    cy.current.on(
+      "ehcomplete",
+      (
+        _event: unknown,
+        _sourceNode: unknown,
+        _targetNode: unknown,
+        addedEdge: EdgeSingular
+      ) => {
+        // remove edge add by edgehandles, re-add to yedges
+        cy.current?.getElementById(addedEdge.id()).remove();
+        yedges.set(addedEdge.id(), addedEdge.data());
+      }
+    );
 
     cy.current.on("cxttapstart", "node", (e) => {
       const node = e.target as NodeSingular;
@@ -270,7 +271,11 @@ const Graph = (): JSX.Element => {
     });
 
     // node slected
-    cy.current.on("select", (e) => {
+    cy.current.on("select", "node, edge", (e) => {
+      if (e.target.isNode()) setSelectedNode(e.target);
+    });
+
+    cy.current.on("deselect", "node, edge", (e) => {
       if (e.target.isNode()) setSelectedNode(e.target);
     });
 
@@ -328,13 +333,13 @@ const Graph = (): JSX.Element => {
         ctx.restore();
       });
     });
-  }, [awareness]);
+  }, []);
 
   return (
     <>
       <div id="cy" className="flex-1" />
-      <NodeContextMenu />
-      <NodeAttributes nodes={selectedNode} />
+      {cy.current && <NodeContextMenu cytoscape={cy.current} />}
+      {selectedNode && <NodeAttributes nodes={selectedNode} />}
     </>
   );
 };

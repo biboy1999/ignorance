@@ -105,17 +105,6 @@ export const NodeContextMenu = ({
       className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
       onEventListener={onContextTrigger}
     >
-      <Menu
-        className="shadow-lg flex flex-col border border-gray-300 w-48 focus-visible:outline-none"
-        onEventListener={onContextTrigger}
-      >
-        <MenuButton
-          className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 focus:z-10"
-          label="Add"
-          icon={<PlusIcon className="h-5 w-5 mr-2" />}
-          onClick={handleAdd}
-        />
-      </Menu>
       <MenuButton
         className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 focus:z-10"
         label="Add"

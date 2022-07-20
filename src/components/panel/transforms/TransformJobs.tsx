@@ -21,7 +21,7 @@ import {
   handleRunning,
 } from "../../../utils/providers";
 
-export const RequestsPanel = (): JSX.Element => {
+export const TransformJobs = (): JSX.Element => {
   const interanlTransforms = useStore((state) => state.internalTransforms);
 
   const ydoc = useStore((state) => state.ydoc);

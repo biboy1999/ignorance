@@ -9,13 +9,13 @@ export const Statusbar = ({ isOnlineMode }: StatusbarProp): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex flex-row-reverse h-fit bg-purple-400">
+    <div className="absolute bottom-0 right-0 left-0 flex flex-row-reverse h-fit bg-[#fafafd] border-solid border-t ">
       <div
         onClick={(): void => setIsOpen((state) => !state)}
-        className={`font-mono text-white h-fit w-fit  cursor-pointer ${
+        className={`font-mono text-white h-fit w-fit  cursor-pointer px-1 ${
           isOnlineMode
-            ? "bg-green-500 hover:bg-green-400"
-            : "bg-red-500 hover:bg-red-400"
+            ? "bg-green-500 hover:bg-green-300"
+            : "bg-red-500 hover:bg-red-300"
         }`}
       >
         {isOnlineMode ? "Online " : "Local"}

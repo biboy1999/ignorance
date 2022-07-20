@@ -1,4 +1,3 @@
-import { NodeSingular } from "cytoscape";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -7,19 +6,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { ChevronUpIcon } from "@heroicons/react/solid";
 import { Transaction, YMapEvent } from "yjs";
 import { nanoid } from "nanoid";
 import { YNodeData } from "../../types/types";
-import { CollapsibleDragResizeBox } from "../CollapsibleDragResizeBox";
 import { useStore } from "../../store/store";
 
-export type NodeAttributesProp = {
-  nodes: NodeSingular | undefined;
-};
-
 // TODO: need better attribute edit system
-export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
+export const NodeAttributes = (): JSX.Element => {
+  const nodes = useStore((state) => state.selectedNodes()?.[0]);
   const nodeId = nodes?.id();
   const ynodes = useStore((state) => state.ynodes());
   const ynode = ynodes.get(nodeId ?? "");
@@ -77,6 +71,7 @@ export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
         } else if (change.action === "add") {
           updateAttributes();
         } else if (change.action === "delete") {
+          // TODO: delete attributes
           // updateAttributes();
         }
       });
@@ -142,67 +137,44 @@ export const NodeAttributes = ({ nodes }: NodeAttributesProp): JSX.Element => {
   };
 
   return (
-    <CollapsibleDragResizeBox
-      sizeOffset={[180, 250]}
-      constraintOffset={[0, 0]}
-      top={625}
-      right={20}
-      handle=".drag-handle"
-    >
-      {({ isOpen, toggle }): JSX.Element => (
-        <>
-          <div className="flex drag-handle">
-            <h1 className="flex justify-between flex-1 p-3 font-mono text-white bg-purple-400">
-              <span>Attributes</span>
-              <ChevronUpIcon
-                className={`${
-                  isOpen ? "transform rotate-180" : ""
-                } w-6 h-6 text-white cursor-pointer hover:bg-purple-300`}
-                onClick={toggle}
+    <div className="flex flex-col flex-1 overflow-auto divide-y p-0.5">
+      {nodes?.length !== 0 &&
+        attributes.map(([key, value], _index) => {
+          return (
+            <div key={nanoid()} className="flex divide-x">
+              <input
+                id={`${nodeId}-${key}-key`}
+                data-key={key}
+                className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+                defaultValue={key}
+                onChange={handleKeyChange}
               />
-            </h1>
-          </div>
-          <div className="flex flex-col flex-1 overflow-auto">
-            {nodes?.length !== 0 &&
-              attributes.map(([key, value], _index) => {
-                return (
-                  <div key={nanoid()} className="flex">
-                    <input
-                      id={`${nodeId}-${key}-key`}
-                      data-key={key}
-                      className="flex-1 min-w-0 border-t border-r focus:z-10 text-ellipsis"
-                      defaultValue={key}
-                      onChange={handleKeyChange}
-                    />
-                    <input
-                      id={`${nodeId}-${key}-value`}
-                      data-key={key}
-                      className="flex-1 min-w-0 border-t focus:z-10 text-ellipsis"
-                      defaultValue={value}
-                      onChange={handleValueChange}
-                    />
-                  </div>
-                );
-              })}
-            {attributes.length > 0 && (
-              <div className="flex">
-                <input
-                  ref={addKeyInput}
-                  placeholder="Add Attribute"
-                  className="flex-1 min-w-0 border-t border-r focus:z-10 text-ellipsis"
-                  onKeyDown={handleAddKey}
-                />
-                <input
-                  ref={addValueInput}
-                  placeholder="Add value"
-                  className="flex-1 min-w-0 border-t focus:z-10 text-ellipsis"
-                  onKeyDown={handleAddKey}
-                />
-              </div>
-            )}
-          </div>
-        </>
+              <input
+                id={`${nodeId}-${key}-value`}
+                data-key={key}
+                className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+                defaultValue={value}
+                onChange={handleValueChange}
+              />
+            </div>
+          );
+        })}
+      {nodes?.length !== 0 && (
+        <div className="flex divide-x">
+          <input
+            ref={addKeyInput}
+            placeholder="Add Attribute"
+            className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+            onKeyDown={handleAddKey}
+          />
+          <input
+            ref={addValueInput}
+            placeholder="Add value"
+            className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+            onKeyDown={handleAddKey}
+          />
+        </div>
       )}
-    </CollapsibleDragResizeBox>
+    </div>
   );
 };

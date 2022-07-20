@@ -117,3 +117,10 @@ html {
   background: royalblue;
   color: white;
 }
+
+/* orverride tailwind base */
+.dock-panel-max-btn,
+::after,
+::before {
+  box-sizing: content-box;
+}

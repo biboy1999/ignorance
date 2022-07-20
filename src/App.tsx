@@ -1,73 +1,136 @@
-import { Map as YMap } from "yjs";
 import { nanoid } from "nanoid";
 import { Provider as StateProvider, useAtomValue } from "jotai";
+import "rc-dock/dist/rc-dock.css";
 import "./App.css";
-import { YNodeGroup, YNodeData, YNodePosition } from "./types/types";
-import { UserInfo } from "./components/windows/UserInfo";
-import { Transforms } from "./components/windows/Transforms/Transforms";
+// import "rc-dock/dist/rc-dock-dark.css";
+import { UserInfo } from "./components/panel/UserInfo";
 import { Graph } from "./components/graph/Graph";
-import { Controlbar } from "./components/Controlbar";
 import { Statusbar } from "./components/Statusbar";
-import { doLayout } from "./utils/graph";
 import { isOnlineModeAtom } from "./atom/provider";
 import { useStore } from "./store/store";
+import DockLayout, { LayoutData, TabData, TabGroup } from "rc-dock";
+import { useEffect } from "react";
+import { WebrtcProvider } from "y-webrtc";
+import { NodeAttributes } from "./components/panel/NodeAttributes";
+import {
+  SharedTransforms,
+  SharedTransformsTabTitle,
+} from "./components/panel/transforms/SharedTransforms";
+import { TransformJobs } from "./components/panel/transforms/TransformJobs";
 
 function App(): JSX.Element {
-  const ynodes = useStore((state) => state.ynodes());
-  const cyotscape = useStore((state) => state.cytoscape);
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
 
-  const handleAddNode = (): void => {
-    const nodeId = nanoid();
+  const addProvider = useStore((state) => state.addProvider);
+  const ydoc = useStore((state) => state.ydoc);
+  const awareness = useStore((state) => state.getAwareness());
 
-    const data = new YMap<string>();
-    data.set("id", nodeId);
-    data.set("name", "New Node");
-    data.set("type", "people");
-    data.set("testattr", "test");
-
-    const position = new YMap<number>();
-    position.set("x", 300);
-    position.set("y", 200);
-
-    const node = new YMap<YNodeGroup | YNodeData | YNodePosition>();
-    node.set("group", "nodes");
-    node.set("data", data);
-    node.set("position", position);
-
-    ynodes.set(nodeId, node);
-  };
-
-  const handleDeleteNode = async (): Promise<void> => {
-    const selectedNodes = cyotscape?.$(":selected");
-    selectedNodes?.forEach((node) => ynodes.delete(node.id()));
-  };
-
-  const handleLayout = async (): Promise<void> => {
-    const selectedEles = cyotscape?.$(":selected");
-    if (!selectedEles) return;
-    const connectedEdge = selectedEles.connectedEdges();
-    const elementsToLayout = selectedEles.add(connectedEdge);
-    doLayout(elementsToLayout);
-  };
+  useEffect(() => {
+    addProvider(
+      // @ts-expect-error the fuck
+      new WebrtcProvider("test", ydoc, {
+        signaling: ["ws://127.0.0.1:4444"],
+        awareness: awareness,
+        password: "test",
+        filterBcConns: false,
+      })
+    );
+  }, []);
 
   return (
     <>
       <StateProvider>
-        <UserInfo />
-        <Transforms />
-        <Controlbar
-          onAdd={handleAddNode}
-          onDelete={handleDeleteNode}
-          onLayout={handleLayout}
+        <DockLayout
+          defaultLayout={layout}
+          groups={groups}
+          style={{
+            position: "absolute",
+            left: 10,
+            top: 10,
+            right: 10,
+            bottom: 35,
+          }}
         />
-        <div className="flex flex-col h-screen w-screen">
-          <Graph />
-          <Statusbar isOnlineMode={isOnlineMode} />
-        </div>
+        <Statusbar isOnlineMode={isOnlineMode} />
       </StateProvider>
     </>
   );
 }
+
+const groups: { [x: string]: TabGroup } = {
+  "main-panel": {
+    floatable: false,
+    maximizable: true,
+  },
+};
+
+const GraphTab: TabData = {
+  id: nanoid(),
+  title: "Graph",
+  content: <Graph />,
+  cached: true,
+  closable: false,
+  group: "main-panel",
+};
+
+const UserInfoTab: TabData = {
+  id: nanoid(),
+  title: "Userinfo",
+  content: <UserInfo />,
+  cached: true,
+  closable: false,
+};
+
+export const SharedTransformTab: TabData = {
+  id: nanoid(),
+  title: <SharedTransformsTabTitle />,
+  content: <SharedTransforms />,
+  cached: true,
+  closable: false,
+};
+
+const TransformJobsTab: TabData = {
+  id: nanoid(),
+  title: "TransformsJobs",
+  content: <TransformJobs />,
+  cached: true,
+  closable: false,
+};
+
+const NodeAttributesTab: TabData = {
+  id: nanoid(),
+  title: "NodeAttributes",
+  content: <NodeAttributes />,
+  cached: true,
+  closable: false,
+};
+
+const layout: LayoutData = {
+  dockbox: {
+    mode: "horizontal",
+    children: [
+      {
+        size: 1000,
+        tabs: [{ ...GraphTab }],
+        panelLock: { panelStyle: "main" },
+      },
+      {
+        mode: "vertical",
+        size: 300,
+        children: [
+          {
+            tabs: [{ ...UserInfoTab }],
+          },
+          {
+            tabs: [{ ...SharedTransformTab }, { ...TransformJobsTab }],
+          },
+          {
+            tabs: [{ ...NodeAttributesTab }],
+          },
+        ],
+      },
+    ],
+  },
+};
 
 export default App;

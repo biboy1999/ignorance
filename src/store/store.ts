@@ -4,18 +4,20 @@ import {
   InternalTransformSlice,
 } from "./transforms-internal";
 import { createYjsSlice, YjsSlice } from "./yjs";
-import { createYjsProviderSlice, YjsProviderSlice } from "./yjsProviders";
+import { createYjsProviderSlice, YjsProviderSlice } from "./yjs-providers";
 import {
   createSharedTransformSlice,
   SharedTransformSlice,
-} from "./sharedtransform";
+} from "./shared-transform";
 import { createCytoscapeSlice, CytoscapeSlice } from "./cytoscape";
+import { createSelectedNodesSlice, SelectedNodesSlice } from "./selected-nodes";
 
 type StoreSlice = YjsSlice &
   YjsProviderSlice &
   InternalTransformSlice &
   SharedTransformSlice &
-  CytoscapeSlice;
+  CytoscapeSlice &
+  SelectedNodesSlice;
 
 export const useStore = create<StoreSlice>()((...a) => ({
   ...createYjsSlice(...a),
@@ -23,4 +25,5 @@ export const useStore = create<StoreSlice>()((...a) => ({
   ...createInternalTransformSlice(...a),
   ...createSharedTransformSlice(...a),
   ...createCytoscapeSlice(...a),
+  ...createSelectedNodesSlice(...a),
 }));

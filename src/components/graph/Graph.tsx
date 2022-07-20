@@ -8,31 +8,32 @@ import cytoscape, {
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Map as YMap } from "yjs";
 import { init_options } from "../../temp/init-data";
-import { useOnlineUsers } from "../../store/onlineUsers";
+import { useOnlineUsers } from "../../store/online-users";
 import { YNode, YNodeData, YNodePosition } from "../../types/types";
 import { generateCursor, modelToRenderedPosition } from "../../utils/canvas";
 import { useThrottledCallback } from "../../utils/hooks/useThrottledCallback";
 import { NodeContextMenu } from "./GraphContextMenu";
-import { NodeAttributes } from "../windows/NodeAttributes";
 import { useAtomValue } from "jotai";
 import { isOnlineModeAtom } from "../../atom/provider";
 import { useStore } from "../../store/store";
+import { Controlbar } from "../Controlbar";
 
 const Graph = (): JSX.Element => {
   const ydoc = useStore((state) => state.ydoc);
   const ynodes = useStore((state) => state.ynodes());
   const yedges = useStore((state) => state.yedges());
-  const awareness = useStore((state) => state.getAwareness());
+  const getAwareness = useStore((state) => state.getAwareness);
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
 
   const setCytoscape = useStore((state) => state.setCytoscape);
+  const cytoscapeInstance = useStore((state) => state.cytoscape);
+
+  const setSelectedElements = useStore((state) => state.setSelectedElements);
 
   const cy = useRef<cytoscape.Core>();
-
-  const [selectedNode, setSelectedNode] = useState<NodeSingular>();
 
   const layers = useRef<LayersPlugin>();
   const cursorLayer = useRef<ICanvasStaticLayer>();
@@ -44,7 +45,8 @@ const Graph = (): JSX.Element => {
   // update cursor move
   const handleMouseMove = useThrottledCallback(
     (e: cytoscape.EventObject) => {
-      if (isOnlineMode) awareness.setLocalStateField("position", e.position);
+      if (isOnlineMode)
+        getAwareness().setLocalStateField("position", e.position);
     },
     10,
     []
@@ -272,11 +274,11 @@ const Graph = (): JSX.Element => {
 
     // node slected
     cy.current.on("select", "node, edge", (e) => {
-      if (e.target.isNode()) setSelectedNode(e.target);
+      setSelectedElements(e.target);
     });
 
     cy.current.on("deselect", "node, edge", (e) => {
-      if (e.target.isNode()) setSelectedNode(e.target);
+      setSelectedElements(e.target);
     });
 
     return (): void => {
@@ -287,7 +289,7 @@ const Graph = (): JSX.Element => {
   useEffect(() => {
     // username update
     // TODO: sperate cursor layer?
-    awareness.on(
+    getAwareness().on(
       "change",
       (
         _actions: {
@@ -298,7 +300,7 @@ const Graph = (): JSX.Element => {
         _tx: Record<string, unknown> | string
       ): void => {
         const onlineUsers = Array.from(
-          awareness.getStates(),
+          getAwareness().getStates(),
           ([key, value]) => ({ id: key, username: value.username })
         );
         setUsernames(onlineUsers);
@@ -308,38 +310,40 @@ const Graph = (): JSX.Element => {
 
     // cursor render
     cursorLayer.current?.callback((ctx) => {
-      awareness.getStates().forEach((value, key) => {
-        if (awareness.clientID === key) return;
+      getAwareness()
+        .getStates()
+        .forEach((value, key) => {
+          if (getAwareness().clientID === key) return;
 
-        const pos = value.position ?? { x: 0, y: 0 };
-        const username = value.username ?? "";
-        const color = value.color ?? "#000000";
-        const img = generateCursor(color);
-        const pan = cy.current?.pan() ?? { x: 0, y: 0 };
-        const zoom = cy.current?.zoom() ?? 1;
-        // start drawing
-        const { x, y } = modelToRenderedPosition(pos, zoom, pan);
-        ctx.save();
-        if (img) ctx.drawImage(img, x, y);
-        if (username !== "") {
-          ctx.font = "1em sans-serif";
-          ctx.textBaseline = "top";
-          ctx.fillStyle = color;
-          const width = ctx.measureText(username).width;
-          ctx.fillRect(x + 10, y + 24, width + 4, 18);
-          ctx.fillStyle = "white";
-          ctx.fillText(username, x + 12, y + 25);
-        }
-        ctx.restore();
-      });
+          const pos = value.position ?? { x: 0, y: 0 };
+          const username = value.username ?? "";
+          const color = value.color ?? "#000000";
+          const img = generateCursor(color);
+          const pan = cy.current?.pan() ?? { x: 0, y: 0 };
+          const zoom = cy.current?.zoom() ?? 1;
+          // start drawing
+          const { x, y } = modelToRenderedPosition(pos, zoom, pan);
+          ctx.save();
+          if (img) ctx.drawImage(img, x, y);
+          if (username !== "") {
+            ctx.font = "1em sans-serif";
+            ctx.textBaseline = "top";
+            ctx.fillStyle = color;
+            const width = ctx.measureText(username).width;
+            ctx.fillRect(x + 10, y + 24, width + 4, 18);
+            ctx.fillStyle = "white";
+            ctx.fillText(username, x + 12, y + 25);
+          }
+          ctx.restore();
+        });
     });
   }, []);
 
   return (
     <>
-      <div id="cy" className="flex-1" />
-      {cy.current && <NodeContextMenu cytoscape={cy.current} />}
-      {selectedNode && <NodeAttributes nodes={selectedNode} />}
+      <div id="cy" className="h-full w-full" />
+      <Controlbar />
+      {cytoscapeInstance && <NodeContextMenu cytoscape={cytoscapeInstance} />}
     </>
   );
 };

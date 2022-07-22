@@ -21,7 +21,7 @@ export const renderedPositionToModel = (
 
 const _generateCursor = (color: string): HTMLImageElement => {
   const img = new Image();
-  img.src = `data:image/svg+xml;base64,${window.btoa(cursor(color))}`;
+  img.src = `data:image/svg+xml;utf8,${encodeURIComponent(cursor(color))}`;
   return img;
 };
 

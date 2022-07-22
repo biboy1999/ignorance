@@ -108,8 +108,8 @@ export const TransformJobs = (): JSX.Element => {
                 ?.position();
               const { nodeId, node } = AddNode(
                 ele.data,
-                nodePosition.x,
-                nodePosition.y,
+                nodePosition?.x ?? 0,
+                nodePosition?.y ?? 0,
                 {
                   pan: cytoscape.pan(),
                   zoom: cytoscape.zoom(),

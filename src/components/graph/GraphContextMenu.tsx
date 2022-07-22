@@ -8,14 +8,14 @@ import { AddNode, deleteEdges, deleteNodes } from "../../utils/graph";
 import { useStore } from "../../store/store";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
-  <p className="flex-1 font-mono leading-5 text-base border-b dark:border-neutral-700" />
+  <p className="flex-1 font-mono leading-5 text-base border-b dark:border-neutral-700 z-50" />
 ));
 
 const GroupHeader = forwardRef<
   HTMLParagraphElement,
   JSX.IntrinsicElements["p"]
 >(({ children }, _ref) => (
-  <p className="flex-1 font-mono pl-1 pt-1 leading-5 text-sm dark:text-white">
+  <p className="flex-1 font-mono pl-1 pt-1 leading-5 text-sm bg-white dark:bg-neutral-900 dark:text-white">
     {children}
   </p>
 ));

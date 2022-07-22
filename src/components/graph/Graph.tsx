@@ -18,7 +18,7 @@ import { GraphContextMenu } from "./GraphContextMenu";
 import { useAtomValue } from "jotai";
 import { isOnlineModeAtom } from "../../atom/provider";
 import { useStore } from "../../store/store";
-import { Controlbar } from "../Controlbar";
+import { Toolbar } from "../Toobar";
 import { edgehandlesConfig } from "../../config/edgehandler-config";
 import {
   cytoscapeConfig,
@@ -320,8 +320,8 @@ const Graph = (): JSX.Element => {
 
   return (
     <>
+      <Toolbar />
       <div id="cy" className="h-full w-full" />
-      <Controlbar />
       {cytoscapeInstance && <GraphContextMenu cytoscape={cytoscapeInstance} />}
     </>
   );

@@ -13,8 +13,13 @@ import { useStore } from "../../store/store";
 
 // TODO: need better attribute edit system
 export const NodeAttributes = (): JSX.Element => {
-  const nodes = useStore((state) => state.selectedNodes()?.[0]);
-  const nodeId = nodes?.id();
+  const { selectedElements, selectedNodes } = useStore((state) => ({
+    selectedElements: state.selectedElements,
+    selectedNodes: state.selectedNodes,
+  }));
+
+  const nodes = selectedNodes();
+  const nodeId = nodes?.[0]?.id();
   const ynodes = useStore((state) => state.ynodes());
   const ynode = ynodes.get(nodeId ?? "");
   const ydata = ynode?.get("data") as YNodeData | undefined;
@@ -30,7 +35,7 @@ export const NodeAttributes = (): JSX.Element => {
   useEffect(() => {
     if (!ydata) return;
     updateAttributes();
-  }, [nodes]);
+  }, [selectedElements]);
 
   useEffect(() => {
     if (!ydata) return;
@@ -81,7 +86,7 @@ export const NodeAttributes = (): JSX.Element => {
     return (): void => {
       ydata.unobserve(handleChange);
     };
-  }, [nodes]);
+  }, [selectedElements]);
 
   const handleKeyChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const oldKey = e.target.getAttribute("data-key") ?? "";

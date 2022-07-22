@@ -54,6 +54,7 @@ div.backdrop {
 svg {
   @apply text-blue-500;
   @apply hover:bg-blue-300;
+  @apply dark:hover:bg-blue-900;
 }
 
 label {
@@ -69,8 +70,11 @@ button {
 }
 
 /* orverride tailwind base */
-.dock-panel-max-btn,
-::after,
-::before {
+*,
+::before,
+::after {
   box-sizing: content-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
 }

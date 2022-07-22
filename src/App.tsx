@@ -23,8 +23,6 @@ function App(): JSX.Element {
   const ydoc = useStore((state) => state.ydoc);
   const awareness = useStore((state) => state.getAwareness());
 
-  const toggleDarkMode = useStore((state) => state.toggleDarkMode);
-
   useEffect(() => {
     addProvider(
       // @ts-expect-error the fuck
@@ -52,12 +50,6 @@ function App(): JSX.Element {
           }}
         />
         <Statusbar isOnlineMode={isOnlineMode} />
-        <button
-          className="absolutet top-0 left-0 bg-red-200"
-          onClick={toggleDarkMode}
-        >
-          dark
-        </button>
       </StateProvider>
     </>
   );

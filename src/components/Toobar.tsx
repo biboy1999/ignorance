@@ -3,10 +3,17 @@ import { Map as YMap } from "yjs";
 import { YNodeGroup, YNodeData, YNodePosition } from "../types/types";
 import { useStore } from "../store/store";
 import { doLayout } from "../utils/graph";
+import {
+  LightBulbIcon,
+  MinusCircleIcon,
+  PlusCircleIcon,
+  ShareIcon,
+} from "@heroicons/react/solid";
 
-export const Controlbar = (): JSX.Element => {
+export const Toolbar = (): JSX.Element => {
   const ynodes = useStore((state) => state.ynodes());
   const cyotscape = useStore((state) => state.cytoscape);
+  const toggleDarkMode = useStore((state) => state.toggleDarkMode);
 
   const handleAddNode = (): void => {
     const nodeId = nanoid();
@@ -43,24 +50,30 @@ export const Controlbar = (): JSX.Element => {
   };
 
   return (
-    <div className="absolute top-2 left-2 flex flex-col border z-50">
-      <div
-        onClick={handleAddNode}
-        className="aspect-square w-9 h-9 cursor-pointer flex items-center justify-center bg-slate-200 hover:bg-slate-500"
-      >
-        <span className="font-mono">+</span>
+    <div className="absolute mx-auto left-0 right-0 top-2 w-min h-min flex border z-50 divide-x">
+      <div title="Add Node" className="w-9 h-9">
+        <PlusCircleIcon
+          onClick={handleAddNode}
+          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+        />
       </div>
-      <div
-        className="aspect-square w-9 h-9 cursor-pointer flex items-center justify-center bg-slate-200 hover:bg-slate-500"
-        onClick={handleDeleteNode}
-      >
-        <span className="font-mono">-</span>
+      <div title="Delete Selected Nodes" className="w-9 h-9">
+        <MinusCircleIcon
+          onClick={handleDeleteNode}
+          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+        />
       </div>
-      <div
-        className="aspect-square w-9 h-9 cursor-pointer flex items-center justify-center bg-slate-200 hover:bg-slate-500"
-        onClick={handleLayout}
-      >
-        <span className="font-mono">L</span>
+      <div title="Layout Selected Nodes" className="w-9 h-9">
+        <ShareIcon
+          onClick={handleLayout}
+          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+        />
+      </div>
+      <div title="Layout Selected Nodes" className="w-9 h-9">
+        <LightBulbIcon
+          onClick={toggleDarkMode}
+          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+        />
       </div>
     </div>
   );

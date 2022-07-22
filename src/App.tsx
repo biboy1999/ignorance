@@ -5,10 +5,7 @@ import { UserInfo } from "./components/panel/UserInfo";
 import { Graph } from "./components/graph/Graph";
 import { Statusbar } from "./components/Statusbar";
 import { isOnlineModeAtom } from "./atom/provider";
-import { useStore } from "./store/store";
 import DockLayout, { LayoutData, TabData, TabGroup } from "rc-dock";
-import { useEffect } from "react";
-import { WebrtcProvider } from "y-webrtc";
 import { NodeAttributes } from "./components/panel/NodeAttributes";
 import {
   SharedTransforms,
@@ -18,22 +15,6 @@ import { TransformJobs } from "./components/panel/transforms/TransformJobs";
 
 function App(): JSX.Element {
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
-
-  const addProvider = useStore((state) => state.addProvider);
-  const ydoc = useStore((state) => state.ydoc);
-  const awareness = useStore((state) => state.getAwareness());
-
-  useEffect(() => {
-    addProvider(
-      // @ts-expect-error the fuck
-      new WebrtcProvider("test", ydoc, {
-        signaling: ["ws://127.0.0.1:4444"],
-        awareness: awareness,
-        password: "test",
-        filterBcConns: false,
-      })
-    );
-  }, []);
 
   return (
     <>

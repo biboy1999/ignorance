@@ -69,6 +69,10 @@ button {
   @apply dark:bg-neutral-900;
 }
 
+#cy > div {
+  z-index: 1 !important;
+}
+
 /* orverride tailwind base */
 *,
 ::before,

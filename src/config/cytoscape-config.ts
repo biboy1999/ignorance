@@ -1,6 +1,13 @@
 export const cytoscapeLightStylesheet: cytoscape.Stylesheet[] = [
   // the stylesheet for the graph
   {
+    selector: "core",
+    // @ts-expect-error Core.css type
+    style: {
+      "active-bg-color": "white",
+    },
+  },
+  {
     selector: "node[name]",
     style: {
       color: "black",
@@ -87,7 +94,7 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
   // the stylesheet for the graph
   {
     selector: "core",
-    // @ts-expect-error patch type?
+    // @ts-expect-error Core.css type
     style: {
       "active-bg-color": "white",
     },

@@ -8,14 +8,15 @@ import cytoscape, {
 } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
+import gridGuide from "cytoscape-grid-guide";
 import { useEffect } from "react";
 import { Map as YMap } from "yjs";
+import { useAtomValue } from "jotai";
 import { useOnlineUsers } from "../../store/online-users";
 import { YNode, YNodeData, YNodePosition } from "../../types/types";
 import { generateCursor, modelToRenderedPosition } from "../../utils/canvas";
 import { useThrottledCallback } from "../../utils/hooks/useThrottledCallback";
 import { GraphContextMenu } from "./GraphContextMenu";
-import { useAtomValue } from "jotai";
 import { isOnlineModeAtom } from "../../atom/provider";
 import { useStore } from "../../store/store";
 import { Toolbar } from "../Toobar";
@@ -25,6 +26,7 @@ import {
   cytoscapeDarkStylesheet,
   cytoscapeLightStylesheet,
 } from "../../config/cytoscape-config";
+import { gridGuideConfig } from "../../config/gridguide-config";
 
 const Graph = (): JSX.Element => {
   const ydoc = useStore((state) => state.ydoc);
@@ -66,6 +68,7 @@ const Graph = (): JSX.Element => {
     cytoscape.use(edgehandles);
     cytoscape.use(layoutUtilities);
     cytoscape.use(fcose);
+    cytoscape.use(gridGuide);
 
     const cy = cytoscape({
       container: document.getElementById("cy"),
@@ -75,6 +78,10 @@ const Graph = (): JSX.Element => {
 
     // init edge handle
     const eh = cy.edgehandles(edgehandlesConfig);
+
+    // init gridGuide
+    // @ts-expect-error gridGuide config
+    cy.gridGuide(gridGuideConfig);
 
     // @ts-expect-error cytoscpae ext.
     const layers = cy.layers() as LayersPlugin;

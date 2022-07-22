@@ -50,7 +50,7 @@ export const Toolbar = (): JSX.Element => {
   };
 
   return (
-    <div className="absolute mx-auto left-0 right-0 top-2 w-min h-min flex border z-50 divide-x">
+    <div className="panel absolute mx-auto left-0 right-0 top-2 w-min h-min flex border z-50 divide-x">
       <div title="Add Node" className="w-9 h-9">
         <PlusCircleIcon
           onClick={handleAddNode}

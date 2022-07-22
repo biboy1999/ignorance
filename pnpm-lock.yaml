@@ -27,6 +27,7 @@ specifiers:
   cytoscape: ^3.22.1
   cytoscape-edgehandles: ^4.0.1
   cytoscape-fcose: ^2.1.0
+  cytoscape-grid-guide: ^2.3.3
   cytoscape-layers: ^2.2.0
   cytoscape-layout-utilities: ^1.1.1
   dompurify: ^2.3.10
@@ -75,6 +76,7 @@ dependencies:
   cytoscape: 3.22.1
   cytoscape-edgehandles: 4.0.1_cytoscape@3.22.1
   cytoscape-fcose: 2.1.0_cytoscape@3.22.1
+  cytoscape-grid-guide: 2.3.3_cytoscape@3.22.1
   cytoscape-layers: 2.2.0_cytoscape@3.22.1
   cytoscape-layout-utilities: 1.1.1_cytoscape@3.22.1
   dompurify: 2.3.10
@@ -5174,6 +5176,15 @@ packages:
     dependencies:
       cose-base: 2.1.0
       cytoscape: 3.22.1
+    dev: false
+
+  /cytoscape-grid-guide/2.3.3_cytoscape@3.22.1:
+    resolution: {integrity: sha512-7EuqZgOYJY+8K9a9Tm1aFydzyA0dvZ3OLQ8ACEEuE1VgxuGala82bHfyR7B5e8kLeOloX/r4YAPoK8mYkPYcFg==}
+    peerDependencies:
+      cytoscape: ^3.3.0
+    dependencies:
+      cytoscape: 3.22.1
+      functional-red-black-tree: 1.0.1
     dev: false
 
   /cytoscape-layers/2.2.0_cytoscape@3.22.1:

@@ -137,22 +137,22 @@ export const NodeAttributes = (): JSX.Element => {
   };
 
   return (
-    <div className="flex flex-col flex-1 overflow-auto divide-y p-0.5">
+    <div className="flex flex-col flex-1 overflow-auto divide-y border-b transition-colors p-0.5">
       {nodes?.length !== 0 &&
         attributes.map(([key, value], _index) => {
           return (
-            <div key={nanoid()} className="flex divide-x">
+            <div key={nanoid()} className="flex divide-x transition-colors">
               <input
                 id={`${nodeId}-${key}-key`}
                 data-key={key}
-                className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+                className="flex-1 min-w-0 border-0 text-ellipsis"
                 defaultValue={key}
                 onChange={handleKeyChange}
               />
               <input
                 id={`${nodeId}-${key}-value`}
                 data-key={key}
-                className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+                className="flex-1 min-w-0 border-0 text-ellipsis"
                 defaultValue={value}
                 onChange={handleValueChange}
               />
@@ -160,17 +160,17 @@ export const NodeAttributes = (): JSX.Element => {
           );
         })}
       {nodes?.length !== 0 && (
-        <div className="flex divide-x">
+        <div className="flex divide-x transition-colors">
           <input
             ref={addKeyInput}
             placeholder="Add Attribute"
-            className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+            className="flex-1 min-w-0 border-0 text-ellipsis"
             onKeyDown={handleAddKey}
           />
           <input
             ref={addValueInput}
             placeholder="Add value"
-            className="flex-1 min-w-0 focus:z-10 text-ellipsis"
+            className="flex-1 min-w-0 border-0 text-ellipsis"
             onKeyDown={handleAddKey}
           />
         </div>

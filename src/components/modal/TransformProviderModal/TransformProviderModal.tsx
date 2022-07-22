@@ -58,7 +58,7 @@ export const ShareTransformsModal = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <div className="backdrop fixed inset-0" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -70,7 +70,7 @@ export const ShareTransformsModal = ({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <Dialog.Panel className="flex flex-col self-center align-bottom text-left overflow-hidden shadow-xl transition-all max-w-lg w-full">
-              <div className="bg-purple-400">
+              <div className="topbar">
                 <Dialog.Title
                   as="h1"
                   className="font-mono text-lg p-3 text-white"
@@ -78,18 +78,18 @@ export const ShareTransformsModal = ({
                   Add Transform
                 </Dialog.Title>
               </div>
-              <div className="bg-slate-100 max-h-[76vh] overflow-y-auto">
+              <div className="panel max-h-[76vh] overflow-y-auto">
                 <FormProvider {...method}>
                   <form onSubmit={onSubmit} id="connectionForm">
                     <TransformProviderForm />
                   </form>
                 </FormProvider>
               </div>
-              <div className="flex-row-reverse flex bg-slate-100 px-3 py-2">
+              <div className="panel border-t flex-row-reverse flex px-3 py-2">
                 <button
                   type="submit"
                   form="connectionForm"
-                  className="w-auto inline-flex justify-center border border-gray-300 shadow-sm px-4 py-2 my-0 bg-green-300 text-sm font-medium font-mono text-gray-700 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="w-auto inline-flex justify-center shadow-sm px-4 py-2 my-0 text-sm font-medium font-mono bg-green-300  hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
                 >
                   Add
                 </button>

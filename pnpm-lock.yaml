@@ -20,9 +20,10 @@ specifiers:
   '@types/react': ^18.0.15
   '@types/react-dom': ^18.0.6
   '@types/testing-library__jest-dom': ^5.14.5
-  '@typescript-eslint/eslint-plugin': ^5.30.6
-  '@typescript-eslint/parser': ^5.30.6
+  '@typescript-eslint/eslint-plugin': ^5.30.7
+  '@typescript-eslint/parser': ^5.30.7
   autoprefixer: ^10.4.7
+  clsx: ^1.2.1
   cytoscape: ^3.22.1
   cytoscape-edgehandles: ^4.0.1
   cytoscape-fcose: ^2.1.0
@@ -70,6 +71,7 @@ dependencies:
   '@types/node': 18.0.6
   '@types/react': 18.0.15
   '@types/react-dom': 18.0.6
+  clsx: 1.2.1
   cytoscape: 3.22.1
   cytoscape-edgehandles: 4.0.1_cytoscape@3.22.1
   cytoscape-fcose: 2.1.0_cytoscape@3.22.1
@@ -4678,6 +4680,11 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
+    dev: false
+
+  /clsx/1.2.1:
+    resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
+    engines: {node: '>=6'}
     dev: false
 
   /co/4.6.0:

@@ -1,5 +1,6 @@
 module.exports = {
   content: ["./src/**/*.{tsx, ts, js, jsx}"],
+  darkMode: "class",  
   theme: {
     extend: {
       fontFamily: {
@@ -8,7 +9,7 @@ module.exports = {
         mono: ['"Noto Sans Mono"'],
       },
       zIndex: {
-        "max": "2147483647"
+        max: "2147483647",
       },
     },
   },

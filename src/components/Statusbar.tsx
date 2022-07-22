@@ -9,7 +9,7 @@ export const Statusbar = ({ isOnlineMode }: StatusbarProp): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="absolute bottom-0 right-0 left-0 flex flex-row-reverse h-fit bg-[#fafafd] border-solid border-t ">
+    <div className="panel transition-colors absolute bottom-0 right-0 left-0 flex flex-row-reverse h-fit border-solid border-t">
       <div
         onClick={(): void => setIsOpen((state) => !state)}
         className={`font-mono text-white h-fit w-fit  cursor-pointer px-1 ${

@@ -27,8 +27,12 @@
   50%
 );
 
-@color-transition: background-color 200ms ease-in-out, color 200ms ease-in-out,
-  border-color 200ms ease-in-out;
+@color-transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+  color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+  border-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+  text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+  fill 150ms cubic-bezier(0.4, 0, 0.2, 1),
+  stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
 // main window style
 @nav-color-split-main: #282828;

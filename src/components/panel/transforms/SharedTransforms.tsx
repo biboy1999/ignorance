@@ -16,7 +16,7 @@ const DisclosureButton = ({
   username,
 }: DisclosureButtonProp): JSX.Element => {
   return (
-    <Disclosure.Button className="w-full odd:bg-slate-200 even:bg-purple-200 hover:bg-white">
+    <Disclosure.Button className="w-full odd:bg-blue-200 even:bg-blue-100 hover:bg-blue-300 dark:odd:bg-neutral-800 dark:even:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors">
       {({ open }): JSX.Element => (
         <div className="flex gap-2 justify-between items-center px-5 py-2 font-medium font-mono text-left text-base">
           <div className="flex flex-1 justify-between item-center min-w-0">
@@ -24,9 +24,7 @@ const DisclosureButton = ({
             <span className=" text-gray-500 truncate">{username}</span>
           </div>
           <ChevronUpIcon
-            className={`${
-              open ? "transform rotate-180" : ""
-            } w-5 h-5 text-purple-500`}
+            className={`${open ? "transform rotate-180" : ""} w-5 h-5`}
           />
         </div>
       )}
@@ -65,7 +63,7 @@ export const SharedTransforms = (): JSX.Element => {
               transformName={transform.name}
               username={username}
             />
-            <Disclosure.Panel className="bg-slate-100 space-y-2 px-4 py-2 font-mono leading-tight">
+            <Disclosure.Panel className="space-y-2 px-4 py-2 font-mono leading-tight">
               <p className="break-words">
                 <span className="text-gray-500 text-sm">Name</span>
                 <br />
@@ -105,7 +103,7 @@ export const SharedTransformsTabTitle = (): JSX.Element => {
     <span>
       SharedTransforms
       <PlusSmIcon
-        className="w-5 h-5 ml-1 align-text-top cursor-pointer inline hover:bg-blue-300"
+        className="w-5 h-5 ml-1 align-text-top cursor-pointer inline"
         onClick={(): void => setOpen(true)}
       />
       <ShareTransformsModal open={isOpen} setOpen={setOpen} />

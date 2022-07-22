@@ -26,13 +26,13 @@ export const UserInfo = (): JSX.Element => {
             type="text"
             id="username"
             placeholder="username"
-            className="flex-1 border text-gray-900 p-1"
+            className="flex-1 p-1"
             onChange={handleUpdateUsername}
           />
           <input
             type="color"
             id="user-color"
-            className="flex-1 border max-w-[75px] text-gray-900 m-1"
+            className="flex-1 max-w-[75px] m-1"
             onChange={handleColorOnChange}
           />
         </div>

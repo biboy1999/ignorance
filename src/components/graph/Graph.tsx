@@ -258,8 +258,8 @@ const Graph = (): JSX.Element => {
       setSelectedElements(e.target);
     });
 
-    cy.on("deselect", "node, edge", (e) => {
-      setSelectedElements(e.target);
+    cy.on("unselect", "node, edge", () => {
+      setSelectedElements(cy.$(":selected"));
     });
 
     // username update

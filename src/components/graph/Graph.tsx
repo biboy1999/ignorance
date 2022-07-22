@@ -254,8 +254,8 @@ const Graph = (): JSX.Element => {
     });
 
     // node slected
-    cy.on("select", "node, edge", (e) => {
-      setSelectedElements(e.target);
+    cy.on("select", "node, edge", () => {
+      setSelectedElements(cy.$(":selected"));
     });
 
     cy.on("unselect", "node, edge", () => {

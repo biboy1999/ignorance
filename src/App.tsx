@@ -1,8 +1,6 @@
 import { nanoid } from "nanoid";
 import { Provider as StateProvider, useAtomValue } from "jotai";
-import "rc-dock/dist/rc-dock.css";
 import "./App.css";
-// import "rc-dock/dist/rc-dock-dark.css";
 import { UserInfo } from "./components/panel/UserInfo";
 import { Graph } from "./components/graph/Graph";
 import { Statusbar } from "./components/Statusbar";
@@ -24,6 +22,8 @@ function App(): JSX.Element {
   const addProvider = useStore((state) => state.addProvider);
   const ydoc = useStore((state) => state.ydoc);
   const awareness = useStore((state) => state.getAwareness());
+
+  const toggleDarkMode = useStore((state) => state.toggleDarkMode);
 
   useEffect(() => {
     addProvider(
@@ -52,6 +52,12 @@ function App(): JSX.Element {
           }}
         />
         <Statusbar isOnlineMode={isOnlineMode} />
+        <button
+          className="absolutet top-0 left-0 bg-red-200"
+          onClick={toggleDarkMode}
+        >
+          dark
+        </button>
       </StateProvider>
     </>
   );

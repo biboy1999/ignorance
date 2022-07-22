@@ -1,10 +1,10 @@
+import { forwardRef, useRef } from "react";
+import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
+import { nanoid } from "nanoid";
 import { Menu } from "../context-menu/Menu";
 import { MenuButton } from "../context-menu/MenuButton";
-import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
-import { forwardRef, useRef } from "react";
 import { isTrnasformProvider, TransformsJob } from "../../types/types";
 import { AddNode, deleteEdges, deleteNodes } from "../../utils/graph";
-import { nanoid } from "nanoid";
 import { useStore } from "../../store/store";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
@@ -20,26 +20,30 @@ const GroupHeader = forwardRef<
   </p>
 ));
 
-type NodeContextMenuProp = {
+type GraphContextMenuProp = {
   cytoscape: cytoscape.Core;
 };
 
-export const NodeContextMenu = ({
+export const GraphContextMenu = ({
   cytoscape,
-}: NodeContextMenuProp): JSX.Element => {
+}: GraphContextMenuProp): JSX.Element => {
   const ynodes = useStore((state) => state.ynodes());
   const yedges = useStore((state) => state.yedges());
-  const awareness = useStore((state) => state.getAwareness());
 
-  const sharedTransforms = useStore((state) => state.sharedTransforms());
-  const transformJobs = useStore((state) => state.transformJobs());
+  const { selectedElements, selectedNodes } = useStore((state) => ({
+    selectedElements: state.selectedElements,
+    selectedNodes: state.selectedNodes,
+  }));
+  const getAwareness = useStore((state) => state.getAwareness);
 
-  const providers = Array.from(sharedTransforms.entries());
+  const sharedTransforms = useStore((state) => state.sharedTransforms);
+
+  const addTransformJobs = useStore((state) => state.addTransformJobs);
 
   const clickedPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleDelete: React.MouseEventHandler = (_e) => {
-    const eles = cytoscape.$(":selected");
+    const eles = selectedElements;
     if (!eles?.length) return;
 
     // selected edge and node connected edge
@@ -61,17 +65,17 @@ export const NodeContextMenu = ({
     const { nodeId, node } = AddNode(
       {},
       clickedPosition.current.x,
-      clickedPosition.current.y,
-      { pan: cytoscape.pan(), zoom: cytoscape.zoom() }
+      clickedPosition.current.y
     );
     if (nodeId) ynodes.set(nodeId, node);
   };
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    const awareness = getAwareness();
     const clientId = awareness.clientID;
     const transformId = e.currentTarget.getAttribute("data-transformid");
-    const collection = cytoscape?.$(":selected");
-    if (!(transformJobs && clientId && transformId && collection)) return;
+    const collection = selectedElements;
+    if (!(clientId && transformId && collection)) return;
     const job: TransformsJob = {
       jobId: nanoid(),
       fromClientId: clientId,
@@ -83,7 +87,7 @@ export const NodeContextMenu = ({
         parameter: {},
       },
     };
-    transformJobs.set(job.jobId, job);
+    addTransformJobs(job);
   };
 
   // bind handle and return unbind function
@@ -118,26 +122,26 @@ export const NodeContextMenu = ({
         onClick={handleDelete}
       />
       <Divider />
-      <GroupHeader>Transform</GroupHeader>
-      {providers.map(([_key, value]) => {
-        const type = cytoscape.$(":selected");
+      <GroupHeader>Transforms</GroupHeader>
+      {Object.entries(sharedTransforms).map(([_key, transform]) => {
+        // TODO: multiple nodes support
+        const type = selectedNodes()?.[0];
         if (
           !(
-            isTrnasformProvider(value) &&
-            type?.isNode() &&
-            (value.elementType.includes(type?.data("type")) ||
-              value.elementType.includes("*"))
+            isTrnasformProvider(transform) &&
+            (transform.elementType.includes(type?.data("type")) ||
+              transform.elementType.includes("*"))
           )
         ) {
           return;
         }
         return (
           <MenuButton
-            key={value.transformId}
-            data-transformid={value.transformId}
+            key={transform.transformId}
+            data-transformid={transform.transformId}
             className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-purple-200 focus:bg-purple-100 hover:z-10 ring-inset"
-            label={value.name}
-            title={value.name}
+            label={transform.name}
+            title={transform.name}
             onClick={handleAddRequest}
           />
         );

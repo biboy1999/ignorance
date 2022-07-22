@@ -1,16 +1,15 @@
 import { ChangeEvent, useEffect } from "react";
-import { equals } from "ramda";
 import { useOnlineUsers } from "../../store/online-users";
 import { generateUsername } from "../../utils/username/randomUsername";
 import { useStore } from "../../store/store";
 
 export const UserInfo = (): JSX.Element => {
-  const onlineUsers = useOnlineUsers((states) => states.usernames, equals);
+  const onlineUsers = useOnlineUsers((states) => states.usernames);
   const getAwareness = useStore((state) => state.getAwareness);
 
   useEffect(() => {
     getAwareness().setLocalStateField("username", generateUsername());
-  }, [getAwareness]);
+  }, []);
 
   const handleUpdateUsername = (e: ChangeEvent<HTMLInputElement>): void => {
     getAwareness().setLocalStateField("username", e.target.value);

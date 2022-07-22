@@ -5,10 +5,13 @@ import { YjsSlice } from "./yjs";
 
 // TODO: add transform and job
 export type SharedTransformSlice = {
-  sharedTransforms: () => YMap<SharedTransform>;
-  // addSharedTransforms: (transforms: SharedTransform[]) => void;
-  transformJobs: () => YMap<TransformsJob>;
-  // addTransformJobs: (jobs: TransformsJob[]) => void;
+  yjsSharedTransforms: () => YMap<SharedTransform>;
+  sharedTransforms: { [key: string]: SharedTransform | undefined };
+  setSharedTransforms: (transforms: { [key: string]: SharedTransform }) => void;
+  yjsTransformJobs: () => YMap<TransformsJob>;
+  transformJobs: TransformsJob[];
+  setTransformJobs: (jobs: { [key: string]: TransformsJob }) => void;
+  addTransformJobs: (job: TransformsJob) => void;
 };
 
 export const createSharedTransformSlice: StateCreator<
@@ -16,13 +19,22 @@ export const createSharedTransformSlice: StateCreator<
   [],
   [],
   SharedTransformSlice
-> = (_set, get) => ({
-  sharedTransforms: () => get().ydoc.getMap<SharedTransform>("transforms"),
-  // addSharedTransforms: (transforms): void => {
-  //   console.log("TODO");
-  // },
-  transformJobs: () => get().ydoc.getMap<TransformsJob>("transform-jobs"),
-  // addTransformJobs: (jobs): void => {
-  //   console.log("TODO");
-  // },
+> = (set, get) => ({
+  yjsSharedTransforms: () => get().ydoc.getMap<SharedTransform>("transforms"),
+  sharedTransforms: {},
+  setSharedTransforms: (transforms): void => {
+    set((prev) => ({
+      sharedTransforms: { ...prev.sharedTransforms, ...transforms },
+    }));
+  },
+  yjsTransformJobs: () => get().ydoc.getMap<TransformsJob>("transform-jobs"),
+  transformJobs: [],
+  setTransformJobs: (jobs): void => {
+    set(() => ({
+      transformJobs: Array.from(Object.entries(jobs)).map(([_k, v]) => v),
+    }));
+  },
+  addTransformJobs: (job): void => {
+    get().yjsTransformJobs().set(job.jobId, job);
+  },
 });

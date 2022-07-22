@@ -2,7 +2,6 @@ import React, { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Connections, ProvidersParameters } from "./Connections";
 import { FormProvider, useForm } from "react-hook-form";
-import { where, is, equals } from "ramda";
 import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
 import { useStore } from "../../../store/store";
@@ -28,20 +27,18 @@ export const ConnectionsModal = ({
   const { handleSubmit } = formMethod;
 
   const onSubmit = handleSubmit((data) => {
-    const usingRtc = where({
-      useWebrtc: equals(true),
-      webrtcRoom: is(String),
-      webrtcPassword: is(String),
-      webrtcSignaling: is(String),
-    });
+    const isUsingRtc =
+      data.useWebrtc == true &&
+      typeof data.webrtcRoom === "string" &&
+      typeof data.webrtcPassword === "string" &&
+      typeof data.webrtcSignaling === "string";
 
-    const usingWebSocket = where({
-      useWebSocket: equals(true),
-      webSocketRoom: is(String),
-      webSocketServer: is(String),
-    });
+    const isUsingWebSocket =
+      data.useWebSocket == true &&
+      typeof data.webSocketRoom === "string" &&
+      typeof data.webSocketServer === "string";
 
-    if (usingRtc(data) && !providers.webrtc.provider && awareness) {
+    if (isUsingRtc && !providers.webrtc.provider && awareness) {
       addProvider(
         // @ts-expect-error most property are optional
         new WebrtcProvider(data.webrtcRoom, ydoc, {
@@ -52,11 +49,7 @@ export const ConnectionsModal = ({
         })
       );
       setOpen(false);
-    } else if (
-      usingWebSocket(data) &&
-      !providers.websocket.provider &&
-      awareness
-    ) {
+    } else if (isUsingWebSocket && !providers.websocket.provider && awareness) {
       addProvider(
         new WebsocketProvider(data.webSocketServer, data.webSocketRoom, ydoc, {
           awareness: awareness,

@@ -1,23 +1,10 @@
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon, PlusSmIcon } from "@heroicons/react/solid";
 import { useEffect, useState } from "react";
+import { Transaction, YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
-import { SharedTransform } from "../../../types/types";
-import { TransformProviderModal } from "../../modal/TransformProviderModal/TransformProviderModal";
-
-export const SharedTransformsTabTitle = (): JSX.Element => {
-  const [isOpen, setOpen] = useState(false);
-  return (
-    <span>
-      SharedTransforms
-      <PlusSmIcon
-        className="w-5 h-5 ml-1 align-text-top cursor-pointer inline hover:bg-blue-300"
-        onClick={(): void => setOpen(true)}
-      />
-      <TransformProviderModal open={isOpen} setOpen={setOpen} />
-    </span>
-  );
-};
+import { isTrnasformProvider, SharedTransform } from "../../../types/types";
+import { ShareTransformsModal } from "../../modal/TransformProviderModal/TransformProviderModal";
 
 type DisclosureButtonProp = {
   transformName: string;
@@ -33,7 +20,7 @@ const DisclosureButton = ({
       {({ open }): JSX.Element => (
         <div className="flex gap-2 justify-between items-center px-5 py-2 font-medium font-mono text-left text-base">
           <div className="flex flex-1 justify-between item-center min-w-0">
-            <span className="">{transformName}</span>
+            <span>{transformName}</span>
             <span className=" text-gray-500 truncate">{username}</span>
           </div>
           <ChevronUpIcon
@@ -48,37 +35,41 @@ const DisclosureButton = ({
 };
 
 export const SharedTransforms = (): JSX.Element => {
-  const awareness = useStore((state) => state.getAwareness());
-  const sharedTransforms = useStore((state) => state.sharedTransforms());
+  const getAwareness = useStore((state) => state.getAwareness);
+  const yjsSharedTransforms = useStore((state) => state.yjsSharedTransforms());
+  const sharedTransforms = useStore((state) => state.sharedTransforms);
+  const setSharedTransforms = useStore((state) => state.setSharedTransforms);
 
-  const [providers, setProviders] = useState<SharedTransform[]>(
-    Array.from(sharedTransforms.entries()).map(([_k, v]) => v)
-  );
+  const handleSharedTransformsChange = (
+    e: YMapEvent<SharedTransform>,
+    _transact: Transaction
+  ): void => {
+    setSharedTransforms(e.target.toJSON());
+  };
 
   useEffect(() => {
-    const handleProvidersChange = (): void => {
-      setProviders(Array.from(sharedTransforms.entries()).map(([_k, v]) => v));
-    };
-    sharedTransforms.observe(handleProvidersChange);
-    return () => sharedTransforms.unobserve(handleProvidersChange);
-  }, []);
+    yjsSharedTransforms.observe(handleSharedTransformsChange);
+    return () => yjsSharedTransforms.unobserve(handleSharedTransformsChange);
+  }, [yjsSharedTransforms]);
 
   return (
     <div className="w-full h-full overflow-auto">
-      {providers.map((provider) => {
+      {Object.entries(sharedTransforms).map(([_key, transform]) => {
+        if (!isTrnasformProvider(transform)) return;
         const username =
-          awareness.getStates().get(provider.clientId)?.username ?? "unknown";
+          getAwareness().getStates().get(transform.clientId)?.username ??
+          "unknown";
         return (
-          <Disclosure key={provider.transformId}>
+          <Disclosure key={transform.transformId}>
             <DisclosureButton
-              transformName={provider.name}
+              transformName={transform.name}
               username={username}
             />
             <Disclosure.Panel className="bg-slate-100 space-y-2 px-4 py-2 font-mono leading-tight">
               <p className="break-words">
                 <span className="text-gray-500 text-sm">Name</span>
                 <br />
-                {provider.name}
+                {transform.name}
               </p>
               <p className="break-words">
                 <span className="text-gray-500 text-sm">Provided By</span>
@@ -88,22 +79,36 @@ export const SharedTransforms = (): JSX.Element => {
               <p className="break-words">
                 <span className="text-gray-500 text-sm">Type</span>
                 <br />
-                {provider.elementType.join(", ")}
+                {transform.elementType.join(", ")}
               </p>
               <p className="break-words">
                 <span className="text-gray-500 text-sm">Description</span>
                 <br />
-                {provider.description}
+                {transform.description}
               </p>
               <p className="break-words">
                 <span className="text-gray-500 text-sm">Parameter</span>
                 <br />
-                {JSON.stringify(provider.parameter)}
+                {JSON.stringify(transform.parameter)}
               </p>
             </Disclosure.Panel>
           </Disclosure>
         );
       })}
     </div>
+  );
+};
+
+export const SharedTransformsTabTitle = (): JSX.Element => {
+  const [isOpen, setOpen] = useState(false);
+  return (
+    <span>
+      SharedTransforms
+      <PlusSmIcon
+        className="w-5 h-5 ml-1 align-text-top cursor-pointer inline hover:bg-blue-300"
+        onClick={(): void => setOpen(true)}
+      />
+      <ShareTransformsModal open={isOpen} setOpen={setOpen} />
+    </span>
   );
 };

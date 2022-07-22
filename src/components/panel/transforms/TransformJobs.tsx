@@ -6,7 +6,8 @@ import {
   ChevronUpIcon,
   CogIcon,
 } from "@heroicons/react/solid";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { Transaction, YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
 import {
   isTransformsResponse,
@@ -21,6 +22,7 @@ import {
   handleRunning,
 } from "../../../utils/providers";
 
+// TODO: refactor this :/
 export const TransformJobs = (): JSX.Element => {
   const interanlTransforms = useStore((state) => state.internalTransforms);
 
@@ -28,21 +30,25 @@ export const TransformJobs = (): JSX.Element => {
   const ynodes = useStore((state) => state.ynodes());
   const yedges = useStore((state) => state.yedges());
   const awareness = useStore((state) => state.getAwareness());
-  const transformJobs = useStore((state) => state.transformJobs());
-  const sharedTransforms = useStore((state) => state.sharedTransforms());
+
+  const yjsTransformJobs = useStore((state) => state.yjsTransformJobs());
+  const transformJobs = useStore((state) => state.transformJobs);
+  const setTransformJobs = useStore((state) => state.setTransformJobs);
+
+  const sharedTransforms = useStore((state) => state.sharedTransforms);
+
   const cytoscape = useStore((state) => state.cytoscape);
 
-  const [requests, setRequests] = useState<TransformsJob[]>(
-    Array.from(transformJobs.entries()).map(([_k, v]) => v)
-  );
-
   useEffect(() => {
-    const handleRequestChange = (): void => {
-      setRequests(Array.from(transformJobs.entries()).map(([_k, v]) => v));
+    const handleJobsChange = (
+      e: YMapEvent<TransformsJob>,
+      _transaction: Transaction
+    ): void => {
+      setTransformJobs(e.target.toJSON());
     };
-    transformJobs.observe(handleRequestChange);
+    yjsTransformJobs.observe(handleJobsChange);
     return (): void => {
-      transformJobs.unobserve(handleRequestChange);
+      yjsTransformJobs.unobserve(handleJobsChange);
     };
   }, []);
 
@@ -50,9 +56,9 @@ export const TransformJobs = (): JSX.Element => {
     e.stopPropagation();
     const jobId = e.currentTarget.getAttribute("data-jobid");
     if (!jobId) return;
-    const job = transformJobs.get(jobId);
+    const job = yjsTransformJobs.get(jobId);
     if (!job) return;
-    handleReject(transformJobs, job);
+    handleReject(yjsTransformJobs, job);
   };
 
   const handleAcceptJob: React.MouseEventHandler = (e) => {
@@ -65,7 +71,7 @@ export const TransformJobs = (): JSX.Element => {
       (x) => x.transformId === transformId
     );
 
-    const job = transformJobs.get(jobId);
+    const job = yjsTransformJobs.get(jobId);
     if (!(transform && job)) return;
 
     const request: TransformsRequest = {
@@ -77,7 +83,8 @@ export const TransformJobs = (): JSX.Element => {
       ),
       parameter: job.request.parameter,
     };
-    handleRunning(transformJobs, job);
+    handleRunning(yjsTransformJobs, job);
+    // process response
     fetch(transform.apiUrl, {
       method: "POST",
       body: JSON.stringify(request),
@@ -87,7 +94,7 @@ export const TransformJobs = (): JSX.Element => {
     })
       .then(
         (resp) => resp.json(),
-        () => handleError(transformJobs, job)
+        () => handleError(yjsTransformJobs, job)
       )
       .then(
         (data) => {
@@ -115,33 +122,29 @@ export const TransformJobs = (): JSX.Element => {
               }
             });
           });
-          handleComplete(transformJobs, job);
+          handleComplete(yjsTransformJobs, job);
         },
-        () => handleError(transformJobs, job)
+        () => handleError(yjsTransformJobs, job)
       );
   };
 
   return (
-    <>
-      {requests.map((request) => {
+    <div className="w-full h-full overflow-auto">
+      {transformJobs.map((request) => {
         const username =
           awareness.getStates().get(request.fromClientId)?.username ??
           "unknown";
         const transformName =
-          sharedTransforms.get(request.transformId)?.name ?? "unknown";
+          sharedTransforms[request.transformId]?.name ?? "unknown";
 
         return (
           <Disclosure key={request.jobId}>
-            <Disclosure.Button className="flex odd:bg-slate-200 even:bg-purple-200 hover:bg-white">
+            <Disclosure.Button className="w-full odd:bg-slate-200 even:bg-purple-200 hover:bg-white">
               {({ open }): JSX.Element => (
                 <div className="flex flex-1 gap-2 justify-between items-center w-full px-5 py-2 font-medium font-mono text-left text-base">
                   <div className="flex flex-1 justify-between items-center min-w-0">
-                    <span title={transformName} className="truncate">
-                      {transformName}
-                    </span>
-                    <span title={username} className="text-gray-500 truncate">
-                      {username}
-                    </span>
+                    <span>{transformName}</span>
+                    <span className="text-gray-500 truncate">{username}</span>
                   </div>
                   {
                     {
@@ -214,6 +217,6 @@ export const TransformJobs = (): JSX.Element => {
           </Disclosure>
         );
       })}
-    </>
+    </div>
   );
 };

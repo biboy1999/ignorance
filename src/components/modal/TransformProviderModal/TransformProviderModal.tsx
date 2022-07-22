@@ -8,17 +8,17 @@ import {
 import { nanoid } from "nanoid";
 import { useStore } from "../../../store/store";
 
-export type ConnectionsModelProp = {
+export type ShareTransformsModalProp = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export const TransformProviderModal = ({
+export const ShareTransformsModal = ({
   open,
   setOpen,
-}: ConnectionsModelProp): JSX.Element => {
+}: ShareTransformsModalProp): JSX.Element => {
   const awareness = useStore((state) => state.getAwareness());
-  const sharedTransforms = useStore((state) => state.sharedTransforms());
+  const sharedTransforms = useStore((state) => state.yjsSharedTransforms());
 
   const addInternalTransforms = useStore(
     (state) => state.addInternalTransforms

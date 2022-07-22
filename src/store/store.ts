@@ -11,13 +11,15 @@ import {
 } from "./shared-transform";
 import { createCytoscapeSlice, CytoscapeSlice } from "./cytoscape";
 import { createSelectedNodesSlice, SelectedNodesSlice } from "./selected-nodes";
+import { createMiscSliceSlice, MiscSlice } from "./misc";
 
 type StoreSlice = YjsSlice &
   YjsProviderSlice &
   InternalTransformSlice &
   SharedTransformSlice &
   CytoscapeSlice &
-  SelectedNodesSlice;
+  SelectedNodesSlice &
+  MiscSlice;
 
 export const useStore = create<StoreSlice>()((...a) => ({
   ...createYjsSlice(...a),
@@ -26,4 +28,5 @@ export const useStore = create<StoreSlice>()((...a) => ({
   ...createSharedTransformSlice(...a),
   ...createCytoscapeSlice(...a),
   ...createSelectedNodesSlice(...a),
+  ...createMiscSliceSlice(...a),
 }));

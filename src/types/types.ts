@@ -100,8 +100,9 @@ export type SharedTransform = Omit<InternalTransform, "apiUrl"> & {
   clientId: number;
 };
 
-export function isTrnasformProvider(x: object): x is SharedTransform {
+export function isTrnasformProvider(x: unknown): x is SharedTransform {
   return (
+    x != null &&
     typeof x === "object" &&
     "transformId" in x &&
     "clientId" in x &&

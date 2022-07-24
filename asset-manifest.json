@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/ignorance/static/css/main.5ea08a0f.css",
-    "main.js": "/ignorance/static/js/main.755dd10f.js",
+    "main.css": "/ignorance/static/css/main.b2e840e5.css",
+    "main.js": "/ignorance/static/js/main.783f54dc.js",
+    "static/js/11.4d0d18f8.chunk.js": "/ignorance/static/js/11.4d0d18f8.chunk.js",
     "static/js/728.96892017.chunk.js": "/ignorance/static/js/728.96892017.chunk.js",
     "index.html": "/ignorance/index.html",
-    "main.5ea08a0f.css.map": "/ignorance/static/css/main.5ea08a0f.css.map",
-    "main.755dd10f.js.map": "/ignorance/static/js/main.755dd10f.js.map",
+    "main.b2e840e5.css.map": "/ignorance/static/css/main.b2e840e5.css.map",
+    "main.783f54dc.js.map": "/ignorance/static/js/main.783f54dc.js.map",
+    "11.4d0d18f8.chunk.js.map": "/ignorance/static/js/11.4d0d18f8.chunk.js.map",
     "728.96892017.chunk.js.map": "/ignorance/static/js/728.96892017.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5ea08a0f.css",
-    "static/js/main.755dd10f.js"
+    "static/css/main.b2e840e5.css",
+    "static/js/main.783f54dc.js"
   ]
 }

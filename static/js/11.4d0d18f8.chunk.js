@@ -1,0 +1,2 @@
+!function(){"use strict";onmessage=function(t){var n=t.data,e=n.request,o=n.url;fetch(o,{method:"POST",body:JSON.stringify(e),headers:{"content-type":"application/json"}}).then((function(t){if(!t.ok)throw Error("Not 2xx Response");return t.json()})).then((function(t){return postMessage(t)})).catch((function(t){setTimeout((function(){throw t}))}))}}();
+//# sourceMappingURL=11.4d0d18f8.chunk.js.map

@@ -9,17 +9,18 @@ export const Statusbar = ({ isOnlineMode }: StatusbarProp): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="panel transition-colors absolute bottom-0 right-0 left-0 flex flex-row-reverse h-fit border-solid border-t">
-      <div
+    <div className="styled-panel flex flex-row-reverse h-fit border-solid border-t">
+      <button
         onClick={(): void => setIsOpen((state) => !state)}
-        className={`font-mono text-white h-fit w-fit  cursor-pointer px-1 ${
+        className={`styled-button font-mono h-fit w-fit px-1 ${
           isOnlineMode
-            ? "bg-green-500 hover:bg-green-300"
-            : "bg-red-500 hover:bg-red-300"
+            ? "text-green-500 dark:text-green-600"
+            : "text-red-500 dark:text-red-600"
         }`}
       >
+        <span className="pr-1.5 align-text-bottom">●</span>
         {isOnlineMode ? "Online " : "Local"}
-      </div>
+      </button>
       <ConnectionsModal open={isOpen} setOpen={setIsOpen} />
     </div>
   );

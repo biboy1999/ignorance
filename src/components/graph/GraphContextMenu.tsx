@@ -3,7 +3,7 @@ import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
 import { nanoid } from "nanoid";
 import { Menu } from "../context-menu/Menu";
 import { MenuButton } from "../context-menu/MenuButton";
-import { isTrnasformProvider, TransformsJob } from "../../types/types";
+import { isTrnasformProvider, TransformJob } from "../../types/types";
 import { AddNode, deleteEdges, deleteNodes } from "../../utils/graph";
 import { useStore } from "../../store/store";
 
@@ -15,7 +15,7 @@ const GroupHeader = forwardRef<
   HTMLParagraphElement,
   JSX.IntrinsicElements["p"]
 >(({ children }, _ref) => (
-  <p className="flex-1 font-mono pl-1 pt-1 leading-5 text-sm bg-white dark:bg-neutral-900 dark:text-white">
+  <p className="styled-panel flex-1 font-mono pl-1 pt-1 leading-5 text-sm bg-white dark:bg-neutral-900 dark:text-white">
     {children}
   </p>
 ));
@@ -76,7 +76,7 @@ export const GraphContextMenu = ({
     const transformId = e.currentTarget.getAttribute("data-transformid");
     const collection = selectedElements;
     if (!(clientId && transformId && collection)) return;
-    const job: TransformsJob = {
+    const job: TransformJob = {
       jobId: nanoid(),
       fromClientId: clientId,
       transformId,
@@ -106,22 +106,26 @@ export const GraphContextMenu = ({
 
   return (
     <Menu
-      className="shadow-lg flex flex-col border border-neutral-700 w-48 focus-visible:outline-none"
+      className="shadow-lg flex flex-col border border-neutral-700 w-48 divide-y focus-visible:outline-none z-max"
       onEventListener={onContextTrigger}
     >
       <MenuButton
-        className="flex items-center flex-1 text-left font-mono p-2 pl-4 leading-7 focus:z-10 hover:bg-blue-200 dark:hover:bg-gray-600"
+        className="styled-button flex items-center flex-1 text-left font-mono p-2 pl-4 leading-7 focus:z-10 hover:bg-blue-200 dark:hover:bg-gray-600"
         label="Add"
-        icon={<PlusIcon className="h-5 w-5 mr-2 hover:bg-transparent" />}
+        icon={
+          <PlusIcon className="h-5 w-5 mr-2 hover:bg-transparent dark:hover:bg-transparent" />
+        }
         onClick={handleAdd}
       />
       <MenuButton
-        className="flex items-center flex-1 text-left font-mono p-2 pl-4 leading-7 focus:z-10 hover:bg-red-200 dark:hover:bg-rose-900 hover:text-red-300"
+        className="styled-button flex items-center flex-1 text-left font-mono p-2 pl-4 leading-7 focus:z-10 hover:bg-red-200 dark:hover:bg-rose-900 hover:text-red-300"
         label="Delete"
-        icon={<TrashIcon className="h-5 w-5 mr-2 hover:bg-transparent" />}
+        icon={
+          <TrashIcon className="h-5 w-5 mr-2 hover:bg-transparent dark:hover:bg-transparent" />
+        }
         onClick={handleDelete}
       />
-      <Divider />
+      {/* <Divider /> */}
       <GroupHeader>Transforms</GroupHeader>
       {Object.entries(sharedTransforms).map(([_key, transform]) => {
         // TODO: multiple nodes support
@@ -140,7 +144,7 @@ export const GraphContextMenu = ({
           <MenuButton
             key={transform.transformId}
             data-transformid={transform.transformId}
-            className="flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-blue-200 dark:hover:bg-gray-600 ring-inset"
+            className="styled-button flex items-center flex-1 bg-white text-left font-mono p-2 pl-4 leading-7 hover:bg-blue-200 dark:hover:bg-gray-600 ring-inset"
             label={transform.name}
             title={transform.name}
             onClick={handleAddRequest}

@@ -18,7 +18,6 @@
 
 // export const TransformContextMenu = (): JSX.Element => {
 //   // bind handle and return unbind function
-//   // TODO: better way to do this :/
 //   const onContextTrigger = (
 //     onContextMenu: (e: MouseEvent) => void
 //   ): (() => void) => {

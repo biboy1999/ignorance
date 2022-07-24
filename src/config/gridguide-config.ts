@@ -21,7 +21,7 @@ export const gridGuideConfig = {
   zoomDash: false, // Determines whether the size of the dashes should change when the drawing is zoomed in and out if grid is drawn.
   panGrid: true, // Determines whether the grid should move then the user moves the graph if grid is drawn.
   gridStackOrder: 0, // Namely z-index
-  gridColor: "#aaa", // Color of grid lines
+  gridColor: "rgba(157, 157, 157, .4)", // Color of grid lines
   lineWidth: 1.0, // Width of grid lines
 
   // Guidelines

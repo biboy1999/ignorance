@@ -142,7 +142,7 @@ export const NodeAttributes = (): JSX.Element => {
   };
 
   return (
-    <div className="flex flex-col flex-1 overflow-auto divide-y border-b transition-colors p-0.5">
+    <div className="styled-panel flex flex-col flex-1 overflow-auto divide-y border-b transition-colors p-0.5">
       {nodes?.length !== 0 &&
         attributes.map(([key, value], _index) => {
           return (

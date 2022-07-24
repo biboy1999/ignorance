@@ -1,17 +1,22 @@
-import { StateCreator } from "zustand";
+import create from "zustand";
+import { persist } from "zustand/middleware";
 
-export type MiscSlice = {
+export type MiscState = {
   darkMode: boolean;
-  toggleDarkMode: () => void;
+  toggleDarkMode: (state?: boolean) => void;
 };
 
-export const createMiscSliceSlice: StateCreator<
-  MiscSlice,
-  [],
-  [],
-  MiscSlice
-> = (set) => ({
-  darkMode: false,
-  toggleDarkMode: (): void =>
-    set({ darkMode: document.documentElement.classList.toggle("dark") }),
-});
+export const useLocalStorage = create<MiscState>()(
+  persist(
+    (set) => ({
+      darkMode: false,
+      toggleDarkMode: (state): void =>
+        set({
+          darkMode: document.documentElement.classList.toggle("dark", state),
+        }),
+    }),
+    {
+      name: "misc",
+    }
+  )
+);

@@ -11,7 +11,6 @@ export const TransformProviderForm = (): JSX.Element => {
   return (
     <>
       <div className="px-4 py-2 space-y-3">
-        {/* <input type="hidden" {...register("transformId")} /> */}
         <div>
           <label className="block leading-6" htmlFor="name">
             Name

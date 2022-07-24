@@ -11,16 +11,57 @@ import { Transaction, YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
 import {
   isTransformsResponse,
-  TransformsJob,
-  TransformsRequest,
+  TransformJob,
+  TransformRequest,
 } from "../../../types/types";
-import { addEdge, AddNode } from "../../../utils/graph";
+import { addEdge, AddNode, getCenterPosition } from "../../../utils/graph";
 import {
+  createRequest,
   handleComplete,
   handleError,
   handleReject,
   handleRunning,
-} from "../../../utils/providers";
+} from "../../../utils/transform-job";
+
+type JobStatusProps = {
+  job: TransformJob;
+  ownTransform: boolean;
+  onAcceptJob: React.MouseEventHandler<Element>;
+  onRejectJob: React.MouseEventHandler<Element>;
+};
+
+export const JobStatus = ({
+  job,
+  ownTransform,
+  onAcceptJob,
+  onRejectJob,
+}: JobStatusProps): JSX.Element => {
+  const statusMapping = {
+    failed: <ExclamationCircleIcon className="w-6 h-6 text-red-500" />,
+    rejected: <BanIcon className="w-6 h-6 text-red-500" />,
+    completed: <CheckIcon className="w-6 h-6 text-green-500" />,
+    running: <CogIcon className="w-6 h-6 text-gray-500 animate-spin" />,
+    pending: ownTransform ? (
+      <div className="flex space-x-2">
+        <CheckIcon
+          className="w-6 h-6 text-white bg-green-500"
+          data-jobid={job.jobId}
+          data-transformid={job.transformId}
+          onClick={onAcceptJob}
+        />
+        <BanIcon
+          className="w-6 h-6 text-white bg-red-500"
+          data-jobid={job.jobId}
+          onClick={onRejectJob}
+        />
+      </div>
+    ) : (
+      <ClockIcon className="w-6 h-6 text-gray-500" />
+    ),
+  };
+
+  return statusMapping[job.status];
+};
 
 // TODO: refactor this :/
 export const TransformJobs = (): JSX.Element => {
@@ -41,7 +82,7 @@ export const TransformJobs = (): JSX.Element => {
 
   useEffect(() => {
     const handleJobsChange = (
-      e: YMapEvent<TransformsJob>,
+      e: YMapEvent<TransformJob>,
       _transaction: Transaction
     ): void => {
       setTransformJobs(e.target.toJSON());
@@ -55,77 +96,55 @@ export const TransformJobs = (): JSX.Element => {
   const handleRejectJob: React.MouseEventHandler = (e) => {
     e.stopPropagation();
     const jobId = e.currentTarget.getAttribute("data-jobid");
-    if (!jobId) return;
-    const job = yjsTransformJobs.get(jobId);
+    const job = transformJobs.find((x) => x.jobId === jobId);
     if (!job) return;
     handleReject(yjsTransformJobs, job);
   };
 
-  const handleAcceptJob: React.MouseEventHandler = (e) => {
+  const handleAcceptJob: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
+
     const transformId = e.currentTarget.getAttribute("data-transformid");
     const jobId = e.currentTarget.getAttribute("data-jobid");
-    if (!(transformId && jobId)) return;
 
     const transform = interanlTransforms.find(
       (x) => x.transformId === transformId
     );
+    const job = transformJobs.find((x) => x.jobId === jobId);
 
-    const job = yjsTransformJobs.get(jobId);
-    if (!(transform && job)) return;
-
-    const request: TransformsRequest = {
-      nodes: job.request.nodesId?.map((nodeId) =>
-        cytoscape?.$id(nodeId).data()
-      ),
-      edges: job.request.edgesId?.map((edgeId) =>
-        cytoscape?.$id(edgeId).data()
-      ),
-      parameter: job.request.parameter,
-    };
+    if (!(transform && job && cytoscape)) return;
     handleRunning(yjsTransformJobs, job);
-    // process response
-    fetch(transform.apiUrl, {
-      method: "POST",
-      body: JSON.stringify(request),
-      headers: {
-        "content-type": "application/json",
-      },
-    })
-      .then(
-        (resp) => resp.json(),
-        () => handleError(yjsTransformJobs, job)
-      )
-      .then(
-        (data) => {
-          if (!isTransformsResponse(data)) return;
-          if (!cytoscape) return;
 
-          ydoc.transact(() => {
-            data.add?.nodes?.forEach((ele, _index) => {
-              const nodePosition = cytoscape
-                .$id(ele.linkToNodeId ?? "")
-                ?.position();
-              const { nodeId, node } = AddNode(
-                ele.data,
-                nodePosition?.x ?? 0,
-                nodePosition?.y ?? 0,
-                {
-                  pan: cytoscape.pan(),
-                  zoom: cytoscape.zoom(),
-                }
-              );
-              ynodes.set(nodeId, node);
-              if (ele.linkToNodeId) {
-                const { edgeId, edge } = addEdge(ele.linkToNodeId, nodeId);
-                yedges.set(edgeId, edge);
-              }
-            });
-          });
-          handleComplete(yjsTransformJobs, job);
-        },
-        () => handleError(yjsTransformJobs, job)
-      );
+    const request: TransformRequest = createRequest(job, cytoscape);
+
+    const worker = new Worker(
+      new URL("../../../worker/fetch.ts", import.meta.url)
+    );
+
+    worker.addEventListener("error", (e) => {
+      e.preventDefault();
+      handleError(yjsTransformJobs, job);
+    });
+
+    worker.addEventListener("message", (e): void => {
+      const { data } = e;
+      if (!isTransformsResponse(data))
+        return handleError(yjsTransformJobs, job);
+
+      ydoc.transact(() => {
+        data.add?.nodes?.forEach((node) => {
+          const { x, y } =
+            cytoscape.$id(node.linkToNodeId ?? "").position() ??
+            getCenterPosition(cytoscape);
+          const { nodeId } = AddNode(node.data, x, y, { ynodes });
+          if (node.linkToNodeId) addEdge(node.linkToNodeId, nodeId, { yedges });
+        });
+      });
+      handleComplete(yjsTransformJobs, job);
+      worker.terminate();
+    });
+
+    worker.postMessage({ request, url: transform.apiUrl });
   };
 
   return (
@@ -141,44 +160,20 @@ export const TransformJobs = (): JSX.Element => {
           <Disclosure key={request.jobId}>
             <Disclosure.Button className="w-full odd:bg-blue-200 even:bg-blue-100 hover:bg-blue-300 dark:odd:bg-neutral-800 dark:even:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors">
               {({ open }): JSX.Element => (
-                <div className="flex flex-1 gap-2 justify-between items-center w-full px-5 py-2 font-medium font-mono text-left text-base">
+                <div className="flex gap-2 justify-between items-center px-3 py-2 font-medium font-mono text-left text-base">
                   <div className="flex flex-1 justify-between items-center min-w-0">
                     <span>{transformName}</span>
                     <span className="text-gray-500 truncate">{username}</span>
                   </div>
-                  {
-                    {
-                      failed: (
-                        <ExclamationCircleIcon className="w-6 h-6 text-red-500" />
-                      ),
-                      rejected: <BanIcon className="w-6 h-6 text-red-500" />,
-                      completed: (
-                        <CheckIcon className="w-6 h-6 text-green-500" />
-                      ),
-                      running: (
-                        <CogIcon className="w-6 h-6 text-gray-500 animate-spin" />
-                      ),
-                      pending: interanlTransforms.some(
-                        (x) => x.transformId === request.transformId
-                      ) ? (
-                        <div className="flex space-x-2">
-                          <CheckIcon
-                            className="w-6 h-6 text-white bg-green-500"
-                            data-jobid={request.jobId}
-                            data-transformid={request.transformId}
-                            onClick={handleAcceptJob}
-                          />
-                          <BanIcon
-                            className="w-6 h-6 text-white bg-red-500"
-                            data-jobid={request.jobId}
-                            onClick={handleRejectJob}
-                          />
-                        </div>
-                      ) : (
-                        <ClockIcon className="w-6 h-6 text-gray-500" />
-                      ),
-                    }[request.status]
-                  }
+                  <JobStatus
+                    job={request}
+                    ownTransform={interanlTransforms.some(
+                      (x) => x.transformId === request.transformId
+                    )}
+                    onAcceptJob={handleAcceptJob}
+                    onRejectJob={handleRejectJob}
+                  />
+
                   <ChevronUpIcon
                     className={`${open ? "transform rotate-180" : ""} w-5 h-5`}
                   />

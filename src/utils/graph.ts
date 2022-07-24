@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { Map as YMap } from "yjs";
 import {
   Edge,
+  YNode,
   YNodeData,
   YNodeGroup,
   YNodePosition,
@@ -24,16 +25,24 @@ export type AddEdgeReturnValue = {
   edge: Edge;
 };
 
+export const getCenterPosition = (
+  cytoscape: cytoscape.Core
+): { x: number; y: number } => {
+  const { x1, y1, h, w } = cytoscape.extent();
+  return { x: x1 + w / 2, y: y1 + h / 2 };
+};
+
 export const AddNode = (
   nodeData: NodeData,
   x: number,
   y: number,
   opt?: {
+    ynodes?: YMap<YNode>;
     pan?: { x: number; y: number };
     zoom?: number;
   }
 ): AddNodeReturnValue => {
-  const { id: preDefindedId, ...remainData } = nodeData ?? {};
+  const { id: preDefindedId, ...remainData } = nodeData;
   const nodeId = preDefindedId ?? nanoid();
 
   const data = new YMap<string>();
@@ -50,6 +59,7 @@ export const AddNode = (
   const position = new YMap<number>();
   if (opt?.zoom && opt?.pan)
     ({ x, y } = renderedPositionToModel({ x, y }, opt.zoom, opt.pan));
+
   position.set("x", x);
   position.set("y", y);
 
@@ -61,6 +71,8 @@ export const AddNode = (
   node.set("group", "nodes");
   node.set("data", data);
   node.set("position", position);
+
+  if (opt?.ynodes) opt?.ynodes.set(nodeId, node);
 
   return { nodeId, node };
 };
@@ -74,11 +86,17 @@ export const deleteNodes = (id: string[], ynodes: YNodes): void => {
 export const addEdge = (
   source: string,
   target: string,
-  id?: string
+  opt?: {
+    id?: string;
+    yedges: YMap<Edge>;
+  }
 ): AddEdgeReturnValue => {
-  const edgeId = id ?? nanoid();
+  const edgeId = opt?.id ?? nanoid();
+  const edge = { source, target, id: edgeId };
 
-  return { edgeId, edge: { source, target, id: edgeId } };
+  if (opt?.yedges) opt.yedges.set(edgeId, edge);
+
+  return { edgeId, edge };
 };
 
 export const deleteEdges = (id: string[], ynodes: YMap<Edge>): void => {

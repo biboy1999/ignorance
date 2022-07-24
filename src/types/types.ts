@@ -1,14 +1,8 @@
 import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
-import { GetState, SetState } from "zustand";
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<T>;
-
-export type StoreSlice<T extends object, E extends object = T> = (
-  set: SetState<E extends T ? E : E & T>,
-  get: GetState<E extends T ? E : E & T>
-) => T;
 
 export type Edge = { source: string; target: string; id: string };
 
@@ -71,7 +65,7 @@ export function isTransformsResponse(x: object): x is TransformsResponse {
   return x instanceof Object;
 }
 
-export type TransformsRequest = {
+export type TransformRequest = {
   nodes?: PartialBy<Node, "position">[];
   edges?: Edge[];
   parameter?: {
@@ -87,7 +81,7 @@ type TransformsJobParameter = {
   };
 };
 
-export type TransformsJob = {
+export type TransformJob = {
   jobId: string;
   status: "failed" | "rejected" | "completed" | "pending" | "running";
   fromClientId: number;

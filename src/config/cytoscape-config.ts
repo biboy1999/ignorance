@@ -188,7 +188,6 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
 ];
 
 export const cytoscapeConfig: cytoscape.CytoscapeOptions = {
-  style: cytoscapeDarkStylesheet,
   layout: {
     name: "grid",
     rows: 1,

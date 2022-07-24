@@ -5,15 +5,18 @@
 @import "./assets/css/rc-dock-all.css";
 
 html {
+  /* overflow: hidden; */
+  /* height: 100vh;
+  width: 100vw; */
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  @apply transition-colors;
 }
 
-html.dark {
-  overflow: hidden;
-  background-color: #000;
+#root {
+  height: 100vh;
+  width: 100vw;
+  @apply bg-white;
+  @apply dark:bg-black;
+  @apply transition-colors;
 }
 
 input,
@@ -30,13 +33,39 @@ textarea {
   @apply dark:placeholder-[#B1B1B1];
 }
 
-div {
-  @apply dark:border-neutral-700;
-}
+.styled-panel {
+  @apply text-black;
+  @apply dark:text-white;
 
-div.panel {
   @apply bg-white;
   @apply dark:bg-neutral-900;
+
+  @apply border-neutral-300;
+  @apply dark:border-neutral-700;
+
+  @apply divide-neutral-300;
+  @apply dark:divide-neutral-700;
+
+  @apply transition-colors;
+}
+
+.styled-button {
+  @apply text-black;
+  @apply dark:text-white;
+
+  @apply bg-white;
+  @apply dark:bg-neutral-900;
+
+  @apply border-neutral-300;
+  @apply dark:border-neutral-700;
+
+  @apply divide-neutral-300;
+  @apply dark:divide-neutral-700;
+
+  @apply hover:bg-blue-200;
+  @apply dark:hover:bg-gray-600;
+  @apply font-mono;
+  @apply transition-colors;
 }
 
 div.topbar {
@@ -44,7 +73,7 @@ div.topbar {
   @apply dark:bg-[#0a5f9c];
 }
 
-div.backdrop {
+.backdrop {
   @apply bg-gray-500;
   @apply bg-opacity-75;
   @apply dark:bg-gray-800;
@@ -60,13 +89,6 @@ svg {
 label {
   @apply text-black;
   @apply dark:text-white;
-}
-
-button {
-  @apply text-black;
-  @apply bg-white;
-  @apply dark:text-white;
-  @apply dark:bg-neutral-900;
 }
 
 #cy > div {

@@ -27,6 +27,7 @@ import {
   cytoscapeLightStylesheet,
 } from "../../config/cytoscape-config";
 import { gridGuideConfig } from "../../config/gridguide-config";
+import { useLocalStorage } from "../../store/misc";
 
 const Graph = (): JSX.Element => {
   const ydoc = useStore((state) => state.ydoc);
@@ -40,7 +41,7 @@ const Graph = (): JSX.Element => {
 
   const setSelectedElements = useStore((state) => state.setSelectedElements);
 
-  const darkMode = useStore((state) => state.darkMode);
+  const darkMode = useLocalStorage((state) => state.darkMode);
 
   const setUsernames = useOnlineUsers((states) => states.setUsernames);
 

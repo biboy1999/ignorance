@@ -18,7 +18,7 @@ const DisclosureButton = ({
   return (
     <Disclosure.Button className="w-full odd:bg-blue-200 even:bg-blue-100 hover:bg-blue-300 dark:odd:bg-neutral-800 dark:even:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors">
       {({ open }): JSX.Element => (
-        <div className="flex gap-2 justify-between items-center px-5 py-2 font-medium font-mono text-left text-base">
+        <div className="flex gap-2 justify-between items-center px-3 py-2 font-medium font-mono text-left text-base">
           <div className="flex flex-1 justify-between item-center min-w-0">
             <span>{transformName}</span>
             <span className=" text-gray-500 truncate">{username}</span>

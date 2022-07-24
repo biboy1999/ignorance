@@ -1,4 +1,4 @@
-import React, { Fragment, useRef } from "react";
+import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Connections, ProvidersParameters } from "./Connections";
 import { FormProvider, useForm } from "react-hook-form";
@@ -67,7 +67,7 @@ export const ConnectionsModal = ({
         onClose={setOpen}
         initialFocus={buttonRef}
       >
-        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20">
+        <div className="flex items-end justify-center min-h-screen">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -88,7 +88,7 @@ export const ConnectionsModal = ({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <Dialog.Panel className="flex flex-col self-center align-bottom text-left overflow-hidden shadow-xl transition-all max-w-lg w-full">
+            <Dialog.Panel className="flex flex-col self-center align-bottom text-left overflow-hidden shadow-xl transition-all max-w-lg w-full max-h-screen">
               <div className="topbar">
                 <Dialog.Title
                   as="h1"
@@ -97,7 +97,7 @@ export const ConnectionsModal = ({
                   Create Connection
                 </Dialog.Title>
               </div>
-              <div className="panel max-h-[76vh] overflow-y-auto">
+              <div className="styled-panel overflow-y-auto">
                 <FormProvider {...formMethod}>
                   <form
                     onSubmit={onSubmit}
@@ -108,12 +108,12 @@ export const ConnectionsModal = ({
                   </form>
                 </FormProvider>
               </div>
-              <div className="panel border-t flex-row-reverse flex px-3 py-2">
+              <div className="styled-panel  border-t flex-row-reverse flex px-3 py-2">
                 <button
                   type="submit"
                   form="connectionForm"
                   ref={buttonRef}
-                  className="w-auto inline-flex justify-center shadow-sm px-4 py-2 my-0 bg-green-300 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-500 text-sm font-medium font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
+                  className="styled-button w-auto inline-flex justify-center shadow-sm px-4 py-2 my-0 bg-green-300 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-500 text-sm font-medium font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
                 >
                   Connect
                 </button>

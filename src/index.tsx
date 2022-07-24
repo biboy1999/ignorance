@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+localStorage.log = "y-websocket";
 const container = document.getElementById("root");
 if (container) {
   const root = createRoot(container);

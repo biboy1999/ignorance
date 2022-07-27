@@ -2,6 +2,7 @@ import { ChangeEvent, useEffect } from "react";
 import { useOnlineUsers } from "../../store/online-users";
 import { generateUsername } from "../../utils/username/randomUsername";
 import { useStore } from "../../store/store";
+import { TabData } from "rc-dock";
 
 export const UserInfo = (): JSX.Element => {
   const onlineUsers = useOnlineUsers((states) => states.usernames);
@@ -26,7 +27,7 @@ export const UserInfo = (): JSX.Element => {
             type="text"
             id="username"
             placeholder="username"
-            className="flex-1 p-1"
+            className="flex-1 p-1 min-w-0"
             onChange={handleUpdateUsername}
           />
           <input
@@ -36,7 +37,7 @@ export const UserInfo = (): JSX.Element => {
             onChange={handleColorOnChange}
           />
         </div>
-        <div className="flex-1 divide-y-2 divide-solid overflow-y-auto">
+        <div className="styled-panel flex-1 divide-y-2 divide-solid overflow-y-auto">
           {onlineUsers.map((user) => (
             <div key={user.id} className="font-mono leading-loose">
               {user.username}
@@ -46,4 +47,12 @@ export const UserInfo = (): JSX.Element => {
       </div>
     </>
   );
+};
+
+export const UserInfoTab: TabData = {
+  id: "userinfo",
+  title: "Userinfo",
+  content: <UserInfo />,
+  cached: true,
+  closable: false,
 };

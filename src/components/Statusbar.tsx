@@ -9,7 +9,9 @@ export const Statusbar = ({ isOnlineMode }: StatusbarProp): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="styled-panel flex flex-row-reverse h-fit border-solid border-t">
+    <div className="styled-panel flex h-fit border-solid border-t divide-x">
+      {/* TODO: possible message display */}
+      <div className="flex-1"></div>
       <button
         onClick={(): void => setIsOpen((state) => !state)}
         className={`styled-button font-mono h-fit w-fit px-1 ${

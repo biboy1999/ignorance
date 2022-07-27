@@ -54,7 +54,7 @@ export const TransformProviderForm = (): JSX.Element => {
             Element Type
           </label>
           <PlusSmIcon
-            className="w-5 h-5 ml-1 align-text-bottom cursor-pointer inline"
+            className="styled-svg svg-hover w-5 h-5 ml-1 align-text-bottom cursor-pointer inline"
             onClick={(): void => append("*")}
           />
           {fields.map((field, index) => (
@@ -68,7 +68,7 @@ export const TransformProviderForm = (): JSX.Element => {
                 })}
               />
               <XIcon
-                className="w-6 h-6 text-red-400 hover:bg-red-200"
+                className="styled-svg w-5 h-5 text-red-400 hover:bg-red-200 dark:hover:bg-red-800"
                 onClick={(): void => remove(index)}
               />
             </div>

@@ -9,6 +9,8 @@ import cytoscape, {
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
 import gridGuide from "cytoscape-grid-guide";
+import compoundDragAndDrop from "cytoscape-compound-drag-and-drop";
+import navigator from "cytoscape-navigator";
 import { useEffect } from "react";
 import { Map as YMap } from "yjs";
 import { useAtomValue } from "jotai";
@@ -28,8 +30,10 @@ import {
 } from "../../config/cytoscape-config";
 import { gridGuideConfig } from "../../config/gridguide-config";
 import { useLocalStorage } from "../../store/misc";
+import { TabData } from "rc-dock";
+import { compoundDndConfig } from "../../config/compound-dnd-config";
 
-const Graph = (): JSX.Element => {
+export const Graph = (): JSX.Element => {
   const ydoc = useStore((state) => state.ydoc);
   const ynodes = useStore((state) => state.ynodes());
   const yedges = useStore((state) => state.yedges());
@@ -70,10 +74,41 @@ const Graph = (): JSX.Element => {
     cytoscape.use(layoutUtilities);
     cytoscape.use(fcose);
     cytoscape.use(gridGuide);
+    cytoscape.use(compoundDragAndDrop);
+    cytoscape.use(navigator);
 
     const cy = cytoscape({
       container: document.getElementById("cy"),
       ...cytoscapeConfig,
+      elements: {
+        nodes: [
+          {
+            data: { id: "a", name: "a", parent: "b" },
+            position: { x: 215, y: 85 },
+          },
+          { data: { id: "b", name: "b" } },
+          {
+            data: { id: "c", name: "c", parent: "b" },
+            position: { x: 300, y: 85 },
+          },
+          { data: { id: "d", name: "d" }, position: { x: 215, y: 175 } },
+          { data: { id: "e", name: "e" } },
+          {
+            data: { id: "f", name: "f", parent: "e" },
+            position: { x: 300, y: 175 },
+          },
+          {
+            data: { id: "g", name: "g", parent: "b" },
+          },
+          {
+            data: { id: "h", name: "h", parent: "g" },
+          },
+        ],
+        edges: [
+          { data: { id: "ad", source: "a", target: "d" } },
+          { data: { id: "eb", source: "e", target: "b" } },
+        ],
+      },
     });
     setCytoscape(cy);
 
@@ -83,6 +118,10 @@ const Graph = (): JSX.Element => {
     // init gridGuide
     // @ts-expect-error gridGuide config
     cy.gridGuide(gridGuideConfig);
+
+    // init compound DragAndDrop
+    // @ts-expect-error compound dnd config
+    const cdnd = cy.compoundDragAndDrop(compoundDndConfig);
 
     // @ts-expect-error cytoscpae ext.
     const layers = cy.layers() as LayersPlugin;
@@ -335,4 +374,10 @@ const Graph = (): JSX.Element => {
   );
 };
 
-export { Graph };
+export const GraphTab: TabData = {
+  id: "graph",
+  title: "Graph",
+  content: <Graph />,
+  cached: true,
+  closable: false,
+};

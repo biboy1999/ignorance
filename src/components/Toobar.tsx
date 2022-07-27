@@ -8,8 +8,8 @@ import {
   PlusCircleIcon,
   ShareIcon,
   SunIcon,
+  MoonIcon,
 } from "@heroicons/react/solid";
-import { MoonIcon } from "@heroicons/react/outline";
 import { useLocalStorage } from "../store/misc";
 import { useEffect } from "react";
 
@@ -69,33 +69,33 @@ export const Toolbar = (): JSX.Element => {
       <button title="Add Node" className="styled-button w-9 h-9">
         <PlusCircleIcon
           onClick={handleAddNode}
-          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+          className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
         />
       </button>
       <button title="Delete Selected Nodes" className="styled-button w-9 h-9">
         <MinusCircleIcon
           onClick={handleDeleteNode}
-          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+          className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
         />
       </button>
       <button title="Layout Selected Nodes" className="styled-button w-9 h-9">
         <ShareIcon
           onClick={handleLayout}
-          className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+          className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
         />
       </button>
       {darkMode ? (
         <button title="Layout Selected Nodes" className="styled-button w-9 h-9">
           <MoonIcon
             onClick={(): void => toggleDarkMode()}
-            className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+            className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
           />
         </button>
       ) : (
         <button title="Layout Selected Nodes" className="styled-button w-9 h-9">
           <SunIcon
             onClick={(): void => toggleDarkMode()}
-            className="aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
+            className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
           />
         </button>
       )}

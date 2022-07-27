@@ -5,245 +5,248 @@
   position: absolute;
   overflow: hidden;
   display: flex;
+}
+// HACK: & parent scope
+// https://github.com/less/less.js/issues/3356
+@prefix: ~".dock";
 
-  &-bar {
-    font-size: 14px;
-    line-height: 1.5;
-    box-sizing: border-box;
-    overflow: hidden;
-    position: relative;
-    white-space: nowrap;
-    outline: none;
-    zoom: 1;
+@{prefix}-bar {
+  font-size: 14px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+  outline: none;
+  zoom: 1;
+}
+
+@{prefix}-ink-bar {
+  position: absolute;
+  box-sizing: border-box;
+  margin-top: -3px;
+  background-color: @primary-color;
+  transform-origin: 0 0;
+  width: 0;
+  height: 0;
+}
+
+@{prefix}-tab-btn-disabled {
+  cursor: default;
+  color: @disabled-color;
+}
+
+@{prefix}-nav-animated {
+  transition: transform 0.25s cubic-bezier(0.35, 0, 0.25, 1);
+}
+
+@{prefix}-tab {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  min-width: 30px;
+  height: 30px;
+  text-align: center;
+  transition: color 0.25s cubic-bezier(0.35, 0, 0.25, 1);
+  padding: 0;
+  font-weight: 500;
+  border-bottom: 1px solid @panel-border-color;
+  cursor: pointer;
+  float: left;
+  margin-right: 10px;
+  background: @tab-background;
+  outline: none;
+  transition: @color-transition;
+
+  &.dragging {
+    opacity: 0.3;
   }
 
-  &-ink-bar {
-    position: absolute;
-    box-sizing: border-box;
-    margin-top: -3px;
-    background-color: @primary-color;
-    transform-origin: 0 0;
-    width: 0;
-    height: 0;
+  & > div {
+    padding: 4px 14px;
+    outline-color: @primary-color;
+  }
+}
+
+@{prefix}-tab:hover {
+  color: @primary-highlight;
+}
+
+@{prefix}-tab-active,
+@{prefix}-tab-active:hover {
+  color: @primary-color;
+  cursor: default;
+  transform: translateZ(0);
+}
+
+@{prefix}-tab-disabled {
+  cursor: default;
+  color: @disabled-color;
+}
+
+@{prefix}-tab-disabled:hover {
+  color: @disabled-color;
+}
+
+@{prefix}-content-animated {
+  transition: margin 0.3s;
+}
+
+@{prefix}-bottom,
+@{prefix}-top {
+  & > .dock-nav .dock-ink-bar-animated,
+  & > div > .dock-nav .dock-ink-bar-animated {
+    transition: width 0.3s, left 0.3s, right 0.3s;
+  }
+}
+
+@{prefix}-content-animated @{prefix}-tabpane {
+  flex-shrink: 0;
+}
+
+.no-flexbox @{prefix}-content {
+  transform: none !important;
+  overflow: auto;
+}
+
+@{prefix}-tabpane:not(@{prefix}-tabpane-active) {
+  animation-name: dock-fadeOut;
+  animation-duration: 0.5s;
+}
+
+// delay the hiding
+@keyframes dock-fadeOut {
+  from {
+    height: 100%;
+    visibility: visible;
+  }
+  to {
+    height: 100%;
+    visibility: visible;
+  }
+}
+
+@{prefix}-top {
+  flex-direction: column;
+}
+
+@{prefix}-top @{prefix}-bar {
+  flex: 0 0 auto;
+  background: @tab-background;
+  border-bottom: 1px solid @nav-color-split;
+  padding-left: 8px;
+  transition: @color-transition;
+}
+
+@{prefix}-top @{prefix}-content-animated {
+  flex-direction: row;
+}
+
+@{prefix}-top @{prefix}-tab-next {
+  right: 2px;
+}
+
+@{prefix}-top @{prefix}-ink-bar {
+  height: 2px;
+  bottom: 0;
+  left: 0;
+}
+
+@{prefix}-tab-close-btn {
+  position: absolute;
+  cursor: pointer;
+  font-family: "Fredoka One", sans-serif;
+  color: @button-text-color;
+  right: -3px;
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  top: 6px;
+  outline: none;
+  transition: all 0.25s ease-in-out;
+
+  &:before {
+    content: "X";
+  }
+}
+
+@{prefix}-tab-close-btn:hover,
+@{prefix}-tab-close-btn:focus {
+  color: @button-text-focus-color;
+  transform: scale(1.1, 1.1);
+}
+
+@{prefix}-tab:hover @{prefix}-tab-close-btn,
+@{prefix}-tab-close-btn:focus {
+  opacity: 1;
+  color: @button-text-middle-color;
+}
+
+@{prefix}-tab-hit-area {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  bottom: 0;
+  left: -5px;
+  right: -5px;
+}
+
+@{prefix}-pane-cache {
+  width: 100%;
+  height: 100%;
+}
+
+@{prefix}-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+@{prefix}-content-holder {
+  flex: auto;
+}
+@{prefix}-top > @{prefix}-content-holder {
+  /* work around for the height issue in content holder*/
+  height: 0;
+}
+
+@{prefix}-content @{prefix}-tabpane {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  flex: none;
+}
+
+@{prefix}-nav {
+  display: flex;
+  flex: none;
+  position: relative;
+
+  &-operations {
+    display: flex;
   }
 
-  &-tab-btn-disabled {
-    cursor: default;
-    color: @disabled-color;
-  }
-
-  &-nav-animated {
-    transition: transform 0.25s cubic-bezier(0.35, 0, 0.25, 1);
-  }
-
-  &-tab {
-    box-sizing: border-box;
-    position: relative;
-    display: block;
-    min-width: 30px;
+  &-more {
     height: 30px;
-    text-align: center;
-    transition: color 0.25s cubic-bezier(0.35, 0, 0.25, 1);
-    padding: 0;
-    font-weight: 500;
-    border-bottom: 1px solid @panel-border-color;
+    border: none;
+    color: @text-color;
+    background: transparent;
     cursor: pointer;
-    float: left;
-    margin-right: 10px;
-    background: @tab-background;
-    outline: none;
-    transition: @color-transition;
-
-    &.dragging {
-      opacity: 0.3;
-    }
-
-    & > div {
-      padding: 4px 14px;
-      outline-color: @primary-color;
-    }
-  }
-
-  &-tab:hover {
-    color: @primary-highlight;
-  }
-
-  &-tab-active,
-  &-tab-active:hover {
-    color: @primary-color;
-    cursor: default;
-    transform: translateZ(0);
-  }
-
-  &-tab-disabled {
-    cursor: default;
-    color: @disabled-color;
-  }
-
-  &-tab-disabled:hover {
-    color: @disabled-color;
-  }
-
-  &-content-animated {
-    transition: margin 0.3s;
-  }
-
-  &-bottom,
-  &-top {
-    & > .dock-nav .dock-ink-bar-animated,
-    & > div > .dock-nav .dock-ink-bar-animated {
-      transition: width 0.3s, left 0.3s, right 0.3s;
-    }
-  }
-
-  &-content-animated &-tabpane {
-    flex-shrink: 0;
-  }
-
-  .no-flexbox &-content {
-    transform: none !important;
-    overflow: auto;
-  }
-
-  &-tabpane:not(&-tabpane-active) {
-    animation-name: dock-fadeOut;
-    animation-duration: 0.5s;
-  }
-
-  // delay the hiding
-  @keyframes dock-fadeOut {
-    from {
-      height: 100%;
-      visibility: visible;
-    }
-    to {
-      height: 100%;
-      visibility: visible;
-    }
-  }
-
-  &-top {
-    flex-direction: column;
-  }
-
-  &-top &-bar {
-    flex: 0 0 auto;
-    background: @tab-background;
-    border-bottom: 1px solid @nav-color-split;
-    padding-left: 8px;
-    transition: @color-transition;
-  }
-
-  &-top &-content-animated {
-    flex-direction: row;
-  }
-
-  &-top &-tab-next {
-    right: 2px;
-  }
-
-  &-top &-ink-bar {
-    height: 2px;
-    bottom: 0;
-    left: 0;
-  }
-
-  &-tab-close-btn {
-    position: absolute;
-    cursor: pointer;
-    font-family: "Fredoka One", sans-serif;
-    color: @button-text-color;
-    right: -3px;
-    font-size: 12px;
-    width: 16px;
-    text-align: center;
-    top: 6px;
-    outline: none;
-    transition: all 0.25s ease-in-out;
-
-    &:before {
-      content: "X";
-    }
-  }
-
-  &-tab-close-btn:hover,
-  &-tab-close-btn:focus {
-    color: @button-text-focus-color;
-    transform: scale(1.1, 1.1);
-  }
-
-  &-tab:hover &-tab-close-btn,
-  &-tab-close-btn:focus {
-    opacity: 1;
-    color: @button-text-middle-color;
-  }
-
-  &-tab-hit-area {
-    position: absolute;
-    pointer-events: none;
-    top: 0;
-    bottom: 0;
-    left: -5px;
-    right: -5px;
-  }
-
-  &-pane-cache {
-    width: 100%;
-    height: 100%;
-  }
-
-  &-content {
-    display: flex;
-    width: 100%;
-    height: 100%;
-  }
-
-  &-content-holder {
-    flex: auto;
-  }
-  &-top > &-content-holder {
-    /* work around for the height issue in content holder*/
-    height: 0;
-  }
-
-  &-content &-tabpane {
     position: relative;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    outline: none;
-    flex: none;
-  }
+    align-self: flex-end;
 
-  &-nav {
-    display: flex;
-    flex: none;
-    position: relative;
-
-    &-operations {
-      display: flex;
-    }
-
-    &-more {
+    &::after {
+      position: absolute;
+      z-index: 1;
+      content: "";
+      pointer-events: none;
+      width: 30px;
       height: 30px;
-      border: none;
-      color: @text-color;
-      background: transparent;
-      cursor: pointer;
-      position: relative;
-      align-self: flex-end;
-
-      &::after {
-        position: absolute;
-        z-index: 1;
-        content: "";
-        pointer-events: none;
-        width: 30px;
-        height: 30px;
-        left: -30px;
-        top: 0;
-        box-shadow: @nav-more-shadow;
-      }
+      left: -30px;
+      top: 0;
+      box-shadow: @nav-more-shadow;
     }
   }
 

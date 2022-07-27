@@ -2,12 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "./assets/css/rc-dock-all.css";
+@import "./assets/css/index-all.css";
 
 html {
-  /* overflow: hidden; */
-  /* height: 100vh;
-  width: 100vw; */
   overflow: hidden;
 }
 
@@ -19,76 +16,102 @@ html {
   @apply transition-colors;
 }
 
-input,
-textarea {
-  @apply transition-colors;
-  @apply text-black;
-  @apply dark:text-white;
-  @apply border;
-  @apply border-neutral-300;
-  @apply dark:border-neutral-700;
-  @apply focus:z-10;
-  @apply bg-white;
-  @apply dark:bg-neutral-900;
-  @apply dark:placeholder-[#B1B1B1];
+@layer base {
+  input,
+  textarea {
+    @apply transition-colors;
+    @apply text-black;
+    @apply dark:text-white;
+    @apply border;
+    @apply border-neutral-300;
+    @apply dark:border-neutral-700;
+    @apply focus:z-10;
+    @apply bg-white;
+    @apply dark:bg-neutral-900;
+    @apply dark:placeholder-[#B1B1B1];
+  }
+
+  div.topbar {
+    @apply bg-[#108ee9];
+    @apply dark:bg-[#0a5f9c];
+  }
+
+  label {
+    @apply text-black;
+    @apply dark:text-white;
+  }
 }
+@layer components {
+  .styled-panel {
+    @apply text-black;
+    @apply dark:text-white;
 
-.styled-panel {
-  @apply text-black;
-  @apply dark:text-white;
+    @apply bg-white;
+    @apply dark:bg-neutral-900;
 
-  @apply bg-white;
-  @apply dark:bg-neutral-900;
+    @apply border-neutral-300;
+    @apply dark:border-neutral-700;
 
-  @apply border-neutral-300;
-  @apply dark:border-neutral-700;
+    @apply divide-neutral-300;
+    @apply dark:divide-neutral-700;
 
-  @apply divide-neutral-300;
-  @apply dark:divide-neutral-700;
+    @apply transition-colors;
+  }
 
-  @apply transition-colors;
-}
+  .styled-button {
+    @apply text-black;
+    @apply dark:text-white;
 
-.styled-button {
-  @apply text-black;
-  @apply dark:text-white;
+    @apply bg-white;
+    @apply dark:bg-neutral-900;
 
-  @apply bg-white;
-  @apply dark:bg-neutral-900;
+    @apply border-neutral-300;
+    @apply dark:border-neutral-700;
 
-  @apply border-neutral-300;
-  @apply dark:border-neutral-700;
+    @apply divide-neutral-300;
+    @apply dark:divide-neutral-700;
 
-  @apply divide-neutral-300;
-  @apply dark:divide-neutral-700;
+    @apply hover:bg-blue-200;
+    @apply dark:hover:bg-gray-500;
 
-  @apply hover:bg-blue-200;
-  @apply dark:hover:bg-gray-600;
-  @apply font-mono;
-  @apply transition-colors;
-}
+    @apply font-mono;
 
-div.topbar {
-  @apply bg-[#108ee9];
-  @apply dark:bg-[#0a5f9c];
-}
+    @apply transition-colors;
+  }
 
-.backdrop {
-  @apply bg-gray-500;
-  @apply bg-opacity-75;
-  @apply dark:bg-gray-800;
-  @apply dark:bg-opacity-75;
-}
+  .styled-button.button-list {
+    @apply odd:bg-white;
+    @apply dark:odd:bg-neutral-900;
 
-svg {
-  @apply text-blue-500;
-  @apply hover:bg-blue-300;
-  @apply dark:hover:bg-blue-900;
-}
+    @apply even:bg-neutral-100;
+    @apply dark:even:bg-neutral-800;
 
-label {
-  @apply text-black;
-  @apply dark:text-white;
+    @apply hover:bg-blue-200;
+    @apply dark:hover:bg-gray-700;
+  }
+
+  .styled-svg {
+    @apply text-blue-500;
+    @apply align-text-bottom;
+    @apply transition-colors;
+  }
+
+  .styled-svg.svg-hover {
+    @apply hover:bg-blue-200;
+    @apply dark:hover:bg-blue-900;
+  }
+
+  .backdrop {
+    @apply bg-gray-500;
+    @apply bg-opacity-75;
+    @apply dark:bg-gray-800;
+    @apply dark:bg-opacity-75;
+  }
+
+  /* HACK: rc-tree div */
+  .force-transistion div {
+    @apply transition-colors;
+  }
 }
 
 #cy > div {

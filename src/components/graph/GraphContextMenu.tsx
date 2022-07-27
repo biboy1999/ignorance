@@ -1,5 +1,5 @@
 import { forwardRef, useRef } from "react";
-import { TrashIcon, PlusIcon } from "@heroicons/react/outline";
+import { TrashIcon, PlusIcon } from "@heroicons/react/solid";
 import { nanoid } from "nanoid";
 import { Menu } from "../context-menu/Menu";
 import { MenuButton } from "../context-menu/MenuButton";

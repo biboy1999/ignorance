@@ -37,6 +37,16 @@ export const cytoscapeLightStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
+    selector: ":parent",
+    style: {
+      color: "black",
+      "background-color": "#bbb",
+      label: "data(name)",
+      "min-zoomed-font-size": 12,
+      "font-size": 18,
+    },
+  },
+  {
     selector: ".eh-handle",
     style: {
       "background-color": "red",
@@ -127,6 +137,16 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
       "line-color": "#F30A49",
       "background-color": "#F30A49",
       "target-arrow-color": "#F30A49",
+    },
+  },
+  {
+    selector: ":parent",
+    style: {
+      color: "white",
+      "background-color": "#252525",
+      label: "data(name)",
+      "min-zoomed-font-size": 12,
+      "font-size": 18,
     },
   },
   {

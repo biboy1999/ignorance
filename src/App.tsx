@@ -1,35 +1,42 @@
 import { Provider as StateProvider, useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import DockLayout, {
-  DropDirection,
-  LayoutBase,
-  LayoutData,
-  TabData,
-} from "rc-dock";
-import "./App.css";
-import { UserInfo } from "./components/panel/UserInfo";
-import { Graph } from "./components/graph/Graph";
+import DockLayout, { DropDirection, LayoutBase } from "rc-dock";
 import { Statusbar } from "./components/Statusbar";
 import { isOnlineModeAtom } from "./atom/provider";
-import { NodeAttributes } from "./components/panel/NodeAttributes";
-import {
-  SharedTransforms,
-  SharedTransformsTabTitle,
-} from "./components/panel/transforms/SharedTransforms";
-import { TransformJobs } from "./components/panel/transforms/TransformJobs";
 import { Menubar } from "./components/Menubar";
+import { layoutConfig } from "./config/dock-layout-config";
+import "./App.css";
+import { WebrtcProvider } from "y-webrtc";
+import { useStore } from "./store/store";
 
 function App(): JSX.Element {
   const isOnlineMode = useAtomValue(isOnlineModeAtom);
 
-  const [controlledLayout, setControlledLayout] = useState<LayoutBase>(layout);
+  const ydoc = useStore((state) => state.ydoc);
+  const getAwareness = useStore((state) => state.getAwareness);
+  const addProvider = useStore((state) => state.addProvider);
+
+  const [controlledLayout, setControlledLayout] =
+    useState<LayoutBase>(layoutConfig);
+
+  useEffect(() => {
+    // @ts-expect-error not typed
+    const webrtc = new WebrtcProvider("test", ydoc, {
+      awareness: getAwareness(),
+      filterBcConns: false,
+      signaling: ["ws://127.0.0.1:4444"],
+      password: "test",
+    });
+    addProvider(webrtc);
+  }, []);
 
   const onLayoutChange = (
     newLayout: LayoutBase,
     _currentTabId?: string,
     _direction?: DropDirection
   ): void => {
+    console.log(newLayout, _direction);
     // HACK: react 18 batch update break rc-dock
     flushSync(() => {
       setControlledLayout(newLayout);
@@ -43,7 +50,7 @@ function App(): JSX.Element {
           <Menubar />
           <DockLayout
             onLayoutChange={onLayoutChange}
-            defaultLayout={layout}
+            defaultLayout={layoutConfig}
             layout={controlledLayout}
             style={{
               display: "flex",
@@ -57,73 +64,5 @@ function App(): JSX.Element {
     </>
   );
 }
-
-const GraphTab: TabData = {
-  id: "graph",
-  title: "Graph",
-  content: <Graph />,
-  cached: true,
-  closable: false,
-};
-
-const UserInfoTab: TabData = {
-  id: "userinfo",
-  title: "Userinfo",
-  content: <UserInfo />,
-  cached: true,
-  closable: false,
-};
-
-export const SharedTransformTab: TabData = {
-  id: "sharedtransform",
-  title: <SharedTransformsTabTitle />,
-  content: <SharedTransforms />,
-  cached: true,
-  closable: false,
-};
-
-const TransformJobsTab: TabData = {
-  id: "transformjobs",
-  title: "TransformsJobs",
-  content: <TransformJobs />,
-  cached: true,
-  closable: false,
-};
-
-const NodeAttributesTab: TabData = {
-  id: "nodeattributes",
-  title: "NodeAttributes",
-  content: <NodeAttributes />,
-  cached: true,
-  closable: false,
-};
-
-const layout: LayoutData = {
-  dockbox: {
-    mode: "horizontal",
-    children: [
-      {
-        size: 1000,
-        tabs: [{ ...GraphTab }],
-        panelLock: { panelStyle: "main" },
-      },
-      {
-        mode: "vertical",
-        size: 300,
-        children: [
-          {
-            tabs: [{ ...UserInfoTab }],
-          },
-          {
-            tabs: [{ ...SharedTransformTab }, { ...TransformJobsTab }],
-          },
-          {
-            tabs: [{ ...NodeAttributesTab }],
-          },
-        ],
-      },
-    ],
-  },
-};
 
 export default App;

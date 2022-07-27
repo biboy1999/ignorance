@@ -14,6 +14,7 @@ specifiers:
   '@testing-library/user-event': ^14.3.0
   '@types/cytoscape': ^3.19.6
   '@types/cytoscape-edgehandles': ^4.0.0
+  '@types/cytoscape-navigator': ^2.0.0
   '@types/jest': ^26.0.24
   '@types/memoizee': ^0.4.8
   '@types/node': ^18.0.6
@@ -25,11 +26,13 @@ specifiers:
   autoprefixer: ^10.4.7
   clsx: ^1.2.1
   cytoscape: ^3.22.1
+  cytoscape-compound-drag-and-drop: ^1.1.0
   cytoscape-edgehandles: ^4.0.1
   cytoscape-fcose: ^2.1.0
   cytoscape-grid-guide: ^2.3.3
   cytoscape-layers: ^2.2.0
   cytoscape-layout-utilities: ^1.1.1
+  cytoscape-navigator: ^2.0.2
   dompurify: ^2.3.10
   eslint: ^8.20.0
   eslint-config-prettier: ^8.5.0
@@ -43,6 +46,7 @@ specifiers:
   postcss: ^8.4.14
   prettier: ^2.7.1
   rc-dock: ^3.2.10
+  rc-tree: ^5.6.5
   react: ^18.2.0
   react-dom: ^18.2.0
   react-hook-form: ^7.33.1
@@ -50,7 +54,9 @@ specifiers:
   react-scripts: ^5.0.1
   source-map-explorer: ^2.5.2
   tailwindcss: ^3.1.6
+  tree-model-improved: ^2.0.1
   typescript: ^4.7.4
+  use-resize-observer: ^9.0.2
   web-vitals: ^1.1.2
   y-protocols: ^1.0.5
   y-webrtc: ^10.2.3
@@ -74,11 +80,13 @@ dependencies:
   '@types/react-dom': 18.0.6
   clsx: 1.2.1
   cytoscape: 3.22.1
+  cytoscape-compound-drag-and-drop: 1.1.0_cytoscape@3.22.1
   cytoscape-edgehandles: 4.0.1_cytoscape@3.22.1
   cytoscape-fcose: 2.1.0_cytoscape@3.22.1
   cytoscape-grid-guide: 2.3.3_cytoscape@3.22.1
   cytoscape-layers: 2.2.0_cytoscape@3.22.1
   cytoscape-layout-utilities: 1.1.1_cytoscape@3.22.1
+  cytoscape-navigator: 2.0.2_cytoscape@3.22.1
   dompurify: 2.3.10
   eslint: 8.20.0
   immer: 9.0.15
@@ -88,12 +96,14 @@ dependencies:
   memoizee: 0.4.15
   nanoid: 4.0.0
   rc-dock: 3.2.10_biqbaboplfbrettd7655fr4n2y
+  rc-tree: 5.6.5_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.33.1_react@18.2.0
   react-merge-refs: 1.1.0
   react-scripts: 5.0.1_l4duqkh7x67d4fmf6jocdn7i5q
   source-map-explorer: 2.5.2
+  tree-model-improved: 2.0.1
   typescript: 4.7.4
   web-vitals: 1.1.2
   y-protocols: 1.0.5
@@ -107,6 +117,7 @@ devDependencies:
   '@babel/plugin-transform-react-jsx': 7.18.6_@babel+core@7.18.9
   '@testing-library/dom': 8.16.0
   '@types/cytoscape': 3.19.6
+  '@types/cytoscape-navigator': 2.0.0
   '@types/memoizee': 0.4.8
   '@types/testing-library__jest-dom': 5.14.5
   '@typescript-eslint/eslint-plugin': 5.30.7_6wltbjakwuqm7awqswigmiuhd4
@@ -117,6 +128,7 @@ devDependencies:
   postcss: 8.4.14
   prettier: 2.7.1
   tailwindcss: 3.1.6
+  use-resize-observer: 9.0.2_biqbaboplfbrettd7655fr4n2y
 
 packages:
 
@@ -1998,6 +2010,10 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
 
+  /@juggle/resize-observer/3.3.1:
+    resolution: {integrity: sha512-zMM9Ds+SawiUkakS7y94Ymqx+S0ORzpG3frZirN3l+UlXUmSUR7hF4wxCVqW+ei94JzV5kt0uXBcoOEAuiydrw==}
+    dev: true
+
   /@leichtgewicht/ip-codec/2.0.4:
     resolution: {integrity: sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==}
     dev: false
@@ -3419,6 +3435,12 @@ packages:
     dependencies:
       '@types/cytoscape': 3.19.6
     dev: false
+
+  /@types/cytoscape-navigator/2.0.0:
+    resolution: {integrity: sha512-N6D2zY7r/EG4Rc1q2CAD4rSedeQoxuDiZR0QwBR7THsXAYFq2LoC2vi+FakbHhtq6QwbzRSxk1CAa6ACVUnyOQ==}
+    dependencies:
+      '@types/cytoscape': 3.19.6
+    dev: true
 
   /@types/cytoscape/3.19.6:
     resolution: {integrity: sha512-dvfPRy3eAeuKWa28b9SxsvI3nkIpNfXklVPduNo23hQsQGPTbipva6SdbfKejZEwQmV8/FSKuRWCMuU6zZRiPQ==}
@@ -5159,6 +5181,14 @@ packages:
     resolution: {integrity: sha512-uX1KG+x9h5hIJsaKR9xHUeUraxf8IODOwq9JLNPq6BwB04a/xgpq3rcx47l5BZu5zBPlgD342tdke3Hom/nJRA==}
     dev: false
 
+  /cytoscape-compound-drag-and-drop/1.1.0_cytoscape@3.22.1:
+    resolution: {integrity: sha512-UIObjFbgh0FyVxNk2wInlhXhWDoR86n9gw34o7n8T3GYPR2d5yWVQsNYZrvPYZ0YQHdkUcZQetaUTE4zY/1olg==}
+    peerDependencies:
+      cytoscape: ^3.4.0
+    dependencies:
+      cytoscape: 3.22.1
+    dev: false
+
   /cytoscape-edgehandles/4.0.1_cytoscape@3.22.1:
     resolution: {integrity: sha512-uSYshkqRZ4luCxK295bEVTg46q4ZW+fwJhcIzMrtfNR7zeAnJ38Z48kUGeu5ibtXkgLbcZAg0YE4ED2dRuaePg==}
     peerDependencies:
@@ -5207,6 +5237,14 @@ packages:
       convex-minkowski-sum: 1.0.0
       cytoscape: 3.22.1
       d3-delaunay: 5.3.0
+    dev: false
+
+  /cytoscape-navigator/2.0.2_cytoscape@3.22.1:
+    resolution: {integrity: sha512-TZFBLFWEMW858UOt4rzusOjtDj7YT5vNx2uCwpUuicUYbaWCHHcUROBZWO+hiuSPWpVhvGLFlOq3NBcAVYOAgw==}
+    peerDependencies:
+      cytoscape: ^2.6.0 || ^3.0.0
+    dependencies:
+      cytoscape: 3.22.1
     dev: false
 
   /cytoscape/3.22.1:
@@ -6323,6 +6361,10 @@ packages:
       commondir: 1.0.1
       make-dir: 3.1.0
       pkg-dir: 4.2.0
+    dev: false
+
+  /find-insert-index/0.0.1:
+    resolution: {integrity: sha512-eIqFuQzY7XwpAJ3sHWKFNGLx1nm3w/IhmFASETcx5sUuCaOUd3xDqRK/376SzXMVVJQaJUCPlS7L841T0xpFjQ==}
     dev: false
 
   /find-up/2.1.0:
@@ -8207,7 +8249,6 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: 4.0.0
-    dev: false
 
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -8309,6 +8350,10 @@ packages:
   /merge2/1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
+
+  /mergesort/0.0.1:
+    resolution: {integrity: sha512-WKghTBzqAvTt9rG5TWS78Dmk2kCCL9VkkX8Zi9kKfJ4iqYpvcGGpeYtkhPHa9NZAPLivZiZsdO/LBG3ENayDmQ==}
+    dev: false
 
   /methods/1.1.2:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
@@ -9958,6 +10003,22 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
+  /rc-tree/5.6.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Bnyen46B251APyRZ9D/jYeTnSqbSEvK2AkU5B4vWkNYgUJNPrxO+VMgcDRedP/8N7YcsgdDT9hxqVvNOq7oCAQ==}
+    engines: {node: '>=10.x'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+    dependencies:
+      '@babel/runtime': 7.18.9
+      classnames: 2.3.1
+      rc-motion: 2.6.2_biqbaboplfbrettd7655fr4n2y
+      rc-util: 5.23.0_biqbaboplfbrettd7655fr4n2y
+      rc-virtual-list: 3.4.8_biqbaboplfbrettd7655fr4n2y
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /rc-trigger/5.3.1_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-5gaFbDkYSefZ14j2AdzucXzlWgU2ri5uEjkHvsf1ynRhdJbKxNOnw4PBZ9+FVULNGFiDzzlVF8RJnR9P/xrnKQ==}
     engines: {node: '>=8.x'}
@@ -9985,6 +10046,20 @@ packages:
       react-dom: 18.2.0_react@18.2.0
       react-is: 16.13.1
       shallowequal: 1.1.0
+    dev: false
+
+  /rc-virtual-list/3.4.8_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-qSN+Rv4i/E7RCTvTMr1uZo7f3crJJg/5DekoCagydo9zsXrxj07zsFSxqizqW+ldGA16lwa8So/bIbV9Ofjddg==}
+    engines: {node: '>=8.x'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+    dependencies:
+      classnames: 2.3.1
+      rc-resize-observer: 1.2.0_biqbaboplfbrettd7655fr4n2y
+      rc-util: 5.23.0_biqbaboplfbrettd7655fr4n2y
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react-app-polyfill/3.0.0:
@@ -10043,7 +10118,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
-    dev: false
 
   /react-error-overlay/6.0.11:
     resolution: {integrity: sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==}
@@ -10179,7 +10253,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /read-cache/1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
@@ -10514,7 +10587,6 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /schema-utils/2.7.0:
     resolution: {integrity: sha512-0ilKFI6QQF5nxDZLFn2dMjvc4hjg/Wkg7rHd3jK6/A4a1Hl9VFdQWvgB1UMGoU94pad1P/8N7fMcEnLnSiju8A==}
@@ -11280,6 +11352,13 @@ packages:
       punycode: 2.1.1
     dev: false
 
+  /tree-model-improved/2.0.1:
+    resolution: {integrity: sha512-wTr/3F6U8N1tmJC0ajT8Pv3V0H1xQvTVA+/v7PJlhV1PCPXh1NBEe0A5UjjaMI8EgtSztdFIsNLm6i1mNm6J/g==}
+    dependencies:
+      find-insert-index: 0.0.1
+      mergesort: 0.0.1
+    dev: false
+
   /tryer/1.0.1:
     resolution: {integrity: sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==}
     dev: false
@@ -11478,6 +11557,17 @@ packages:
       '@types/react': 18.0.15
       react: 18.2.0
     dev: false
+
+  /use-resize-observer/9.0.2_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-JOzsmF3/IDmtjG7OE5qXOP69LEpBpwhpLSiT1XgSr+uFRX0ftJHQnDaP7Xq+uhbljLYkJt67sqsbnyXBjiY8ig==}
+    peerDependencies:
+      react: 16.8.0 - 18
+      react-dom: 16.8.0 - 18
+    dependencies:
+      '@juggle/resize-observer': 3.3.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: true
 
   /use-sync-external-store/1.2.0_react@18.2.0:
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}

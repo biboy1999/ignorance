@@ -1,11 +1,13 @@
 import { Disclosure } from "@headlessui/react";
-import { ClockIcon, ExclamationCircleIcon } from "@heroicons/react/outline";
 import {
+  ClockIcon,
+  ExclamationCircleIcon,
   BanIcon,
   CheckIcon,
   ChevronUpIcon,
   CogIcon,
 } from "@heroicons/react/solid";
+import { TabData } from "rc-dock";
 import { useEffect } from "react";
 import { Transaction, YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
@@ -37,26 +39,26 @@ export const JobStatus = ({
   onRejectJob,
 }: JobStatusProps): JSX.Element => {
   const statusMapping = {
-    failed: <ExclamationCircleIcon className="w-6 h-6 text-red-500" />,
-    rejected: <BanIcon className="w-6 h-6 text-red-500" />,
-    completed: <CheckIcon className="w-6 h-6 text-green-500" />,
-    running: <CogIcon className="w-6 h-6 text-gray-500 animate-spin" />,
+    failed: <ExclamationCircleIcon className="w-5 h-5 text-red-500" />,
+    rejected: <BanIcon className="w-5 h-5 text-red-500" />,
+    completed: <CheckIcon className="w-5 h-5 text-green-500" />,
+    running: <CogIcon className="w-5 h-5 text-gray-500 animate-spin" />,
     pending: ownTransform ? (
       <div className="flex space-x-2">
         <CheckIcon
-          className="w-6 h-6 text-white bg-green-500"
+          className="w-5 h-5 text-white bg-green-500"
           data-jobid={job.jobId}
           data-transformid={job.transformId}
           onClick={onAcceptJob}
         />
         <BanIcon
-          className="w-6 h-6 text-white bg-red-500"
+          className="w-5 h-5 text-white bg-red-500"
           data-jobid={job.jobId}
           onClick={onRejectJob}
         />
       </div>
     ) : (
-      <ClockIcon className="w-6 h-6 text-gray-500" />
+      <ClockIcon className="w-5 h-5 text-gray-500" />
     ),
   };
 
@@ -158,7 +160,7 @@ export const TransformJobs = (): JSX.Element => {
 
         return (
           <Disclosure key={request.jobId}>
-            <Disclosure.Button className="w-full odd:bg-blue-200 even:bg-blue-100 hover:bg-blue-300 dark:odd:bg-neutral-800 dark:even:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors">
+            <Disclosure.Button className="styled-button button-list w-full">
               {({ open }): JSX.Element => (
                 <div className="flex gap-2 justify-between items-center px-3 py-2 font-medium font-mono text-left text-base">
                   <div className="flex flex-1 justify-between items-center min-w-0">
@@ -175,7 +177,9 @@ export const TransformJobs = (): JSX.Element => {
                   />
 
                   <ChevronUpIcon
-                    className={`${open ? "transform rotate-180" : ""} w-5 h-5`}
+                    className={`${
+                      open ? "transform rotate-180" : ""
+                    } styled-svg w-5 h-5`}
                   />
                 </div>
               )}
@@ -212,4 +216,12 @@ export const TransformJobs = (): JSX.Element => {
       })}
     </div>
   );
+};
+
+export const TransformJobsTab: TabData = {
+  id: "transformjobs",
+  title: "TransformsJobs",
+  content: <TransformJobs />,
+  cached: true,
+  closable: false,
 };

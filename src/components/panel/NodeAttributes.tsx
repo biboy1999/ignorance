@@ -10,6 +10,7 @@ import { Transaction, YMapEvent } from "yjs";
 import { nanoid } from "nanoid";
 import { YNodeData } from "../../types/types";
 import { useStore } from "../../store/store";
+import { TabData } from "rc-dock";
 
 // TODO: need better attribute edit system
 export const NodeAttributes = (): JSX.Element => {
@@ -182,4 +183,12 @@ export const NodeAttributes = (): JSX.Element => {
       )}
     </div>
   );
+};
+
+export const NodeAttributesTab: TabData = {
+  id: "nodeattributes",
+  title: "NodeAttributes",
+  content: <NodeAttributes />,
+  cached: true,
+  closable: false,
 };

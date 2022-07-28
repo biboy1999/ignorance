@@ -1,9 +1,9 @@
 import { TabData } from "rc-dock";
 import { useDeferredValue, useEffect, useRef } from "react";
 import useResizeObserver from "use-resize-observer";
-import { useStore } from "../../store/store";
+import { useStore } from "../../../store/store";
 import navigator from "cytoscape-navigator";
-import { cytoscapeNavigatorConfig } from "../../config/cytoscape-navigator";
+import { cytoscapeNavigatorConfig } from "../../../config/cytoscape-navigator";
 import "cytoscape-navigator/cytoscape.js-navigator.css";
 
 const GraphNavigator = (): JSX.Element => {

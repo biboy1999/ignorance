@@ -5,5 +5,5 @@ export const cytoscapeNavigatorConfig = {
   thumbnailLiveFramerate: false, // max thumbnail's updates per second. Set false to disable
   dblClickDelay: 200, // milliseconds
   removeCustomContainer: false, // destroy the container specified by user on plugin destroy
-  rerenderDelay: 100, // ms to throttle rerender updates to the panzoom for performance
+  rerenderDelay: 50, // ms to throttle rerender updates to the panzoom for performance
 };

@@ -8,8 +8,8 @@ import {
 } from "react";
 import { Transaction, YMapEvent } from "yjs";
 import { nanoid } from "nanoid";
-import { YNodeData } from "../../types/types";
-import { useStore } from "../../store/store";
+import { YNodeData } from "../../../types/types";
+import { useStore } from "../../../store/store";
 import { TabData } from "rc-dock";
 
 // TODO: need better attribute edit system

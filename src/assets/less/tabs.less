@@ -19,6 +19,7 @@
   white-space: nowrap;
   outline: none;
   zoom: 1;
+  transition: @color-transition;
 }
 
 @{prefix}-ink-bar {
@@ -100,7 +101,7 @@
   }
 }
 
-@{prefix}-content-animated @{prefix}-tabpane {
+@{prefix}-content-animated &-tabpane {
   flex-shrink: 0;
 }
 
@@ -135,7 +136,6 @@
   background: @tab-background;
   border-bottom: 1px solid @nav-color-split;
   padding-left: 8px;
-  transition: @color-transition;
 }
 
 @{prefix}-top @{prefix}-content-animated {
@@ -249,100 +249,101 @@
       box-shadow: @nav-more-shadow;
     }
   }
+}
 
-  &-nav-wrap {
-    position: relative;
-    display: flex;
-    flex: auto;
-    align-self: stretch;
-    overflow: hidden;
-    white-space: nowrap;
-    transform: translate(0); // Fix chrome render bug
+@{prefix}-nav-wrap {
+  position: relative;
+  display: flex;
+  flex: auto;
+  align-self: stretch;
+  overflow: hidden;
+  white-space: nowrap;
+  transform: translate(0); // Fix chrome render bug
+}
+
+@{prefix}-nav-list {
+  display: flex;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+@{prefix}-extra-content {
+  display: flex;
+  height: 30px;
+}
+
+@{prefix}-dropdown {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: @text-color;
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: "tnum";
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 1050;
+  display: block;
+
+  &-hidden {
+    display: none;
   }
 
-  &-nav-list {
-    display: flex;
-    position: relative;
-    transition: transform 0.3s;
-  }
-
-  &-extra-content {
-    display: flex;
-    height: 30px;
-  }
-
-  &-dropdown {
-    box-sizing: border-box;
+  &-menu {
+    max-height: 200px;
     margin: 0;
-    padding: 0;
+    padding: 4px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: left;
+    list-style-type: none;
+    background-color: @dropdown-menu-bg;
+    background-clip: padding-box;
+    border-radius: 2px;
+    outline: none;
+    box-shadow: @box-shadow-base;
+  }
+
+  &-menu-item {
+    min-width: 120px;
+    margin: 0;
+    padding: 5px 12px;
+    overflow: hidden;
     color: @text-color;
+    font-weight: 400;
     font-size: 14px;
-    font-variant: tabular-nums;
-    line-height: 1.5715;
-    list-style: none;
-    font-feature-settings: "tnum";
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-    z-index: 1050;
-    display: block;
+    line-height: 22px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
 
-    &-hidden {
-      display: none;
+    & .dock-tab-hit-area {
+      left: 0;
+      right: 0;
     }
 
-    &-menu {
-      max-height: 200px;
-      margin: 0;
-      padding: 4px 0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      text-align: left;
-      list-style-type: none;
-      background-color: @dropdown-menu-bg;
-      background-clip: padding-box;
-      border-radius: 2px;
-      outline: none;
-      box-shadow: @box-shadow-base;
+    & .dock-tab-close-btn {
+      right: 2px;
     }
+  }
 
-    &-menu-item {
-      min-width: 120px;
-      margin: 0;
-      padding: 5px 12px;
-      overflow: hidden;
-      color: @text-color;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 22px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
+  &-menu-item:hover {
+    background: @item-hover-bg;
+  }
 
-      & .dock-tab-hit-area {
-        left: 0;
-        right: 0;
-      }
-
-      & .dock-tab-close-btn {
-        right: 2px;
-      }
-    }
-
-    &-menu-item:hover {
-      background: @item-hover-bg;
-    }
-
-    &-menu-item-disabled,
-    &-menu-item-disabled:hover {
-      color: @disabled-color;
-      background: 0 0;
-      cursor: not-allowed;
-    }
+  &-menu-item-disabled,
+  &-menu-item-disabled:hover {
+    color: @disabled-color;
+    background: 0 0;
+    cursor: not-allowed;
   }
 }
+
 body.dock-dragging .dock-tab-hit-area {
   pointer-events: inherit;
 }

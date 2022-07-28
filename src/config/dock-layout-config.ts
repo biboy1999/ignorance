@@ -1,11 +1,11 @@
 import { LayoutData } from "rc-dock";
-import { GraphTab } from "../components/graph/Graph";
-import { NodeAttributesTab } from "../components/panel/NodeAttributes";
+import { GraphTab } from "../components/panel/graph/Graph";
+import { NodeAttributesTab } from "../components/panel/graph/NodeAttributes";
 import { NodeListTab } from "../components/panel/node-list/NodeList";
 import { SharedTransformTab } from "../components/panel/transforms/SharedTransforms";
 import { TransformJobsTab } from "../components/panel/transforms/TransformJobs";
 import { UserInfoTab } from "../components/panel/UserInfo";
-import { GraphNavigatorTab } from "../components/graph/Navigator";
+import { GraphNavigatorTab } from "../components/panel/graph/Navigator";
 
 export const layoutConfig: LayoutData = {
   dockbox: {

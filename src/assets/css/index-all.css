@@ -257,6 +257,7 @@ body > .dragging-layer > div:last-child {
   white-space: nowrap;
   outline: none;
   zoom: 1;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1), fill 150ms cubic-bezier(0.4, 0, 0.2, 1), stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dock-ink-bar {
   position: absolute;
@@ -324,7 +325,7 @@ body > .dragging-layer > div:last-child {
 .dock-top > div > .dock-nav .dock-ink-bar-animated {
   transition: width 0.3s, left 0.3s, right 0.3s;
 }
-.dock-content-animated .dock-tabpane {
+.dock-content-animated -tabpane {
   flex-shrink: 0;
 }
 .no-flexbox .dock-content {
@@ -353,7 +354,6 @@ body > .dragging-layer > div:last-child {
   background: #fafafd;
   border-bottom: 1px solid #f3f3f3;
   padding-left: 8px;
-  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1), fill 150ms cubic-bezier(0.4, 0, 0.2, 1), stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dock-top .dock-content-animated {
   flex-direction: row;
@@ -452,7 +452,7 @@ body > .dragging-layer > div:last-child {
   top: 0;
   box-shadow: inset -10px 0 8px -8px rgba(0, 0, 0, 0.08);
 }
-.dock-nav-nav-wrap {
+.dock-nav-wrap {
   position: relative;
   display: flex;
   flex: auto;
@@ -461,16 +461,16 @@ body > .dragging-layer > div:last-child {
   white-space: nowrap;
   transform: translate(0);
 }
-.dock-nav-nav-list {
+.dock-nav-list {
   display: flex;
   position: relative;
   transition: transform 0.3s;
 }
-.dock-nav-extra-content {
+.dock-extra-content {
   display: flex;
   height: 30px;
 }
-.dock-nav-dropdown {
+.dock-dropdown {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -486,10 +486,10 @@ body > .dragging-layer > div:last-child {
   z-index: 1050;
   display: block;
 }
-.dock-nav-dropdown-hidden {
+.dock-dropdown-hidden {
   display: none;
 }
-.dock-nav-dropdown-menu {
+.dock-dropdown-menu {
   max-height: 200px;
   margin: 0;
   padding: 4px 0;
@@ -503,7 +503,7 @@ body > .dragging-layer > div:last-child {
   outline: none;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
 }
-.dock-nav-dropdown-menu-item {
+.dock-dropdown-menu-item {
   min-width: 120px;
   margin: 0;
   padding: 5px 12px;
@@ -518,18 +518,18 @@ body > .dragging-layer > div:last-child {
   transition: all 0.3s;
   position: relative;
 }
-.dock-nav-dropdown-menu-item .dock-tab-hit-area {
+.dock-dropdown-menu-item .dock-tab-hit-area {
   left: 0;
   right: 0;
 }
-.dock-nav-dropdown-menu-item .dock-tab-close-btn {
+.dock-dropdown-menu-item .dock-tab-close-btn {
   right: 2px;
 }
-.dock-nav-dropdown-menu-item:hover {
+.dock-dropdown-menu-item:hover {
   background: #f5f5f5;
 }
-.dock-nav-dropdown-menu-item-disabled,
-.dock-nav-dropdown-menu-item-disabled:hover {
+.dock-dropdown-menu-item-disabled,
+.dock-dropdown-menu-item-disabled:hover {
   color: #ccc;
   background: 0 0;
   cursor: not-allowed;
@@ -1016,6 +1016,7 @@ body.dock-dragging iframe {
   white-space: nowrap;
   outline: none;
   zoom: 1;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1), fill 150ms cubic-bezier(0.4, 0, 0.2, 1), stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dark .dock-ink-bar {
   position: absolute;
@@ -1083,7 +1084,7 @@ body.dock-dragging iframe {
 .dark .dock-top > div > .dock-nav .dock-ink-bar-animated {
   transition: width 0.3s, left 0.3s, right 0.3s;
 }
-.dark .dock-content-animated .dock-tabpane {
+.dock-content-animated .dark-tabpane {
   flex-shrink: 0;
 }
 .dark .no-flexbox .dock-content {
@@ -1112,7 +1113,6 @@ body.dock-dragging iframe {
   background: #141414;
   border-bottom: 1px solid #282828;
   padding-left: 8px;
-  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1), fill 150ms cubic-bezier(0.4, 0, 0.2, 1), stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dark .dock-top .dock-content-animated {
   flex-direction: row;
@@ -1211,7 +1211,7 @@ body.dock-dragging iframe {
   top: 0;
   box-shadow: inset -10px 0 8px -8px rgba(0, 0, 0, 0.08);
 }
-.dark .dock-nav-nav-wrap {
+.dark .dock-nav-wrap {
   position: relative;
   display: flex;
   flex: auto;
@@ -1220,16 +1220,16 @@ body.dock-dragging iframe {
   white-space: nowrap;
   transform: translate(0);
 }
-.dark .dock-nav-nav-list {
+.dark .dock-nav-list {
   display: flex;
   position: relative;
   transition: transform 0.3s;
 }
-.dark .dock-nav-extra-content {
+.dark .dock-extra-content {
   display: flex;
   height: 30px;
 }
-.dark .dock-nav-dropdown {
+.dark .dock-dropdown {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -1245,10 +1245,10 @@ body.dock-dragging iframe {
   z-index: 1050;
   display: block;
 }
-.dark .dock-nav-dropdown-hidden {
+.dark .dock-dropdown-hidden {
   display: none;
 }
-.dark .dock-nav-dropdown-menu {
+.dark .dock-dropdown-menu {
   max-height: 200px;
   margin: 0;
   padding: 4px 0;
@@ -1262,7 +1262,7 @@ body.dock-dragging iframe {
   outline: none;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
 }
-.dark .dock-nav-dropdown-menu-item {
+.dark .dock-dropdown-menu-item {
   min-width: 120px;
   margin: 0;
   padding: 5px 12px;
@@ -1277,18 +1277,18 @@ body.dock-dragging iframe {
   transition: all 0.3s;
   position: relative;
 }
-.dark .dock-nav-dropdown-menu-item .dock-tab-hit-area {
+.dark .dock-dropdown-menu-item .dock-tab-hit-area {
   left: 0;
   right: 0;
 }
-.dark .dock-nav-dropdown-menu-item .dock-tab-close-btn {
+.dark .dock-dropdown-menu-item .dock-tab-close-btn {
   right: 2px;
 }
-.dark .dock-nav-dropdown-menu-item:hover {
+.dark .dock-dropdown-menu-item:hover {
   background: #2d2d2d;
 }
-.dark .dock-nav-dropdown-menu-item-disabled,
-.dark .dock-nav-dropdown-menu-item-disabled:hover {
+.dark .dock-dropdown-menu-item-disabled,
+.dark .dock-dropdown-menu-item-disabled:hover {
   color: #ccc;
   background: 0 0;
   cursor: not-allowed;

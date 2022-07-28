@@ -14,24 +14,25 @@ import navigator from "cytoscape-navigator";
 import { useEffect } from "react";
 import { Map as YMap } from "yjs";
 import { useAtomValue } from "jotai";
-import { useOnlineUsers } from "../../store/online-users";
-import { YNode, YNodeData, YNodePosition } from "../../types/types";
-import { generateCursor, modelToRenderedPosition } from "../../utils/canvas";
-import { useThrottledCallback } from "../../utils/hooks/useThrottledCallback";
+import { useOnlineUsers } from "../../../store/online-users";
+import { YNode, YNodeData, YNodePosition } from "../../../types/types";
+import { generateCursor, modelToRenderedPosition } from "../../../utils/canvas";
+import { useThrottledCallback } from "../../../utils/hooks/useThrottledCallback";
 import { GraphContextMenu } from "./GraphContextMenu";
-import { isOnlineModeAtom } from "../../atom/provider";
-import { useStore } from "../../store/store";
-import { Toolbar } from "../Toobar";
-import { edgehandlesConfig } from "../../config/edgehandler-config";
+import { isOnlineModeAtom } from "../../../atom/provider";
+import { useStore } from "../../../store/store";
+import { Toolbar } from "../../Toobar";
+import { edgehandlesConfig } from "../../../config/edgehandler-config";
 import {
   cytoscapeConfig,
   cytoscapeDarkStylesheet,
   cytoscapeLightStylesheet,
-} from "../../config/cytoscape-config";
-import { gridGuideConfig } from "../../config/gridguide-config";
-import { useLocalStorage } from "../../store/misc";
+} from "../../../config/cytoscape-config";
+import { gridGuideConfig } from "../../../config/gridguide-config";
+import { useLocalStorage } from "../../../store/misc";
 import { TabData } from "rc-dock";
-import { compoundDndConfig } from "../../config/compound-dnd-config";
+import { compoundDndConfig } from "../../../config/compound-dnd-config";
+import { registerElementsSync } from "./events/register-yjs";
 
 export const Graph = (): JSX.Element => {
   const ydoc = useStore((state) => state.ydoc);
@@ -121,106 +122,14 @@ export const Graph = (): JSX.Element => {
 
     // init compound DragAndDrop
     // @ts-expect-error compound dnd config
-    const cdnd = cy.compoundDragAndDrop(compoundDndConfig);
+    cy.compoundDragAndDrop(compoundDndConfig);
 
     // @ts-expect-error cytoscpae ext.
     const layers = cy.layers() as LayersPlugin;
     const cursorLayer = layers.append("canvas-static");
 
+    registerElementsSync(cy, ynodes, yedges);
     // event register
-    // sync node (add, delete)
-    ynodes.observe((e, _tx) => {
-      e.changes.keys.forEach((change, key) => {
-        if (!(e.target instanceof YMap)) return;
-        if (!cy) return;
-
-        if (change.action === "add") {
-          const node = e.target.get(key);
-          if (node) cy.add(node.toJSON() as ElementDefinition);
-        } else if (change.action === "delete") {
-          cy.getElementById(key).remove();
-        }
-      });
-    });
-
-    // sync edge (add, delete)
-    yedges.observe((e, _tx) => {
-      e.changes.keys.forEach((change, key) => {
-        if (!cy) return;
-
-        if (change.action === "add") {
-          const data = yedges.get(key);
-          if (data && "source" in data && "target" in data && "id" in data) {
-            // local edge handled by edgehadle plugin
-            // if (tx.local) return;
-            cy.add({ data });
-          }
-        } else if (change.action === "delete") {
-          cy.getElementById(key).remove();
-        }
-      });
-    });
-
-    // sync node (data change)
-    ynodes.observeDeep((evt) => {
-      evt.forEach((e) =>
-        e.changes.keys.forEach(
-          (change: { action: string; [x: string]: unknown }, key: string) => {
-            if (!(e.target instanceof YMap)) return;
-            if (!cy) return;
-
-            const path = e.path.pop();
-            if (change.action === "add") {
-              switch (path) {
-                case "data": {
-                  const [nodeId] = e.path;
-                  if (!(typeof nodeId === "string")) return;
-                  // write only necessary key
-                  cy.getElementById(nodeId).data(key, e.target.get(key));
-                  break;
-                }
-              }
-            } else if (change.action === "update") {
-              switch (path) {
-                case "position": {
-                  const target = e.target as YNodePosition;
-                  const yNode = e.target.parent as YNode;
-
-                  const yNodeData = yNode.get("data") as YNodeData;
-                  const id = yNodeData.get("id");
-                  if (!id) break;
-                  const node = cy.getElementById(id.toString());
-                  if (!node) break;
-                  const x = target.get("x");
-                  const y = target.get("y");
-                  if (x && y) node.position({ x, y });
-                  break;
-                }
-                case "data": {
-                  // const target = e.target as YNodeData;
-                  const target = e.target;
-                  const id = target.get("id");
-                  if (!id) break;
-                  const node = cy.getElementById(id.toString());
-                  if (!node) break;
-                  node.data(key, target.get(key));
-                  break;
-                }
-              }
-            } else if (change.action === "delete") {
-              switch (path) {
-                case "data": {
-                  const [nodeId] = e.path;
-                  if (!(typeof nodeId === "string")) return;
-                  cy.getElementById(nodeId).removeData(key);
-                  break;
-                }
-              }
-            }
-          }
-        )
-      );
-    });
 
     // cursor update
     cy.on("vmousemove", (e) => {
@@ -308,6 +217,23 @@ export const Graph = (): JSX.Element => {
     cy.on("unselect", "node, edge", () => {
       setSelectedElements(cy.$(":selected"));
     });
+
+    // drag and drop event sync
+    // @ts-expect-error drag and drop event
+    cy.on(
+      "cdndover",
+      (_event: unknown, dropTarget: NodeSingular, _dropSibling: unknown) => {
+        dropTarget.data("name", "unnamed");
+      }
+    );
+
+    // @ts-expect-error drag and drop event
+    cy.on(
+      "cdnddrop",
+      (_event: unknown, dropTarget: NodeSingular, _dropSibling: unknown) => {
+        console.log(dropTarget.json());
+      }
+    );
 
     // username update
     // TODO: sperate cursor layer?

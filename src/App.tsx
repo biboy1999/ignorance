@@ -36,7 +36,6 @@ function App(): JSX.Element {
     _currentTabId?: string,
     _direction?: DropDirection
   ): void => {
-    console.log(newLayout, _direction);
     // HACK: react 18 batch update break rc-dock
     flushSync(() => {
       setControlledLayout(newLayout);

@@ -37,9 +37,9 @@ export const UserInfo = (): JSX.Element => {
             onChange={handleColorOnChange}
           />
         </div>
-        <div className="styled-panel flex-1 divide-y-2 divide-solid overflow-y-auto">
+        <div className="flex-1 divide-y-2 divide-solid overflow-y-auto">
           {onlineUsers.map((user) => (
-            <div key={user.id} className="font-mono leading-loose">
+            <div key={user.id} className="styled-panel font-mono leading-loose">
               {user.username}
             </div>
           ))}

@@ -37,7 +37,7 @@ export const cytoscapeLightStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: ":parent",
+    selector: "node[name]:parent",
     style: {
       color: "black",
       "background-color": "#bbb",
@@ -140,7 +140,7 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: ":parent",
+    selector: "[name]:parent",
     style: {
       color: "white",
       "background-color": "#252525",

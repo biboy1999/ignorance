@@ -4,8 +4,9 @@ import { nanoid } from "nanoid";
 import { Menu } from "../../context-menu/Menu";
 import { MenuButton } from "../../context-menu/MenuButton";
 import { isTrnasformProvider, TransformJob } from "../../../types/types";
-import { AddNode, deleteEdges, deleteNodes } from "../../../utils/graph";
+import { deleteYjsEdges, deleteYjsNodes } from "../../../utils/yjs";
 import { useStore } from "../../../store/store";
+import { addYjsNode } from "../../../utils/yjs";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 font-mono leading-5 text-base border-b dark:border-neutral-700 z-50" />
@@ -52,17 +53,17 @@ export const GraphContextMenu = ({
       .add(eles.edges())
       .map((e) => e.id());
 
-    deleteEdges(edges, yedges);
+    deleteYjsEdges(edges, yedges);
 
     // last delete node
-    deleteNodes(
+    deleteYjsNodes(
       eles.nodes().map((e) => e.id()),
       ynodes
     );
   };
 
   const handleAdd: React.MouseEventHandler = (): void => {
-    const { nodeId, node } = AddNode(
+    const { nodeId, node } = addYjsNode(
       {},
       clickedPosition.current.x,
       clickedPosition.current.y

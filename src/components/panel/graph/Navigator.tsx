@@ -3,7 +3,7 @@ import { useDeferredValue, useEffect, useRef } from "react";
 import useResizeObserver from "use-resize-observer";
 import { useStore } from "../../../store/store";
 import navigator from "cytoscape-navigator";
-import { cytoscapeNavigatorConfig } from "../../../config/cytoscape-navigator";
+import { cytoscapeNavigatorConfig } from "../../../config/cytoscape-navigator-config";
 import "cytoscape-navigator/cytoscape.js-navigator.css";
 
 const GraphNavigator = (): JSX.Element => {

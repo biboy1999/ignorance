@@ -4,6 +4,16 @@ import * as Y from "yjs";
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
+export type NodeData = {
+  id?: string;
+  [key: string]: string | undefined;
+};
+
+export type EdgeData = {
+  id?: string;
+  [key: string]: string | undefined;
+};
+
 export type Edge = { source: string; target: string; id: string };
 
 export type Node = {
@@ -18,11 +28,11 @@ export type YNodePosition = Y.Map<number>;
 
 export type YNodeData = Y.Map<string>;
 
-export function isYNodeData(x: object): x is Y.Map<string> {
+export function isYNodeData(x: unknown): x is Y.Map<string> {
   return x instanceof Y.Map && x.has("id");
 }
 
-export function isYNodePosition(x: object): x is Y.Map<number> {
+export function isYNodePosition(x: unknown): x is Y.Map<number> {
   return (
     x instanceof Y.Map &&
     typeof x.get("x") === "number" &&

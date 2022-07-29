@@ -1,108 +1,119 @@
 import { ElementDefinition } from "cytoscape";
-import { Map as YMap } from "yjs";
-import { Edge, YNode, YNodeData, YNodePosition } from "../../../../types/types";
+import { Map as YMap, YEvent, YMapEvent } from "yjs";
+import {
+  Edge,
+  isYNodeData,
+  isYNodePosition,
+  YNode,
+} from "../../../../types/types";
 
 export const registerElementsSync = (
   cytoscape: cytoscape.Core,
   ynodes: YMap<YNode>,
   yedges: YMap<Edge>
-) => {
-  registerNodesSync(cytoscape, ynodes);
-  registerEdgesSync(cytoscape, yedges);
+): (() => void) => {
+  const unregisterEdgesSync = registerEdgesSync(cytoscape, yedges);
+  const unregisterNodesSync = registerNodesSync(cytoscape, ynodes);
+  return () => {
+    unregisterEdgesSync();
+    unregisterNodesSync();
+  };
 };
 
-export const registerEdgesSync = (
+const registerEdgesSync = (
   cytoscape: cytoscape.Core,
   yedges: YMap<Edge>
-) => {
+): (() => void) => {
   // sync edge (add, delete)
-  yedges.observe((e, _tx) => {
+  const handleEdgeChange = (e: YMapEvent<Edge>): void => {
     e.changes.keys.forEach((change, key) => {
       if (change.action === "add") {
         const data = yedges.get(key);
-        if (data && "source" in data && "target" in data && "id" in data) {
-          // local edge handled by edgehadle plugin
-          // if (tx.local) return;
-          cytoscape.add({ data });
-        }
+        if (data == null) return;
+        cytoscape.add({ data });
       } else if (change.action === "delete") {
         cytoscape.getElementById(key).remove();
       }
     });
-  });
+  };
+  yedges.observe(handleEdgeChange);
+
+  return () => yedges.unobserve(handleEdgeChange);
 };
 
-export const registerNodesSync = (
+const registerNodesSync = (
   cytoscape: cytoscape.Core,
   ynodes: YMap<YNode>
-) => {
+): (() => void) => {
   // sync node (add, delete)
-  ynodes.observe((e, _tx) => {
+  const handleNodesAddDelete = (e: YMapEvent<YNode>): void => {
     e.changes.keys.forEach((change, key) => {
       if (change.action === "add") {
         const node = e.target.get(key);
-        if (node) cytoscape.add(node.toJSON() as ElementDefinition);
+        if (node == null) return;
+        cytoscape.add(node.toJSON() as ElementDefinition);
       } else if (change.action === "delete") {
-        cytoscape.getElementById(key).remove();
+        // special case parent, move out child first
+        // cytoscape.$id(key).children().move({ parent: null });
+        cytoscape.$id(key).remove();
       }
     });
-  });
+  };
+
+  ynodes.observe(handleNodesAddDelete);
 
   // sync node (data change)
-  ynodes.observeDeep((evt) => {
-    evt.forEach((e) =>
-      e.changes.keys.forEach(
-        (change: { action: string; [x: string]: unknown }, key: string) => {
-          const path = e.path.pop();
-          if (change.action === "add") {
-            switch (path) {
-              case "data": {
-                const [nodeId] = e.path;
-                if (!(typeof nodeId === "string")) return;
-                // write only necessary key
-                cytoscape.getElementById(nodeId).data(key, e.target.get(key));
-                break;
-              }
-            }
-          } else if (change.action === "update") {
-            switch (path) {
-              case "position": {
-                const target = e.target as YNodePosition;
-                const yNode = e.target.parent as YNode;
+  // eslint-disable-next-line
+  const handleNodesDataChange = (evts: YEvent<any>[]): void => {
+    evts.forEach((e) => {
+      const nodeId = e.path.at(0);
+      const path = e.path.at(-1);
 
-                const yNodeData = yNode.get("data") as YNodeData;
-                const id = yNodeData.get("id");
-                if (!id) break;
-                const node = cytoscape.getElementById(id.toString());
-                if (!node) break;
-                const x = target.get("x");
-                const y = target.get("y");
-                if (x && y) node.position({ x, y });
-                break;
-              }
-              case "data": {
-                // const target = e.target as YNodeData;
-                const target = e.target;
-                const id = target.get("id");
-                if (!id) break;
-                const node = cytoscape.getElementById(id.toString());
-                if (!node) break;
-                node.data(key, target.get(key));
-                break;
-              }
-            }
-          } else if (change.action === "delete") {
-            switch (path) {
-              case "data": {
-                const [nodeId] = e.path;
-                if (!(typeof nodeId === "string")) return;
-                cytoscape.getElementById(nodeId).removeData(key);
-                break;
-              }
-            }
+      if (nodeId == null || path == null) return;
+      if (!(typeof nodeId === "string")) return;
+
+      e.changes.keys.forEach((change, key) => {
+        if (change.action === "add") {
+          if (path === "data" && isYNodeData(e.target)) {
+            // write only necessary key
+            cytoscape.$id(nodeId).data(key, e.target.get(key));
+            // special case parent, not working with data
+            // if (key === "parent") {
+            //   cytoscape.$id(nodeId).move({ parent: e.target.get(key) ?? null });
+            // }
+          }
+        } else if (change.action === "update") {
+          if (path === "position" && isYNodePosition(e.target)) {
+            const node = cytoscape.getElementById(nodeId);
+            const x = e.target.get("x");
+            const y = e.target.get("y");
+            if (typeof x === "number" && typeof y === "number")
+              node.position({ x, y });
+          } else if (path === "data" && isYNodeData(e.target)) {
+            const node = cytoscape.getElementById(nodeId);
+            node.data(key, e.target.get(key));
+            // special case parent, not working with data
+            // if (key === "parent") {
+            //   cytoscape.$id(nodeId).move({ parent: e.target.get(key) ?? null });
+            // }
+          }
+        } else if (change.action === "delete") {
+          if (path === "data") {
+            cytoscape.getElementById(nodeId).removeData(key);
+            // special case parent, not working with data
+            // if (key === "parent") {
+            //   cytoscape.$id(nodeId).move({ parent: e.target.get(key) ?? null });
+            // }
           }
         }
-      )
-    );
-  });
+      });
+    });
+  };
+
+  ynodes.observeDeep(handleNodesDataChange);
+
+  return () => {
+    ynodes.unobserve(handleNodesAddDelete);
+    ynodes.unobserveDeep(handleNodesDataChange);
+  };
 };

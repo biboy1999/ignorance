@@ -16,7 +16,7 @@ import {
   TransformJob,
   TransformRequest,
 } from "../../../types/types";
-import { addEdge, AddNode, getCenterPosition } from "../../../utils/graph";
+import { getCenterPosition } from "../../../utils/graph";
 import {
   createRequest,
   handleComplete,
@@ -24,6 +24,7 @@ import {
   handleReject,
   handleRunning,
 } from "../../../utils/transform-job";
+import { addYjsEdge, addYjsNode } from "../../../utils/yjs";
 
 type JobStatusProps = {
   job: TransformJob;
@@ -138,8 +139,9 @@ export const TransformJobs = (): JSX.Element => {
           const { x, y } =
             cytoscape.$id(node.linkToNodeId ?? "").position() ??
             getCenterPosition(cytoscape);
-          const { nodeId } = AddNode(node.data, x, y, { ynodes });
-          if (node.linkToNodeId) addEdge(node.linkToNodeId, nodeId, { yedges });
+          const { nodeId } = addYjsNode(node.data, x, y, { ynodes });
+          if (node.linkToNodeId)
+            addYjsEdge(node.linkToNodeId, nodeId, { yedges });
         });
       });
       handleComplete(yjsTransformJobs, job);

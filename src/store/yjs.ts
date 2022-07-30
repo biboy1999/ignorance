@@ -1,7 +1,8 @@
 import { Doc } from "yjs";
 import { YMap } from "yjs/dist/src/internals";
 import { StateCreator } from "zustand";
-import { Edge, YNode } from "../types/types";
+import { Edge } from "../types/types";
+import { YNode } from "../types/yjs";
 
 export type YjsSlice = {
   ydoc: Doc;

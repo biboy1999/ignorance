@@ -1,6 +1,6 @@
 import { NodeSingular, SingularElementReturnValue } from "cytoscape";
 import { Map as YMap } from "yjs";
-import { isYNodePosition, YNode } from "../../../../types/types";
+import { isYNodePosition, YNode } from "../../../../types/yjs";
 
 export const registerNodePositionUpdate = (
   cytoscape: cytoscape.Core,

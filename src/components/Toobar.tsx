@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { Map as YMap } from "yjs";
-import { YNodeGroup, YNodeData, YNodePosition } from "../types/types";
+import { YNodeGroup, YNodeData, YNodePosition } from "../types/yjs";
 import { useStore } from "../store/store";
 import { doLayout } from "../utils/graph";
 import {

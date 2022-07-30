@@ -1,15 +1,13 @@
 import { nanoid } from "nanoid";
 import { Map as YMap } from "yjs";
+import { Edge, NodeData } from "../types/types";
 import {
-  Edge,
   isYNodeData,
-  NodeData,
   YNode,
   YNodeData,
   YNodeGroup,
   YNodePosition,
-  YNodes,
-} from "../types/types";
+} from "../types/yjs";
 import { renderedPositionToModel } from "./canvas";
 
 export type AddNodeReturnValue = {
@@ -83,7 +81,7 @@ export const addYjsNode = (
   return { nodeId, node };
 };
 
-export const deleteYjsNodes = (id: string[], ynodes: YNodes): void => {
+export const deleteYjsNodes = (id: string[], ynodes: YMap<YNode>): void => {
   ynodes.doc?.transact(() => {
     id.forEach((id) => ynodes.delete(id));
   });

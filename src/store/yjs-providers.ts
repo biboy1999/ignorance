@@ -3,7 +3,7 @@ import { WebrtcProvider } from "y-webrtc";
 import { WebsocketProvider } from "y-websocket";
 import { Awareness } from "y-protocols/awareness";
 import { StateCreator } from "zustand";
-import { YjsProvider, YjsProvidersStore } from "../types/types";
+import { YjsProvider, YjsProvidersStore } from "../types/yjs";
 import { YjsSlice } from "./yjs";
 
 export type YjsProviderSlice = {

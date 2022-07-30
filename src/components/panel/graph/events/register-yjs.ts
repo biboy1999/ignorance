@@ -1,11 +1,7 @@
 import { ElementDefinition } from "cytoscape";
 import { Map as YMap, YEvent, YMapEvent } from "yjs";
-import {
-  Edge,
-  isYNodeData,
-  isYNodePosition,
-  YNode,
-} from "../../../../types/types";
+import { Edge } from "../../../../types/types";
+import { isYNodeData, isYNodePosition, YNode } from "../../../../types/yjs";
 
 export const registerElementsSync = (
   cytoscape: cytoscape.Core,

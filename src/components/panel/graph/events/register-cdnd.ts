@@ -1,6 +1,6 @@
 import { NodeSingular } from "cytoscape";
 import { Map as YMap } from "yjs";
-import { YNode } from "../../../../types/types";
+import { YNode } from "../../../../types/yjs";
 import { addYjsNode, moveYjsNodes } from "../../../../utils/yjs";
 
 export const registerCDnD = (

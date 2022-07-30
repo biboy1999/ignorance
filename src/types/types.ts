@@ -1,7 +1,3 @@
-import { WebrtcProvider } from "y-webrtc";
-import { WebsocketProvider } from "y-websocket";
-import * as Y from "yjs";
-
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
 export type NodeData = {
@@ -23,30 +19,6 @@ export type Node = {
   };
   position: { x: number; y: number };
 };
-
-export type YNodePosition = Y.Map<number>;
-
-export type YNodeData = Y.Map<string>;
-
-export function isYNodeData(x: unknown): x is Y.Map<string> {
-  return x instanceof Y.Map && x.has("id");
-}
-
-export function isYNodePosition(x: unknown): x is Y.Map<number> {
-  return (
-    x instanceof Y.Map &&
-    typeof x.get("x") === "number" &&
-    typeof x.get("y") === "number"
-  );
-}
-
-export type YNodeGroup = string;
-
-export type YNode = Y.Map<YNodeGroup | YNodeData | YNodePosition>;
-
-export type YEdges = Y.Map<Edge>;
-
-export type YNodes = Y.Map<YNode>;
 
 type ResponseNode = {
   data: {
@@ -128,10 +100,3 @@ export type InternalTransform = {
     [option: string]: string;
   };
 };
-
-export type YjsProvidersStore = {
-  webrtc: { provider: WebrtcProvider | undefined; isSynced: boolean };
-  websocket: { provider: WebsocketProvider | undefined; isSynced: boolean };
-};
-
-export type YjsProvider = WebrtcProvider | WebsocketProvider;

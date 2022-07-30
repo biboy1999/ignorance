@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Transaction, YMapEvent } from "yjs";
 import { nanoid } from "nanoid";
-import { YNodeData } from "../../../types/types";
+import { YNodeData } from "../../../types/yjs";
 import { useStore } from "../../../store/store";
 import { TabData } from "rc-dock";
 

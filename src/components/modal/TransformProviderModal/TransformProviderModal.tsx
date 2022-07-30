@@ -7,6 +7,7 @@ import {
 } from "./TransformProviderForm";
 import { nanoid } from "nanoid";
 import { useStore } from "../../../store/store";
+import { StyledModal } from "../../common/Modal";
 
 export type ShareTransformsModalProp = {
   open: boolean;
@@ -42,63 +43,28 @@ export const ShareTransformsModal = ({
   });
 
   return (
-    <Transition show={open} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed inset-0 overflow-y-auto z-max"
-        onClose={setOpen}
-      >
-        <div className="flex items-end justify-center min-h-screen">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="backdrop fixed inset-0" />
-          </Transition.Child>
-
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            enterTo="opacity-100 translate-y-0 sm:scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          >
-            <Dialog.Panel className="flex flex-col self-center align-bottom text-left overflow-hidden shadow-xl transition-all max-w-lg w-full max-h-screen">
-              <div className="topbar">
-                <Dialog.Title
-                  as="h1"
-                  className="font-mono text-lg p-3 text-white"
-                >
-                  Add Transform
-                </Dialog.Title>
-              </div>
-              <div className="styled-panel overflow-y-auto">
-                <FormProvider {...method}>
-                  <form onSubmit={onSubmit} id="connectionForm">
-                    <TransformProviderForm />
-                  </form>
-                </FormProvider>
-              </div>
-              <div className="styled-panel border-t flex-row-reverse flex px-3 py-2">
-                <button
-                  type="submit"
-                  form="connectionForm"
-                  className="styled-button w-auto inline-flex justify-center shadow-sm px-4 py-2 my-0 text-sm font-medium font-mono bg-green-300  hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
-                >
-                  Add
-                </button>
-              </div>
-            </Dialog.Panel>
-          </Transition.Child>
-        </div>
-      </Dialog>
-    </Transition>
+    <StyledModal isOpen={open} onClose={setOpen}>
+      <div className="modal-topbar">
+        <Dialog.Title as="h1" className="font-mono text-lg p-3 text-white">
+          Add Transform
+        </Dialog.Title>
+      </div>
+      <div className="styled-panel overflow-y-auto">
+        <FormProvider {...method}>
+          <form onSubmit={onSubmit} id="connectionForm">
+            <TransformProviderForm />
+          </form>
+        </FormProvider>
+      </div>
+      <div className="styled-panel border-t flex-row-reverse flex px-3 py-2">
+        <button
+          type="submit"
+          form="connectionForm"
+          className="styled-button w-auto inline-flex justify-center shadow-sm px-4 py-2 my-0 text-sm font-medium font-mono bg-green-300  hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
+        >
+          Add
+        </button>
+      </div>
+    </StyledModal>
   );
 };

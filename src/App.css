@@ -31,11 +31,6 @@ html {
     @apply dark:placeholder-[#B1B1B1];
   }
 
-  div.topbar {
-    @apply bg-[#108ee9];
-    @apply dark:bg-[#0a5f9c];
-  }
-
   label {
     @apply text-black;
     @apply dark:text-white;
@@ -88,6 +83,11 @@ html {
 
     @apply hover:bg-blue-200;
     @apply dark:hover:bg-gray-700;
+  }
+
+  .modal-topbar {
+    @apply bg-[#108ee9];
+    @apply dark:bg-[#0a5f9c];
   }
 
   .styled-svg {

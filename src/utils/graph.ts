@@ -10,7 +10,6 @@ export const getCenterPosition = (
 export const doLayout = (
   elementsToLayout: cytoscape.CollectionReturnValue
 ): void => {
-  // TODO: better config
   const layout = elementsToLayout.layout(fcoseLayoutCofig);
   layout.run();
 };

@@ -34,20 +34,20 @@ export const fcoseLayoutCofig = {
   // False for random, true for greedy sampling
   samplingType: true,
   // Sample size to construct distance matrix
-  sampleSize: 25,
+  sampleSize: 50,
   // Separation amount between nodes
-  nodeSeparation: 150,
+  nodeSeparation: 4000,
   // Power iteration tolerance
   piTol: 0.0000001,
 
   /* incremental layout options */
 
   // Node repulsion (non overlapping) multiplier
-  nodeRepulsion: (_node: NodeSingular): number => 1000,
+  nodeRepulsion: (_node: NodeSingular): number => 300000,
   // Ideal edge (non nested) length
-  idealEdgeLength: (_edge: EdgeSingular): number => 180,
+  idealEdgeLength: (_edge: EdgeSingular): number => 150,
   // Divisor to compute edge forces
-  edgeElasticity: (_edge: EdgeSingular): number => 0.5,
+  edgeElasticity: (_edge: EdgeSingular): number => 0.75,
   // Nesting factor (multiplier) to compute ideal edge length for nested edges
   nestingFactor: 0.1,
   // Maximum number of iterations to perform - this is a suggested value and might be adjusted by the algorithm as required

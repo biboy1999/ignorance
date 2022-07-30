@@ -7,11 +7,10 @@ import gridGuide from "cytoscape-grid-guide";
 import compoundDragAndDrop from "cytoscape-compound-drag-and-drop";
 import navigator from "cytoscape-navigator";
 import { useEffect } from "react";
-import { useAtomValue } from "jotai";
+import { TabData } from "rc-dock";
 import { useOnlineUsers } from "../../../store/online-users";
 import { useThrottledCallback } from "../../../utils/hooks/useThrottledCallback";
 import { GraphContextMenu } from "./GraphContextMenu";
-import { isOnlineModeAtom } from "../../../atom/provider";
 import { useStore } from "../../../store/store";
 import { Toolbar } from "../../Toobar";
 import {
@@ -21,7 +20,6 @@ import {
 } from "../../../config/cytoscape-config";
 import { gridGuideConfig } from "../../../config/gridguide-config";
 import { useLocalStorage } from "../../../store/misc";
-import { TabData } from "rc-dock";
 import { registerElementsSync } from "./events/register-yjs";
 import {
   registerLayoutPositionUpdate,
@@ -35,7 +33,6 @@ export const Graph = (): JSX.Element => {
   const ynodes = useStore((state) => state.ynodes());
   const yedges = useStore((state) => state.yedges());
   const getAwareness = useStore((state) => state.getAwareness);
-  const isOnlineMode = useAtomValue(isOnlineModeAtom);
 
   const setCytoscape = useStore((state) => state.setCytoscape);
   const cytoscapeInstance = useStore((state) => state.cytoscape);

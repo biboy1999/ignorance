@@ -32,7 +32,7 @@ export const registerCursorRender = (
   };
   cytoscape.on("vmousemove", handleMouseMoveUpdate);
 
-  const handleViewportChange = () => {
+  const handleViewportChange = (): void => {
     cursorLayer.update();
   };
   cytoscape.on("viewport", handleViewportChange);

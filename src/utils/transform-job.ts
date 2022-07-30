@@ -34,7 +34,9 @@ export const createRequest = (
   cytoscape: cytoscape.Core
 ): TransformRequest => {
   return {
-    nodes: job.request.nodesId?.map((nodeId) => cytoscape?.$id(nodeId).data()),
+    nodes: job.request.nodesId?.map((nodeId) => ({
+      data: cytoscape?.$id(nodeId).data(),
+    })),
     edges: job.request.edgesId?.map((edgeId) => cytoscape?.$id(edgeId).data()),
     parameter: job.request.parameter,
   };

@@ -4,7 +4,7 @@ import { TabData } from "rc-dock";
 import { useEffect, useState } from "react";
 import { Transaction, YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
-import { isTrnasformProvider, SharedTransform } from "../../../types/types";
+import { isTrnasformProvider, SharedTransform } from "../../../types/transform";
 import { ShareTransformsModal } from "../../modal/TransformProviderModal/TransformProviderModal";
 
 type DisclosureButtonProp = {

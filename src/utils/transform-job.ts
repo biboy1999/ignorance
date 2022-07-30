@@ -1,5 +1,5 @@
 import { Map as YMap } from "yjs";
-import { TransformJob, TransformRequest } from "../types/types";
+import { TransformJob, TransformRequest } from "../types/transform";
 
 export const handleError = (
   yjobs: YMap<TransformJob>,

@@ -15,7 +15,7 @@ import {
   isTransformsResponse,
   TransformJob,
   TransformRequest,
-} from "../../../types/types";
+} from "../../../types/transform";
 import { getCenterPosition } from "../../../utils/graph";
 import {
   createRequest,

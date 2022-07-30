@@ -1,6 +1,6 @@
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { PlusSmIcon, XIcon } from "@heroicons/react/solid";
-import { InternalTransform } from "../../../types/types";
+import { InternalTransform } from "../../../types/transform";
 
 export type TransformProviderParamters = InternalTransform;
 

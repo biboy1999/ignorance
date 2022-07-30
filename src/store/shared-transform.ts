@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 import { YMap } from "yjs/dist/src/internals";
-import { SharedTransform, TransformJob } from "../types/types";
+import { SharedTransform, TransformJob } from "../types/transform";
 import { YjsSlice } from "./yjs";
 
 export type SharedTransformSlice = {

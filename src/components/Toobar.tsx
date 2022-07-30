@@ -84,21 +84,17 @@ export const Toolbar = (): JSX.Element => {
           className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
         />
       </button>
-      {darkMode ? (
-        <button title="Layout Selected Nodes" className="styled-button w-9 h-9">
-          <MoonIcon
-            onClick={(): void => toggleDarkMode()}
-            className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
-          />
-        </button>
-      ) : (
-        <button title="Layout Selected Nodes" className="styled-button w-9 h-9">
-          <SunIcon
-            onClick={(): void => toggleDarkMode()}
-            className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center"
-          />
-        </button>
-      )}
+      <button
+        title="Layout Selected Nodes"
+        className="styled-button w-9 h-9"
+        onClick={(): void => toggleDarkMode()}
+      >
+        {darkMode ? (
+          <MoonIcon className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center" />
+        ) : (
+          <SunIcon className="styled-svg aspect-square mx-0 p-1.5 cursor-pointer flex items-center justify-center" />
+        )}
+      </button>
     </div>
   );
 };

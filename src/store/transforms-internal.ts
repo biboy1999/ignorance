@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import { InternalTransform } from "../types/types";
+import { InternalTransform } from "../types/transform";
 
 export type InternalTransformSlice = {
   internalTransforms: InternalTransform[];

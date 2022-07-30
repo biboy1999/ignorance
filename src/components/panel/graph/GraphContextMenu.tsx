@@ -3,7 +3,7 @@ import { TrashIcon, PlusIcon } from "@heroicons/react/solid";
 import { nanoid } from "nanoid";
 import { Menu } from "../../context-menu/Menu";
 import { MenuButton } from "../../context-menu/MenuButton";
-import { isTrnasformProvider, TransformJob } from "../../../types/types";
+import { isTrnasformProvider, TransformJob } from "../../../types/transform";
 import { deleteYjsEdges, deleteYjsNodes } from "../../../utils/yjs";
 import { useStore } from "../../../store/store";
 import { addYjsNode } from "../../../utils/yjs";

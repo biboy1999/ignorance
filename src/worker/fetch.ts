@@ -1,4 +1,4 @@
-import { TransformRequest } from "../types/types";
+import { TransformRequest } from "../types/transform";
 
 // eslint-disable-next-line
 declare const self: DedicatedWorkerGlobalScope;

@@ -1,45 +1,35 @@
+<p align=center>
+⚠ Project is under heavy development, feel free leave a feedback or feature request ⚠
+</p>
+
 # Ignorance
 
 Yet another OSINT Graph visualization and exploration Tool.
-
-## Why reinvent wheel?
-
-just maltego CE limits 12 results per transform.
-and reinvent wheel is fun :).
+Designed to maximize flexibility through scripts.
 
 ## Feature
-Web-based and local or online real-time collaboration(thanks to yjs).
 
-  - Focus on collaboration.
-  - Write your own transform.
-      - classic API http post.
-      - websocket real-time data. (TODO)
-  - use your friends' transform.
-  - It is open source :D
-  
-## Warning
+  - Web-Based
+  - Real-time collaboration. (thanks to yjs)
+      - webrtc via [yjs/y-webrtc](https://github.com/yjs/y-webrtc)
+      - websocket via [yjs/y-websocket](https://github.com/yjs/y-websocket)
+  - Transform
+      - API
+      - Websocket (TODO)
+  - Use your friends' transform 
+  - Open source
+  - more? leave a feature request :D
 
-Still in development, everything is likely to change in future updates and not be backward compatible.
-
-Look out who collaborates with you.
-  - Your shared transform can be attacked.
-  - Transform(poorly made or active recon) can expose your identity or alert the target.
- 
-Use VM, VPN.
-Sock pupprt account.
-Collab with people you trust.
-
-## Installation
+## Getting Started
 try it here: [https://biboy1999.github.io/ignorance/](https://biboy1999.github.io/ignorance/)
+
+local:
+
+```npm install```
+
+```npm run```
+
 
 ## Development
 
-*Spaghetti code ahead*
-
-```pnpm install```
-
-```pnpm run```
-
-```pnpm test```
-
-> there is no test rn. feel free to pr.
+> TODO

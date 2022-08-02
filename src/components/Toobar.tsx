@@ -15,6 +15,7 @@ import { useEffect } from "react";
 
 export const Toolbar = (): JSX.Element => {
   const ynodes = useStore((state) => state.ynodes());
+  const yedges = useStore((state) => state.yedges());
   const cytoscape = useStore((state) => state.cytoscape);
   const toggleDarkMode = useLocalStorage((state) => state.toggleDarkMode);
   const darkMode = useLocalStorage((state) => state.darkMode);
@@ -28,7 +29,7 @@ export const Toolbar = (): JSX.Element => {
 
     const data = new YMap<string>();
     data.set("id", nodeId);
-    data.set("name", "New Node");
+    data.set("label", "New Node");
     data.set("type", "people");
     data.set("testattr", "test");
 
@@ -52,8 +53,9 @@ export const Toolbar = (): JSX.Element => {
   };
 
   const handleDeleteNode = async (): Promise<void> => {
-    const selectedNodes = cytoscape?.$(":selected");
-    selectedNodes?.forEach((node) => ynodes.delete(node.id()));
+    const selectedNodes = cytoscape?.$(":selected").remove();
+    selectedNodes?.edges().forEach((edge) => yedges.delete(edge.id()));
+    selectedNodes?.nodes().forEach((node) => ynodes.delete(node.id()));
   };
 
   const handleLayout = async (): Promise<void> => {

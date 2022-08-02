@@ -8,13 +8,19 @@ export const cytoscapeLightStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: "node[name]",
+    selector: "node[label]",
     style: {
       color: "black",
+      label: "data(label)",
       "background-color": "#666",
-      label: "data(name)",
       "min-zoomed-font-size": 12,
       "font-size": 18,
+    },
+  },
+  {
+    selector: "node[color]",
+    style: {
+      "background-color": "data(color)",
     },
   },
   {
@@ -29,6 +35,21 @@ export const cytoscapeLightStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
+    selector: "edge[label]",
+    style: {
+      label: "data(label)",
+      color: "black",
+      "text-margin-y": -15,
+      "text-rotation": "autorotate",
+    },
+  },
+  {
+    selector: "edge[color]",
+    style: {
+      "line-color": "data(color)",
+    },
+  },
+  {
     selector: ":selected",
     style: {
       "line-color": "red",
@@ -37,11 +58,11 @@ export const cytoscapeLightStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: "node[name]:parent",
+    selector: "node[label]:parent",
     style: {
       color: "black",
       "background-color": "#bbb",
-      label: "data(name)",
+      label: "data(label)",
       "min-zoomed-font-size": 12,
       "font-size": 18,
     },
@@ -110,13 +131,24 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: "node[name]",
+    selector: "node[label]",
     style: {
       color: "white",
+      label: "data(label)",
       "background-color": "#555",
-      label: "data(name)",
       "min-zoomed-font-size": 12,
       "font-size": 18,
+    },
+  },
+  {
+    selector: "node[color]",
+    style: {
+      "background-color": "data(color)",
+    },
+  },
+  {
+    selector: "node[label]:active",
+    style: {
       "overlay-color": "white",
     },
   },
@@ -132,6 +164,21 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
+    selector: "edge[label]",
+    style: {
+      label: "data(label)",
+      color: "white",
+      "text-margin-y": -15,
+      "text-rotation": "autorotate",
+    },
+  },
+  {
+    selector: "edge[color]",
+    style: {
+      "line-color": "data(color)",
+    },
+  },
+  {
     selector: ":selected",
     style: {
       "line-color": "#F30A49",
@@ -140,11 +187,11 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
     },
   },
   {
-    selector: "[name]:parent",
+    selector: "[label]:parent",
     style: {
       color: "white",
       "background-color": "#252525",
-      label: "data(name)",
+      label: "data(label)",
       "min-zoomed-font-size": 12,
       "font-size": 18,
     },
@@ -200,10 +247,6 @@ export const cytoscapeDarkStylesheet: cytoscape.Stylesheet[] = [
     style: {
       opacity: 0,
     },
-  },
-  {
-    selector: "core",
-    style: {},
   },
 ];
 

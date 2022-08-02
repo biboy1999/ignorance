@@ -19,6 +19,10 @@ export const TransformProviderForm = (): JSX.Element => {
             type="text"
             className="w-full h-8"
             placeholder="Name"
+            // HACK: rc-tabs prevent input {space} {ArrowKey}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+            }}
             {...register("name", {
               required: true,
               value: "",

@@ -8,7 +8,12 @@ export type EdgeData = {
   [key: string]: string | undefined;
 };
 
-export type Edge = { source: string; target: string; id: string };
+export type Edge = {
+  source: string;
+  target: string;
+  id: string;
+  [key: string]: string;
+};
 
 export type Node = {
   data: {

@@ -13,7 +13,7 @@ import { useStore } from "../../../store/store";
 import { TabData } from "rc-dock";
 
 // TODO: need better attribute edit system
-export const NodeAttributes = (): JSX.Element => {
+export const AttributesEditor = (): JSX.Element => {
   const { selectedElements, selectedNodes } = useStore((state) => ({
     selectedElements: state.selectedElements,
     selectedNodes: state.selectedNodes,
@@ -188,7 +188,7 @@ export const NodeAttributes = (): JSX.Element => {
 export const NodeAttributesTab: TabData = {
   id: "nodeattributes",
   title: "NodeAttributes",
-  content: <NodeAttributes />,
+  content: <AttributesEditor />,
   cached: true,
   closable: false,
 };

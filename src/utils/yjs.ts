@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { Map as YMap } from "yjs";
-import { Edge, NodeData } from "../types/types";
+import { Edge, EdgeData, NodeData } from "../types/types";
 import {
   isYNodeData,
   YNode,
@@ -21,15 +21,24 @@ export type AddEdgeReturnValue = {
 };
 
 export const addYjsEdge = (
+  edgeData: EdgeData,
   source: string,
   target: string,
   opt?: {
-    id?: string;
     yedges: YMap<Edge>;
   }
 ): AddEdgeReturnValue => {
-  const edgeId = opt?.id ?? nanoid();
-  const edge = { source, target, id: edgeId };
+  const { id: preDefindedId } = edgeData;
+  const edgeId = preDefindedId ?? nanoid();
+
+  if (opt?.yedges.has(edgeId)) {
+    const existedEdgeData = opt.yedges.get(edgeId) as Edge;
+    const newEdgeData = { ...existedEdgeData, ...edgeData, id: edgeId };
+    opt.yedges.set(edgeId, newEdgeData);
+    return { edgeId, edge: newEdgeData };
+  }
+
+  const edge = { source, target, id: edgeId, label: "", ...edgeData };
 
   if (opt?.yedges) opt.yedges.set(edgeId, edge);
 
@@ -48,17 +57,31 @@ export const addYjsNode = (
 ): AddNodeReturnValue => {
   const { id: preDefindedId, ...remainData } = nodeData;
   const nodeId = preDefindedId ?? nanoid();
+  // TODO: refactor :/
+  // update node if exist
+  if (opt?.ynodes?.has(nodeId)) {
+    const ynode = opt.ynodes.get(nodeId) as YNode;
+    const ynodedata = ynode?.get("data") as YNodeData;
+    const yposition = ynode?.get("position") as YNodePosition;
+
+    Object.entries(remainData).forEach(([k, v]) => {
+      if (v) ynodedata.set(k, v);
+    });
+
+    yposition.set("x", x);
+    yposition.set("y", y);
+
+    return { nodeId, node: ynode };
+  }
   // set data
   const data = new YMap<string>();
   data.set("id", nodeId);
-  data.set("name", "New Node");
+  data.set("label", "New Node");
   data.set("type", "*");
 
-  if (remainData) {
-    Object.entries(remainData).forEach(([k, v]) => {
-      if (v) data.set(k, v);
-    });
-  }
+  Object.entries(remainData).forEach(([k, v]) => {
+    if (v) data.set(k, v);
+  });
 
   // set position
   const position = new YMap<number>();
@@ -81,15 +104,15 @@ export const addYjsNode = (
   return { nodeId, node };
 };
 
-export const deleteYjsNodes = (id: string[], ynodes: YMap<YNode>): void => {
+export const deleteYjsNodes = (ids: string[], ynodes: YMap<YNode>): void => {
   ynodes.doc?.transact(() => {
-    id.forEach((id) => ynodes.delete(id));
+    ids.forEach((id) => ynodes.delete(id));
   });
 };
 
-export const deleteYjsEdges = (id: string[], ynodes: YMap<Edge>): void => {
-  ynodes.doc?.transact(() => {
-    id.forEach((id) => ynodes.delete(id));
+export const deleteYjsEdges = (ids: string[], yedges: YMap<Edge>): void => {
+  yedges.doc?.transact(() => {
+    ids.forEach((id) => yedges.delete(id));
   });
 };
 

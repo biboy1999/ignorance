@@ -36,6 +36,7 @@ export const createRequest = (
   return {
     nodes: job.request.nodesId?.map((nodeId) => ({
       data: cytoscape?.$id(nodeId).data(),
+      position: cytoscape?.$id(nodeId).position(),
     })),
     edges: job.request.edgesId?.map((edgeId) => cytoscape?.$id(edgeId).data()),
     parameter: job.request.parameter,

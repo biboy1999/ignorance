@@ -107,7 +107,9 @@ export const SharedTransformsTabTitle = (): JSX.Element => {
       SharedTransforms
       <PlusSmIcon
         className="styled-svg svg-hover w-5 h-5 ml-1 align-text-top cursor-pointer inline"
-        onClick={(): void => setOpen(true)}
+        onClick={(): void => {
+          setOpen(true);
+        }}
       />
       <ShareTransformsModal open={isOpen} setOpen={setOpen} />
     </span>

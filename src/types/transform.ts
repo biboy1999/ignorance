@@ -2,30 +2,29 @@ import { Edge, Node, NodeData } from "./types";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
+type RelationRule = {
+  method: "regex" | "selector";
+  filter: "attribute" | "value" | "all";
+  field: string | "type" | "all";
+  value: string;
+};
+
+type RelationRuleGruop = RelationRule[];
+
 type ResponseNode = {
   data: NodeData;
-  linkToNodeId?: string;
+  // linkToNodeId?: string;
   position?: { x: number; y: number };
 };
 
 export type TransformsResponse = {
-  add?: {
-    nodes?: ResponseNode[];
-    edges?: PartialBy<Edge, "id">[];
-  };
-  delete?: {
-    nodesId?: string[];
-    edgesId?: string[];
-  };
-  update?: {
-    nodes?: PartialBy<Node, "position">[];
-  };
+  nodes: ResponseNode[];
+  edges: Edge[];
+  removeIds: string[];
+  relation: RelationRuleGruop[];
+  // TODO: error return type
+  error?: Record<string, string>;
 };
-
-// export type TransformsResponse = {
-//   nodes: ResponseNode[];
-//   edges: PartialBy<Edge, "id">[];
-// };
 
 export function isTransformsResponse(x: object): x is TransformsResponse {
   return x instanceof Object;

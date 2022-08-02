@@ -5,8 +5,8 @@ export const compoundDndConfig = {
   newParentNode: (
     _grabbedNode: unknown,
     _dropSibling: unknown
-  ): { data: { name: string } } => ({
-    data: { name: "New Compound Node" },
+  ): { data: { label: string } } => ({
+    data: { label: "New Compound Node" },
   }), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
   // boundingBoxOptions: {
   //   // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another

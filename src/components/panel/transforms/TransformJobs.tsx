@@ -124,27 +124,26 @@ export const TransformJobs = (): JSX.Element => {
       new URL("../../../worker/fetch.ts", import.meta.url)
     );
 
-    worker.addEventListener("error", (e) => {
-      e.preventDefault();
+    worker.addEventListener("error", (evt) => {
+      evt.preventDefault();
       handleError(yjsTransformJobs, job);
     });
 
-    worker.addEventListener("message", (e): void => {
-      const { data } = e;
+    worker.addEventListener("message", (evt): void => {
+      const { data } = evt;
       if (!isTransformsResponse(data))
         return handleError(yjsTransformJobs, job);
 
       ydoc.transact(() => {
-        data.add?.nodes?.forEach((node) => {
-          const { x, y } =
-            cytoscape.$id(node.linkToNodeId ?? "").position() ??
-            getCenterPosition(cytoscape);
-          const { nodeId } = addYjsNode(node.data, x, y, { ynodes });
-          if (node.linkToNodeId)
-            addYjsEdge(node.linkToNodeId, nodeId, { yedges });
+        data.nodes.forEach((node) => {
+          const { x, y } = node.position ?? getCenterPosition(cytoscape);
+          addYjsNode(node.data, x, y, { ynodes });
         });
+        data.edges.forEach((edge) => {
+          addYjsEdge(edge, edge.source, edge.target, { yedges: yedges });
+        });
+        handleComplete(yjsTransformJobs, job);
       });
-      handleComplete(yjsTransformJobs, job);
       worker.terminate();
     });
 

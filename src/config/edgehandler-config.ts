@@ -10,14 +10,16 @@ export const edgehandlesConfig = {
       !sourceNode.edgesWith(targetNode).length
     );
   },
-  // edgeParams: function (
-  //   sourceNode: NodeSingular,
-  //   targetNode: NodeSingular
-  // ) {
-  //   // for edges between the specified source and target
-  //   // return element object to be passed to cy.add() for edge
-  //   return {};
-  // },
+  edgeParams: function (
+    _sourceNode: NodeSingular,
+    _targetNode: NodeSingular
+  ): { data: Record<string, unknown> } {
+    // for edges between the specified source and target
+    // return element object to be passed to cy.add() for edge
+    return {
+      data: { label: "" },
+    };
+  },
   // hoverDelay: 150, // time spent hovering over a target node before it is considered selected
   snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
   // snapThreshold: 10, // the target node must be less than or equal to this many pixels away from the cursor/finger

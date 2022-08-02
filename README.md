@@ -27,9 +27,15 @@ local:
 
 ```npm install```
 
-```npm run```
+```npm start```
 
 
 ## Development
+
+```npm install```
+
+```npm build-css```
+
+```npm watch-css```
 
 > TODO

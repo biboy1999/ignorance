@@ -29,13 +29,13 @@ export const ConnectionsModal = ({
 
   const onSubmit = handleSubmit((data) => {
     const isUsingRtc =
-      data.useWebrtc == true &&
+      data.useWebrtc === true &&
       typeof data.webrtcRoom === "string" &&
       typeof data.webrtcPassword === "string" &&
       typeof data.webrtcSignaling === "string";
 
     const isUsingWebSocket =
-      data.useWebSocket == true &&
+      data.useWebSocket === true &&
       typeof data.webSocketRoom === "string" &&
       typeof data.webSocketServer === "string";
 

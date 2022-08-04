@@ -1,6 +1,7 @@
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { PlusSmIcon, XIcon } from "@heroicons/react/solid";
 import { InternalTransform } from "../../../types/transform";
+import { FormInput } from "../FormInput";
 
 export type TransformProviderParamters = InternalTransform;
 
@@ -15,14 +16,9 @@ export const TransformProviderForm = (): JSX.Element => {
           <label className="block leading-6" htmlFor="name">
             Name
           </label>
-          <input
-            type="text"
-            className="w-full h-8"
+          <FormInput
             placeholder="Name"
-            // HACK: rc-tabs prevent input {space} {ArrowKey}
-            onKeyDown={(e): void => {
-              e.stopPropagation();
-            }}
+            type="text"
             {...register("name", {
               required: true,
               value: "",
@@ -36,6 +32,9 @@ export const TransformProviderForm = (): JSX.Element => {
           <textarea
             className="w-full h-20"
             placeholder="description"
+            onKeyDown={(e): void => {
+              e.stopPropagation();
+            }}
             {...register("description")}
           />
         </div>
@@ -43,9 +42,8 @@ export const TransformProviderForm = (): JSX.Element => {
           <label className="block leading-6" htmlFor="apiUrl">
             API Url
           </label>
-          <input
+          <FormInput
             type="text"
-            className="w-full h-8"
             placeholder="Name"
             {...register("apiUrl", {
               required: true,
@@ -63,7 +61,7 @@ export const TransformProviderForm = (): JSX.Element => {
           />
           {fields.map((field, index) => (
             <div key={field.id} className="flex items-center gap-1">
-              <input
+              <FormInput
                 type="text"
                 className="w-full h-8 flex-1"
                 placeholder="'node.people' or '*'"

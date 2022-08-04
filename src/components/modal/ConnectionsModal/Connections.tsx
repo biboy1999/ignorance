@@ -2,6 +2,7 @@ import { Disclosure } from "@headlessui/react";
 import { useFormContext } from "react-hook-form";
 import { ChevronUpIcon } from "@heroicons/react/solid";
 import clsx from "clsx";
+import { FormInput } from "../FormInput";
 
 export type WebrtcProviderParameters = {
   useWebrtc: boolean;
@@ -60,7 +61,7 @@ export const Connections = (): JSX.Element => {
             <label className="block leading-6" htmlFor="webrtcRoom">
               Room Name
             </label>
-            <input
+            <FormInput
               type="text"
               className={`w-full h-8 ${clsx(
                 errors.webrtcRoom && "border-red-500 dark:border-red-500"
@@ -77,7 +78,7 @@ export const Connections = (): JSX.Element => {
             <label className="block leading-6" htmlFor="webrtcPassword">
               Room Password
             </label>
-            <input
+            <FormInput
               type="text"
               className={`w-full h-8 ${clsx(
                 errors.webrtcPassword && "border-red-500 dark:border-red-500"
@@ -94,7 +95,7 @@ export const Connections = (): JSX.Element => {
             <label className="block leading-6" htmlFor="webrtcSignaling">
               Signaling Server
             </label>
-            <input
+            <FormInput
               type="text"
               placeholder="ws://localhost:1234"
               className={`w-full h-8 ${clsx(
@@ -139,7 +140,7 @@ export const Connections = (): JSX.Element => {
             <label className="block leading-6" htmlFor="webSocketRoom">
               Room Name
             </label>
-            <input
+            <FormInput
               type="text"
               className={`w-full h-8 ${clsx(
                 errors.webSocketRoom && "border-red-500 dark:border-red-500"
@@ -156,7 +157,7 @@ export const Connections = (): JSX.Element => {
             <label className="block leading-6" htmlFor="webSocketServer">
               Signaling Server
             </label>
-            <input
+            <FormInput
               type="text"
               placeholder="ws://localhost:1234"
               className={`w-full h-8 ${clsx(

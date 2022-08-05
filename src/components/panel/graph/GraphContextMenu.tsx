@@ -1,12 +1,11 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { TrashIcon, PlusIcon } from "@heroicons/react/solid";
 import { nanoid } from "nanoid";
-import { Menu } from "../../context-menu/Menu";
-import { MenuButton } from "../../context-menu/MenuButton";
+import { Menu } from "../../common/context-menu/Menu";
+import { MenuButton } from "../../common/context-menu/MenuButton";
 import { isTrnasformProvider, TransformJob } from "../../../types/transform";
-import { deleteYjsEdges, deleteYjsNodes } from "../../../utils/yjs";
+import { deleteYjsEdges, deleteYjsNodes, addYjsNode } from "../../../utils/yjs";
 import { useStore } from "../../../store/store";
-import { addYjsNode } from "../../../utils/yjs";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 font-mono leading-5 text-base border-b dark:border-neutral-700 z-50" />
@@ -43,23 +42,20 @@ export const GraphContextMenu = ({
 
   const clickedPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
+  const [isOpen, setOpen] = useState(false);
+  const [clientX, setClientX] = useState(0);
+  const [clientY, setClientY] = useState(0);
+
   const handleDelete: React.MouseEventHandler = (_e) => {
-    const eles = selectedElements;
-    if (!eles?.length) return;
+    const deletedElements = selectedElements?.remove();
 
-    // selected edge and node connected edge
-    const edges = eles
-      .connectedEdges()
-      .add(eles.edges())
-      .map((e) => e.id());
+    const deletedEdgeIds =
+      deletedElements?.edges().map((edge) => edge.id()) ?? [];
+    const deletedNodeIds =
+      deletedElements?.nodes().map((node) => node.id()) ?? [];
 
-    deleteYjsEdges(edges, yedges);
-
-    // last delete node
-    deleteYjsNodes(
-      eles.nodes().map((e) => e.id()),
-      ynodes
-    );
+    deleteYjsNodes(deletedNodeIds, ynodes);
+    deleteYjsEdges(deletedEdgeIds, yedges);
   };
 
   const handleAdd: React.MouseEventHandler = (): void => {
@@ -91,24 +87,26 @@ export const GraphContextMenu = ({
     addTransformJobs(job);
   };
 
-  // bind handle and return unbind function
-  // TODO: better way to do this :/
-  const onContextTrigger = (
-    onContextMenu: (e: MouseEvent) => void
-  ): (() => void) => {
-    const handle = (e: cytoscape.EventObject): void => {
+  useEffect(() => {
+    const onContextMenu = (e: cytoscape.EventObject): void => {
+      setClientX(e.originalEvent.clientX);
+      setClientY(e.originalEvent.clientY);
       clickedPosition.current = e.position;
-      onContextMenu(e.originalEvent);
+      setOpen(true);
     };
-    cytoscape.on("cxttap", handle);
-
-    return () => cytoscape.off("cxttap", handle);
-  };
+    cytoscape.on("cxttap", onContextMenu);
+    return () => {
+      cytoscape.off("cxttap", onContextMenu);
+    };
+  }, [cytoscape]);
 
   return (
     <Menu
       className="shadow-lg flex flex-col border border-neutral-700 w-48 divide-y focus-visible:outline-none z-max"
-      onEventListener={onContextTrigger}
+      isOpen={isOpen}
+      setOpen={setOpen}
+      clientX={clientX}
+      clientY={clientY}
     >
       <MenuButton
         className="styled-button flex items-center flex-1 text-left font-mono p-2 pl-4 leading-7 focus:z-10 hover:bg-blue-200 dark:hover:bg-gray-600"
@@ -126,7 +124,6 @@ export const GraphContextMenu = ({
         }
         onClick={handleDelete}
       />
-      {/* <Divider /> */}
       <GroupHeader>Transforms</GroupHeader>
       {Object.entries(sharedTransforms).map(([_key, transform]) => {
         // TODO: multiple nodes support

@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, HTMLProps, Dispatch } from "react";
 import {
   FloatingTree,
   useFloatingParentNodeId,
@@ -6,16 +6,14 @@ import {
 import { MenuComponent } from "./MenuComponent";
 
 type Props = {
-  label?: string;
-  buttonClassName?: string;
-  nested?: boolean;
-  onEventListener: (handle: (event: MouseEvent) => void) => () => void;
-};
+  clientX: number;
+  clientY: number;
+  isOpen: boolean;
+  setOpen: Dispatch<React.SetStateAction<boolean>>;
+  children?: React.ReactNode;
+} & HTMLProps<HTMLElement>;
 
-export const Menu = forwardRef<
-  unknown,
-  Props & React.HTMLProps<HTMLButtonElement>
->((props, ref) => {
+export const Menu = forwardRef<unknown, Props>((props, ref) => {
   const parentId = useFloatingParentNodeId();
 
   if (parentId == null) {

@@ -40,6 +40,7 @@ export const ShareTransformsModal = ({
     addInternalTransforms([internal]);
     sharedTransforms.set(publicTransform.transformId, publicTransform);
     setOpen(false);
+    method.reset();
   });
 
   return (

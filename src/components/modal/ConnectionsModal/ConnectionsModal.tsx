@@ -25,9 +25,8 @@ export const ConnectionsModal = ({
   const buttonRef = useRef(null);
 
   const formMethod = useForm<ProvidersParameters>();
-  const { handleSubmit } = formMethod;
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = formMethod.handleSubmit((data) => {
     const isUsingRtc =
       data.useWebrtc === true &&
       typeof data.webrtcRoom === "string" &&
@@ -50,6 +49,7 @@ export const ConnectionsModal = ({
         })
       );
       setOpen(false);
+      formMethod.reset();
     } else if (isUsingWebSocket && !providers.websocket.provider && awareness) {
       addProvider(
         new WebsocketProvider(data.webSocketServer, data.webSocketRoom, ydoc, {
@@ -57,6 +57,7 @@ export const ConnectionsModal = ({
         })
       );
       setOpen(false);
+      formMethod.reset();
     }
   });
 

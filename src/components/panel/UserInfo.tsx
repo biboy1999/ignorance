@@ -27,7 +27,7 @@ export const UserInfo = (): JSX.Element => {
             type="text"
             id="username"
             placeholder="username"
-            className="flex-1 p-1 min-w-0"
+            className="flex-1 p-1 min-w-0 border"
             onChange={handleUpdateUsername}
           />
           <input

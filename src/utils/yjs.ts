@@ -1,132 +1,159 @@
 import { nanoid } from "nanoid";
-import { Map as YMap } from "yjs";
-import { Edge, EdgeData, NodeData } from "../types/types";
+import * as Y from "yjs";
+import { Edge, Elements, isNode, Node } from "../types/types";
 import {
-  isYNodeData,
+  isYData,
+  YEdge,
+  YElement,
   YNode,
-  YNodeData,
-  YNodeGroup,
+  YData,
+  YElementGroup,
   YNodePosition,
 } from "../types/yjs";
-import { renderedPositionToModel } from "./canvas";
 
 export type AddNodeReturnValue = {
   nodeId: string;
-  node: YMap<string | YNodeData | YNodePosition>;
-};
-
-export type AddEdgeReturnValue = {
-  edgeId: string;
-  edge: Edge;
-};
-
-export const addYjsEdge = (
-  edgeData: EdgeData,
-  source: string,
-  target: string,
-  opt?: {
-    yedges: YMap<Edge>;
-  }
-): AddEdgeReturnValue => {
-  const { id: preDefindedId } = edgeData;
-  const edgeId = preDefindedId ?? nanoid();
-
-  if (opt?.yedges.has(edgeId)) {
-    const existedEdgeData = opt.yedges.get(edgeId) as Edge;
-    const newEdgeData = { ...existedEdgeData, ...edgeData, id: edgeId };
-    opt.yedges.set(edgeId, newEdgeData);
-    return { edgeId, edge: newEdgeData };
-  }
-
-  const edge = { source, target, id: edgeId, label: "", ...edgeData };
-
-  if (opt?.yedges) opt.yedges.set(edgeId, edge);
-
-  return { edgeId, edge };
+  ynode: YNode;
 };
 
 export const addYjsNode = (
-  nodeData: NodeData,
-  x: number,
-  y: number,
-  opt?: {
-    ynodes?: YMap<YNode>;
-    pan?: { x: number; y: number };
-    zoom?: number;
-  }
+  node: Node,
+  yelements?: Y.Map<YElement>
 ): AddNodeReturnValue => {
-  const { id: preDefindedId, ...remainData } = nodeData;
-  const nodeId = preDefindedId ?? nanoid();
-  // TODO: refactor :/
+  const { data, position } = node;
+  const { id, ...remainData } = data;
+  const nodeId = id ?? nanoid();
+
+  const { x, y } = position;
+
   // update node if exist
-  if (opt?.ynodes?.has(nodeId)) {
-    const ynode = opt.ynodes.get(nodeId) as YNode;
-    const ynodedata = ynode?.get("data") as YNodeData;
-    const yposition = ynode?.get("position") as YNodePosition;
+  if (yelements?.has(nodeId)) {
+    const exist_ynode = yelements.get(nodeId) as YNode;
+    const exist_ydata = exist_ynode?.get("data") as YData;
+    const exist_yposition = exist_ynode?.get("position") as YNodePosition;
 
     Object.entries(remainData).forEach(([k, v]) => {
-      if (v) ynodedata.set(k, v);
+      if (v) exist_ydata.set(k, v);
     });
 
-    yposition.set("x", x);
-    yposition.set("y", y);
+    exist_yposition.set("x", x);
+    exist_yposition.set("y", y);
 
-    return { nodeId, node: ynode };
+    return { nodeId, ynode: exist_ynode };
   }
+
   // set data
-  const data = new YMap<string>();
-  data.set("id", nodeId);
-  data.set("label", "New Node");
-  data.set("type", "*");
+  const ydata = new Y.Map<string>();
+  ydata.set("id", nodeId);
+  ydata.set("label", "New Node");
+  ydata.set("type", "*");
 
   Object.entries(remainData).forEach(([k, v]) => {
-    if (v) data.set(k, v);
+    if (v) ydata.set(k, v);
   });
 
   // set position
-  const position = new YMap<number>();
-  if (opt?.zoom && opt?.pan)
-    ({ x, y } = renderedPositionToModel({ x, y }, opt.zoom, opt.pan));
+  const yposition = new Y.Map<number>();
 
-  position.set("x", x);
-  position.set("y", y);
+  yposition.set("x", x);
+  yposition.set("y", y);
 
-  const node = new YMap<YNodeGroup | YNodeData | YNodePosition>();
-  node.set("group", "nodes");
-  node.set("data", data);
-  node.set("position", position);
+  const ynode = new Y.Map<YElementGroup | YData | YNodePosition>();
+  ynode.set("group", "nodes");
+  ynode.set("data", ydata);
+  ynode.set("position", yposition);
 
-  if (opt?.ynodes) {
-    if (opt.ynodes.get(nodeId) != null) opt.ynodes.delete(nodeId);
-    opt?.ynodes.set(nodeId, node);
+  if (yelements) {
+    yelements.set(nodeId, ynode);
   }
 
-  return { nodeId, node };
+  return { nodeId, ynode };
 };
 
-export const deleteYjsNodes = (ids: string[], ynodes: YMap<YNode>): void => {
+export const deleteYjsNodes = (ids: string[], ynodes: Y.Map<YNode>): void => {
   ynodes.doc?.transact(() => {
     ids.forEach((id) => ynodes.delete(id));
   });
 };
 
-export const deleteYjsEdges = (ids: string[], yedges: YMap<Edge>): void => {
-  yedges.doc?.transact(() => {
-    ids.forEach((id) => yedges.delete(id));
-  });
-};
-
 export const moveYjsNodes = (
-  ynodes: YMap<YNode>,
+  ynodes: Y.Map<YNode>,
   childrenIds: string[],
   parentId: string | null
 ): void => {
   ynodes.doc?.transact(() => {
     childrenIds.forEach((cid) => {
       const ynodeData = ynodes.get(cid)?.get("data");
-      if (!isYNodeData(ynodeData)) return;
+      if (!isYData(ynodeData)) return;
       if (parentId == null) ynodeData.delete("parent");
       else ynodeData.set("parent", parentId);
     });
   });
+};
+
+export type AddEdgeReturnValue = {
+  edgeId: string;
+  yedge: YEdge;
+};
+
+export const addYjsEdge = (
+  edge: Edge,
+  yelements?: Y.Map<YElement>
+): AddEdgeReturnValue => {
+  const { data } = edge;
+  const { id, source, target, ...remainData } = data;
+  const edgeId = id ?? nanoid();
+
+  if (yelements?.has(edgeId)) {
+    const exist_yedge = yelements.get(edgeId) as YEdge;
+    const yedgeData = exist_yedge.get("data") as YData;
+
+    Object.entries(remainData).forEach(([k, v]) => {
+      if (v) yedgeData.set(k, v);
+    });
+
+    return { edgeId, yedge: exist_yedge };
+  }
+
+  const ydata = new Y.Map<string>();
+  ydata.set("id", edgeId);
+  ydata.set("target", target);
+  ydata.set("source", source);
+  ydata.set("type", "*");
+  ydata.set("label", "");
+
+  Object.entries(remainData).forEach(([k, v]) => {
+    if (v) ydata.set(k, v);
+  });
+
+  const yedge = new Y.Map<YElementGroup | YData>();
+  yedge.set("group", "edges");
+  yedge.set("data", ydata);
+
+  if (yelements) {
+    yelements.set(edgeId, yedge);
+  }
+
+  return { edgeId, yedge };
+};
+
+export const deleteYjsEdges = (ids: string[], yedges: Y.Map<Edge>): void => {
+  yedges.doc?.transact(() => {
+    ids.forEach((id) => yedges.delete(id));
+  });
+};
+
+export const addYjsElements = (
+  elements: Elements[],
+  yelements?: Y.Map<YElement>
+): YElement[] => {
+  const result: YElement[] = [];
+  for (const element of elements) {
+    if (isNode(element)) {
+      addYjsNode(element, yelements);
+    } else {
+      addYjsEdge(element, yelements);
+    }
+  }
+  return result;
 };

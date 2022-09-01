@@ -1,8 +1,5 @@
-import { nanoid } from "nanoid";
-import { Map as YMap } from "yjs";
-import { YNodeGroup, YNodeData, YNodePosition } from "../types/yjs";
 import { useStore } from "../store/store";
-import { doLayout } from "../utils/graph";
+import { addNode, doLayout, getCenterPosition } from "../utils/cytoscape";
 import {
   MinusCircleIcon,
   PlusCircleIcon,
@@ -14,8 +11,6 @@ import { useLocalStorage } from "../store/misc";
 import { useEffect } from "react";
 
 export const Toolbar = (): JSX.Element => {
-  const ynodes = useStore((state) => state.ynodes());
-  const yedges = useStore((state) => state.yedges());
   const cytoscape = useStore((state) => state.cytoscape);
   const toggleDarkMode = useLocalStorage((state) => state.toggleDarkMode);
   const darkMode = useLocalStorage((state) => state.darkMode);
@@ -25,37 +20,19 @@ export const Toolbar = (): JSX.Element => {
   }, []);
 
   const handleAddNode = (): void => {
-    const nodeId = nanoid();
-
-    const data = new YMap<string>();
-    data.set("id", nodeId);
-    data.set("label", "New Node");
-    data.set("type", "people");
-    data.set("testattr", "test");
-
-    const { x1, y1, w, h } = cytoscape?.extent() ?? {
-      x1: 0,
-      y1: 0,
-      w: 0,
-      h: 0,
-    };
-
-    const position = new YMap<number>();
-    position.set("x", x1 + w / 2);
-    position.set("y", y1 + h / 2);
-
-    const node = new YMap<YNodeGroup | YNodeData | YNodePosition>();
-    node.set("group", "nodes");
-    node.set("data", data);
-    node.set("position", position);
-
-    ynodes.set(nodeId, node);
+    if (cytoscape == null) return;
+    addNode(
+      {
+        data: {},
+        group: "nodes",
+        position: getCenterPosition(cytoscape),
+      },
+      cytoscape
+    );
   };
 
   const handleDeleteNode = async (): Promise<void> => {
-    const selectedNodes = cytoscape?.$(":selected").remove();
-    selectedNodes?.edges().forEach((edge) => yedges.delete(edge.id()));
-    selectedNodes?.nodes().forEach((node) => ynodes.delete(node.id()));
+    cytoscape?.$(":selected").remove();
   };
 
   const handleLayout = async (): Promise<void> => {

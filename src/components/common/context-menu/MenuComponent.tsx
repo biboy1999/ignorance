@@ -114,6 +114,7 @@ export const MenuComponent = forwardRef<unknown, Props>(
                   (child) =>
                     isValidElement(child) &&
                     cloneElement(child, {
+                      // @ts-expect-error FIXME: type error
                       onClick: (
                         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                       ) => {

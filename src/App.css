@@ -22,13 +22,16 @@ html {
     @apply transition-colors;
     @apply text-black;
     @apply dark:text-white;
-    @apply border;
     @apply border-neutral-300;
     @apply dark:border-neutral-700;
     @apply focus:z-10;
     @apply bg-white;
     @apply dark:bg-neutral-900;
     @apply dark:placeholder-[#B1B1B1];
+    @apply disabled:text-neutral-600;
+    @apply dark:disabled:text-neutral-500;
+    @apply disabled:bg-neutral-200;
+    @apply dark:disabled:bg-neutral-800;
   }
 
   label {
@@ -68,6 +71,12 @@ html {
 
     @apply hover:bg-blue-200;
     @apply dark:hover:bg-gray-500;
+
+    @apply disabled:text-neutral-600;
+    @apply dark:disabled:text-neutral-500;
+
+    @apply disabled:bg-neutral-200;
+    @apply dark:disabled:bg-neutral-800;
 
     @apply font-mono;
 
@@ -114,6 +123,36 @@ html {
   }
 }
 
+/* dropdown menu */
+.RootMenu {
+  @apply styled-button;
+  @apply px-3;
+}
+
+.RootMenu.open,
+.MenuItem.open,
+.MenuItem:focus,
+.MenuItem:not([disabled]):active {
+  @apply bg-blue-200;
+  @apply dark:bg-gray-500;
+}
+
+.Menu {
+  @apply styled-panel;
+  @apply border;
+}
+
+.MenuItem {
+  @apply styled-button;
+  @apply flex;
+  @apply justify-between;
+  @apply w-full;
+  @apply text-left;
+  @apply leading-loose;
+  @apply min-w-[110px];
+}
+
+/* move over grid layer */
 #cy > div {
   z-index: 1 !important;
 }

@@ -1,6 +1,6 @@
 import { LayoutData } from "rc-dock";
 import { GraphTab } from "../components/panel/graph/Graph";
-import { NodeAttributesTab } from "../components/panel/graph/NodeAttributes";
+import { NodeAttributesTab } from "../components/panel/graph/AttributesEditor";
 import { NodeListTab } from "../components/panel/node-list/NodeList";
 import { SharedTransformTab } from "../components/panel/transforms/SharedTransforms";
 import { TransformJobsTab } from "../components/panel/transforms/TransformJobs";

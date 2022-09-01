@@ -30,7 +30,7 @@ export const TransformProviderForm = (): JSX.Element => {
             Description
           </label>
           <textarea
-            className="w-full h-20"
+            className="w-full h-20 border"
             placeholder="description"
             onKeyDown={(e): void => {
               e.stopPropagation();
@@ -63,7 +63,7 @@ export const TransformProviderForm = (): JSX.Element => {
             <div key={field.id} className="flex items-center gap-1">
               <FormInput
                 type="text"
-                className="w-full h-8 flex-1"
+                className="w-full h-8 flex-1 border"
                 placeholder="'node.people' or '*'"
                 {...register(`elementType.${index}` as const, {
                   required: true,

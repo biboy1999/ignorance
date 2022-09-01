@@ -1,6 +1,6 @@
 import { Edge, Node, NodeData } from "./types";
 
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<T>;
+export type PartialBy<T, K extends keyof T> = Partial<Pick<T, K>> & Omit<T, K>;
 
 type RelationRule = {
   method: "regex" | "selector";
@@ -31,7 +31,7 @@ export function isTransformsResponse(x: object): x is TransformsResponse {
 }
 
 export type TransformRequest = {
-  nodes?: PartialBy<Node, "position">[];
+  nodes?: PartialBy<Node, "position" | "group">[];
   edges?: Edge[];
   parameter?: {
     [option: string]: string;

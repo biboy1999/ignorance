@@ -1,4 +1,4 @@
-import { NodeSingular } from "cytoscape";
+import { ElementDefinition, NodeSingular } from "cytoscape";
 
 export const edgehandlesConfig = {
   canConnect: (sourceNode: NodeSingular, targetNode: NodeSingular): boolean => {
@@ -13,7 +13,7 @@ export const edgehandlesConfig = {
   edgeParams: function (
     _sourceNode: NodeSingular,
     _targetNode: NodeSingular
-  ): { data: Record<string, unknown> } {
+  ): ElementDefinition {
     // for edges between the specified source and target
     // return element object to be passed to cy.add() for edge
     return {

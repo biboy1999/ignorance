@@ -1,6 +1,6 @@
 import Layers from "cytoscape-layers";
 import edgehandles from "cytoscape-edgehandles";
-import cytoscape from "cytoscape";
+import cytoscape, { Collection } from "cytoscape";
 import fcose from "cytoscape-fcose";
 import layoutUtilities from "cytoscape-layout-utilities";
 import gridGuide from "cytoscape-grid-guide";
@@ -8,8 +8,6 @@ import compoundDragAndDrop from "cytoscape-compound-drag-and-drop";
 import navigator from "cytoscape-navigator";
 import { useEffect } from "react";
 import { TabData } from "rc-dock";
-import { useOnlineUsers } from "../../../store/online-users";
-import { useThrottledCallback } from "../../../utils/hooks/useThrottledCallback";
 import { GraphContextMenu } from "./GraphContextMenu";
 import { useStore } from "../../../store/store";
 import { Toolbar } from "../../Toobar";
@@ -20,37 +18,12 @@ import {
 } from "../../../config/cytoscape-config";
 import { gridGuideConfig } from "../../../config/gridguide-config";
 import { useLocalStorage } from "../../../store/misc";
-import { registerElementsSync } from "./events/register-yjs";
-import {
-  registerLayoutPositionUpdate,
-  registerNodePositionUpdate,
-  registerSetSelectedElements,
-} from "./events/register-cy";
-import { registerEdgeHandlers } from "./events/register-edgehandles";
-import { registerCursorRender } from "./events/register-cursor";
 
 export const Graph = (): JSX.Element => {
-  const ynodes = useStore((state) => state.ynodes());
-  const yedges = useStore((state) => state.yedges());
-  const getAwareness = useStore((state) => state.getAwareness);
-
   const setCytoscape = useStore((state) => state.setCytoscape);
   const cytoscapeInstance = useStore((state) => state.cytoscape);
 
-  const setSelectedElements = useStore((state) => state.setSelectedElements);
-
   const darkMode = useLocalStorage((state) => state.darkMode);
-
-  const setUsernames = useOnlineUsers((states) => states.setUsernames);
-
-  // update cursor move
-  const handleMouseMove = useThrottledCallback(
-    (e: cytoscape.EventObject) => {
-      getAwareness().setLocalStateField("position", e.position);
-    },
-    10,
-    []
-  );
 
   // dark mode style
   useEffect(() => {
@@ -78,6 +51,27 @@ export const Graph = (): JSX.Element => {
     // layout
     cytoscape.use(fcose);
 
+    //custom data with change
+    if (typeof cytoscape("collection", "setData") !== "function")
+      cytoscape(
+        "collection",
+        "setData",
+        function (this: Collection, key: string, value: string) {
+          this.data(key, value).emit("setdata", [key, value]);
+        }
+      );
+
+    if (typeof cytoscape("collection", "changeDataKey") !== "function")
+      cytoscape(
+        "collection",
+        "changeDataKey",
+        function (this: Collection, oldKey: string, newKey: string) {
+          const value = this.data(oldKey);
+          this.removeData(oldKey);
+          this.data(newKey, value).emit("changedatakey", [oldKey, newKey]);
+        }
+      );
+
     const cy = cytoscape({
       container: document.getElementById("cy"),
       ...cytoscapeConfig,
@@ -92,35 +86,7 @@ export const Graph = (): JSX.Element => {
     //// @ts-expect-error compound dnd config
     // cy.compoundDragAndDrop(compoundDndConfig);
 
-    // event register
-    const unregisterElementsSync = registerElementsSync(cy, ynodes, yedges);
-    const unregisterNodePositionUpdate = registerNodePositionUpdate(cy, ynodes);
-    const unregisterLayoutPositionUpdate = registerLayoutPositionUpdate(
-      cy,
-      ynodes
-    );
-    const unregisterEdgeHandlers = registerEdgeHandlers(cy, yedges);
-    // const unregisterCDnD = registerCDnD(cy, ynodes);
-    const unregisterSetSelectedElements = registerSetSelectedElements(
-      cy,
-      setSelectedElements
-    );
-
-    const unregisterCursorRender = registerCursorRender(
-      cy,
-      getAwareness(),
-      handleMouseMove,
-      setUsernames
-    );
-
     return (): void => {
-      unregisterElementsSync();
-      unregisterNodePositionUpdate();
-      unregisterLayoutPositionUpdate();
-      unregisterEdgeHandlers();
-      // unregisterCDnD();
-      unregisterSetSelectedElements();
-      unregisterCursorRender();
       cy.destroy();
     };
   }, []);

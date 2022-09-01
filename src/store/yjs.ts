@@ -1,20 +1,16 @@
-import { Doc } from "yjs";
-import { YMap } from "yjs/dist/src/internals";
+import { Doc, Map as YMap } from "yjs";
 import { StateCreator } from "zustand";
-import { Edge } from "../types/types";
-import { YNode } from "../types/yjs";
+import { YElement } from "../types/yjs";
 
 export type YjsSlice = {
   ydoc: Doc;
-  ynodes: () => YMap<YNode>;
-  yedges: () => YMap<Edge>;
+  yelements: () => YMap<YElement>;
 };
 
 export const createYjsSlice: StateCreator<YjsSlice, [], [], YjsSlice> = (
-  set,
+  _set,
   get
 ) => ({
   ydoc: new Doc(),
-  ynodes: () => get().ydoc.getMap<YNode>("nodes"),
-  yedges: () => get().ydoc.getMap<Edge>("edges"),
+  yelements: () => get().ydoc.getMap<YElement>("elements"),
 });

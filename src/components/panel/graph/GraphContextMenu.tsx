@@ -4,8 +4,8 @@ import { nanoid } from "nanoid";
 import { Menu } from "../../common/context-menu/Menu";
 import { MenuButton } from "../../common/context-menu/MenuButton";
 import { isTrnasformProvider, TransformJob } from "../../../types/transform";
-import { deleteYjsEdges, deleteYjsNodes, addYjsNode } from "../../../utils/yjs";
 import { useStore } from "../../../store/store";
+import { addNode } from "../../../utils/cytoscape";
 
 const Divider = forwardRef<HTMLParagraphElement>(() => (
   <p className="flex-1 font-mono leading-5 text-base border-b dark:border-neutral-700 z-50" />
@@ -27,9 +27,6 @@ type GraphContextMenuProp = {
 export const GraphContextMenu = ({
   cytoscape,
 }: GraphContextMenuProp): JSX.Element => {
-  const ynodes = useStore((state) => state.ynodes());
-  const yedges = useStore((state) => state.yedges());
-
   const { selectedElements, selectedNodes } = useStore((state) => ({
     selectedElements: state.selectedElements,
     selectedNodes: state.selectedNodes,
@@ -47,24 +44,21 @@ export const GraphContextMenu = ({
   const [clientY, setClientY] = useState(0);
 
   const handleDelete: React.MouseEventHandler = (_e) => {
-    const deletedElements = selectedElements?.remove();
-
-    const deletedEdgeIds =
-      deletedElements?.edges().map((edge) => edge.id()) ?? [];
-    const deletedNodeIds =
-      deletedElements?.nodes().map((node) => node.id()) ?? [];
-
-    deleteYjsNodes(deletedNodeIds, ynodes);
-    deleteYjsEdges(deletedEdgeIds, yedges);
+    selectedElements?.remove();
   };
 
   const handleAdd: React.MouseEventHandler = (): void => {
-    const { nodeId, node } = addYjsNode(
-      {},
-      clickedPosition.current.x,
-      clickedPosition.current.y
+    addNode(
+      {
+        data: {},
+        group: "nodes",
+        position: {
+          x: clickedPosition.current.x,
+          y: clickedPosition.current.y,
+        },
+      },
+      cytoscape
     );
-    if (nodeId) ynodes.set(nodeId, node);
   };
 
   const handleAddRequest = (e: React.MouseEvent<HTMLButtonElement>): void => {

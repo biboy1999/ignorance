@@ -1,7 +1,7 @@
 import { NodeSingular } from "cytoscape";
 import { Map as YMap } from "yjs";
 import { YNode } from "../../../../types/yjs";
-import { addYjsNode, moveYjsNodes } from "../../../../utils/yjs";
+import { moveYjsNodes } from "../../../../utils/yjs";
 
 export const registerCDnD = (
   cytoscape: cytoscape.Core,
@@ -38,14 +38,14 @@ const registerCDnDAddCompound = (
     dropTarget.remove();
 
     // re-add ynodes and rebuild info in ynode
-    const { nodeId } = addYjsNode(data, x, y, { ynodes });
-    children.move({ parent: nodeId });
+    // const { nodeId } = addYjsNode(data, x, y, { ynodes });
+    // children.move({ parent: nodeId });
     // XXX: this will update all node in compound :/
-    moveYjsNodes(
-      ynodes,
-      children.map((c) => c.id()),
-      nodeId
-    );
+    // moveYjsNodes(
+    //   ynodes,
+    //   children.map((c) => c.id()),
+    //   nodeId
+    // );
   };
 
   // @ts-expect-error drag and drop event

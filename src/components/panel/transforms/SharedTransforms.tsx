@@ -2,7 +2,7 @@ import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon, PlusSmIcon } from "@heroicons/react/solid";
 import { TabData } from "rc-dock";
 import { useEffect, useState } from "react";
-import { Transaction, YMapEvent } from "yjs";
+import { YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
 import { isTrnasformProvider, SharedTransform } from "../../../types/transform";
 import { ShareTransformsModal } from "../../modal/TransformProviderModal/TransformProviderModal";
@@ -42,8 +42,7 @@ export const SharedTransforms = (): JSX.Element => {
   const setSharedTransforms = useStore((state) => state.setSharedTransforms);
 
   const handleSharedTransformsChange = (
-    e: YMapEvent<SharedTransform>,
-    _transact: Transaction
+    e: YMapEvent<SharedTransform>
   ): void => {
     setSharedTransforms(e.target.toJSON());
   };

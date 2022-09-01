@@ -9,14 +9,14 @@ import {
 } from "@heroicons/react/solid";
 import { TabData } from "rc-dock";
 import { useEffect } from "react";
-import { Transaction, YMapEvent } from "yjs";
+import { YMapEvent } from "yjs";
 import { useStore } from "../../../store/store";
 import {
   isTransformsResponse,
   TransformJob,
   TransformRequest,
 } from "../../../types/transform";
-import { getCenterPosition } from "../../../utils/graph";
+import { addNode, getCenterPosition } from "../../../utils/cytoscape";
 import {
   createRequest,
   handleComplete,
@@ -24,7 +24,6 @@ import {
   handleReject,
   handleRunning,
 } from "../../../utils/transform-job";
-import { addYjsEdge, addYjsNode } from "../../../utils/yjs";
 
 type JobStatusProps = {
   job: TransformJob;
@@ -69,10 +68,6 @@ export const JobStatus = ({
 // TODO: refactor this :/
 export const TransformJobs = (): JSX.Element => {
   const interanlTransforms = useStore((state) => state.internalTransforms);
-
-  const ydoc = useStore((state) => state.ydoc);
-  const ynodes = useStore((state) => state.ynodes());
-  const yedges = useStore((state) => state.yedges());
   const awareness = useStore((state) => state.getAwareness());
 
   const yjsTransformJobs = useStore((state) => state.yjsTransformJobs());
@@ -84,10 +79,7 @@ export const TransformJobs = (): JSX.Element => {
   const cytoscape = useStore((state) => state.cytoscape);
 
   useEffect(() => {
-    const handleJobsChange = (
-      e: YMapEvent<TransformJob>,
-      _transaction: Transaction
-    ): void => {
+    const handleJobsChange = (e: YMapEvent<TransformJob>): void => {
       setTransformJobs(e.target.toJSON());
     };
     yjsTransformJobs.observe(handleJobsChange);
@@ -133,17 +125,21 @@ export const TransformJobs = (): JSX.Element => {
       const { data } = evt;
       if (!isTransformsResponse(data))
         return handleError(yjsTransformJobs, job);
-
-      ydoc.transact(() => {
-        data.nodes.forEach((node) => {
-          const { x, y } = node.position ?? getCenterPosition(cytoscape);
-          addYjsNode(node.data, x, y, { ynodes });
-        });
-        data.edges.forEach((edge) => {
-          addYjsEdge(edge, edge.source, edge.target, { yedges: yedges });
-        });
-        handleComplete(yjsTransformJobs, job);
+      data.nodes.forEach((node) => {
+        const { x, y } = node.position ?? getCenterPosition(cytoscape);
+        addNode(
+          {
+            ...node,
+            group: "nodes",
+            position: { x, y },
+          },
+          cytoscape
+        );
       });
+      data.edges.forEach((edge) => {
+        cytoscape.add({ data: edge, group: "edges" });
+      });
+      handleComplete(yjsTransformJobs, job);
       worker.terminate();
     });
 

@@ -63,7 +63,7 @@ export const Connections = (): JSX.Element => {
             </label>
             <FormInput
               type="text"
-              className={`w-full h-8 ${clsx(
+              className={`w-full h-8 border ${clsx(
                 errors.webrtcRoom && "border-red-500 dark:border-red-500"
               )}`}
               placeholder="room1337"
@@ -80,7 +80,7 @@ export const Connections = (): JSX.Element => {
             </label>
             <FormInput
               type="text"
-              className={`w-full h-8 ${clsx(
+              className={`w-full h-8 border ${clsx(
                 errors.webrtcPassword && "border-red-500 dark:border-red-500"
               )}`}
               placeholder="1337p@ssW0rD"
@@ -98,7 +98,7 @@ export const Connections = (): JSX.Element => {
             <FormInput
               type="text"
               placeholder="ws://localhost:1234"
-              className={`w-full h-8 ${clsx(
+              className={`w-full h-8 border ${clsx(
                 errors.webrtcSignaling && "border-red-500 dark:border-red-500"
               )}`}
               {...register("webrtcSignaling", {
@@ -142,7 +142,7 @@ export const Connections = (): JSX.Element => {
             </label>
             <FormInput
               type="text"
-              className={`w-full h-8 ${clsx(
+              className={`w-full h-8 border ${clsx(
                 errors.webSocketRoom && "border-red-500 dark:border-red-500"
               )}`}
               placeholder="room1337"
@@ -160,7 +160,7 @@ export const Connections = (): JSX.Element => {
             <FormInput
               type="text"
               placeholder="ws://localhost:1234"
-              className={`w-full h-8 ${clsx(
+              className={`w-full h-8 border ${clsx(
                 errors.webSocketServer && "border-red-500 dark:border-red-500"
               )}`}
               {...register("webSocketServer", {

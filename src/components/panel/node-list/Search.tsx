@@ -11,7 +11,7 @@ export const Search = ({ onFilterChange }: SearchProps): JSX.Element => {
     <>
       <div className="flex items-center">
         <input
-          className="flex-1 p-1 m-1 mr-0 min-w-0"
+          className="flex-1 p-1 m-1 mr-0 min-w-0 border"
           type="text"
           id="filter"
           placeholder="node[name ^= value]"

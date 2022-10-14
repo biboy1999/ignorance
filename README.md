@@ -1,7 +1,3 @@
-<p align=center>
-⚠ Project is under heavy development, feel free leave a feedback or feature request ⚠
-</p>
-
 # Ignorance
 
 Yet another OSINT Graph visualization and exploration Tool.
